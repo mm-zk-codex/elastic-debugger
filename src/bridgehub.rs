@@ -1,15 +1,14 @@
 use std::collections::HashSet;
 use std::fmt::Display;
-use std::ops::Add;
 
-use alloy::primitives::{Address, IntoLogData, U256};
+use crate::sequencer::Sequencer;
+use alloy::primitives::{Address, U256};
 use alloy::providers::Provider;
 use alloy::rpc::types::Filter;
 use alloy::sol;
 use alloy::sol_types::SolEvent;
+use colored::Colorize;
 use eyre::OptionExt;
-
-use crate::sequencer::Sequencer;
 
 sol! {
     #[sol(rpc)]
@@ -130,7 +129,7 @@ impl Bridgehub {
 
                     Some(&IBridgehub::AssetRegistered::SIGNATURE_HASH) => {
                         // TODO: do something with assets.
-                        // println!("New asset. {:?}", log);
+                        //println!("New asset. {:?}", log);
                     }
                     _ => (),
                 }
@@ -152,7 +151,7 @@ impl Bridgehub {
         println!("  Bridgehub:          {}", self.address);
 
         for chain_id in chains {
-            println!("  Chain: {:?}", chain_id);
+            println!("{}", format!("  Chain: {:?}", chain_id).bold());
             let addresses = self.get_bridgehub_contracts(provider, chain_id).await?;
             println!("{}", addresses);
         }

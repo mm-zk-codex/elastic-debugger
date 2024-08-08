@@ -1,60 +1,12 @@
-use alloy::hex::FromHex;
 use alloy::primitives::{address, Address, U160, U256};
-use alloy::providers::{Provider, ProviderBuilder};
-use alloy::rpc::types::Filter;
+use alloy::providers::Provider;
 use alloy::sol;
-use alloy::sol_types::SolEvent;
-use bridgehub::IBridgehub;
 use colored::Colorize;
-use eyre::eyre;
-use reqwest::Client;
-use sequencer::{detect_sequencer, L2SequencerInfo, SequencerType};
-use serde::Deserialize;
-use serde_json::json;
-
-use std::net::TcpStream;
-use std::time::Duration;
+use sequencer::{detect_sequencer, SequencerType};
 
 mod bridgehub;
 mod sequencer;
 
-fn is_port_active(address: &str, port: u16) -> bool {
-    let timeout = Duration::from_secs(1);
-    let address = format!("{}:{}", address, port);
-    match TcpStream::connect_timeout(&address.parse().unwrap(), timeout) {
-        Ok(_) => true,
-        Err(_) => false,
-    }
-}
-
-#[derive(Deserialize, Debug)]
-struct BridgehubResult {
-    result: String,
-}
-
-const L1_PORT: u16 = 8545;
-const GATEWAY_PORT: u16 = 3050;
-
-async fn get_bridgehub_address(url: &str) -> eyre::Result<Address> {
-    let client = Client::new();
-
-    let request_body = json!({
-        "jsonrpc": "2.0",
-        "id": 1,
-        "method": "zks_getBridgehubContract",
-        "params": []
-    });
-
-    let response = client
-        .post(url)
-        .header("Content-Type", "application/json")
-        .json(&request_body)
-        .send()
-        .await?;
-
-    let response_json: BridgehubResult = response.json().await?;
-    Ok(Address::from_hex(response_json.result)?)
-}
 sol! {
     #[sol(rpc)]
     contract SharedBridge {
@@ -114,13 +66,7 @@ async fn get_hyperchain_storage(
 #[tokio::main]
 async fn main() -> eyre::Result<()> {
     println!("=====   Elastic chain debugger =====");
-    if !is_port_active("127.0.0.1", L1_PORT) {
-        println!(
-            "{}",
-            "[FAIL] - localhost:8545 is not active - cannot find L1".red()
-        );
-        return Ok(());
-    }
+
     let l1_sequencer = detect_sequencer("http://127.0.0.1:8545").await?;
 
     println!("{} L1 (ethereum) - {}", "[OK]".green(), l1_sequencer);
@@ -150,8 +96,11 @@ async fn main() -> eyre::Result<()> {
         .await?;
 
     let gateway_bridgehub_address = address!("0000000000000000000000000000000000010002");
-    let gateway_bridgehub =
+    let mut gateway_bridgehub =
         bridgehub::Bridgehub::new(&l2_sequencer, gateway_bridgehub_address, true).await?;
+
+    // HACK: currently we cannot autodetect chains that are in Gateway - as we don't publish any events.
+    gateway_bridgehub.known_chains = Some([320].into());
 
     let l3_chain_id = 320;
 
