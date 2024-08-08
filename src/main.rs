@@ -1,16 +1,20 @@
 use alloy::hex::FromHex;
 use alloy::primitives::{address, Address, U160, U256};
 use alloy::providers::{Provider, ProviderBuilder};
+use alloy::rpc::types::Filter;
 use alloy::sol;
+use alloy::sol_types::SolEvent;
+use bridgehub::IBridgehub;
 use colored::Colorize;
 use reqwest::Client;
-use sequencer::detect_sequencer;
+use sequencer::{detect_sequencer, L2SequencerInfo, SequencerType};
 use serde::Deserialize;
 use serde_json::json;
 
 use std::net::TcpStream;
 use std::time::Duration;
 
+mod bridgehub;
 mod sequencer;
 
 fn is_port_active(address: &str, port: u16) -> bool {
@@ -50,80 +54,12 @@ async fn get_bridgehub_address(url: &str) -> eyre::Result<Address> {
     let response_json: BridgehubResult = response.json().await?;
     Ok(Address::from_hex(response_json.result)?)
 }
-
-struct BridgehubAddresses {
-    pub stm_address: Address,
-    pub st_address: Address,
-    pub shared_bridge_address: Address,
-}
-
-sol! {
-    #[sol(rpc)]
-    contract Bridgehub {
-        address public sharedBridge;
-        mapping(uint256 chainId => address) public stateTransitionManager;
-        mapping(uint256 chainId => address) public baseToken;
-        function getHyperchain(uint256 _chainId) public view returns (address) {}
-        function stmAssetIdFromChainId(uint256 chain_id) public view returns (bytes32) {}
-
-    }
-}
 sol! {
     #[sol(rpc)]
     contract SharedBridge {
         function assetHandlerAddress(bytes32 asset_id) public view returns (address) {}
 
     }
-}
-
-async fn get_bridgehub_contracts(
-    provider: &alloy::providers::RootProvider<
-        alloy::transports::http::Http<alloy::transports::http::Client>,
-    >,
-    bridgehub: Address,
-    chain_id: u64,
-) -> eyre::Result<BridgehubAddresses> {
-    sol! {
-        #[sol(rpc)]
-        contract StateTransitionManager {
-            address public validatorTimelock;
-        }
-    }
-
-    let contract = Bridgehub::new(bridgehub, provider);
-
-    let stm_address = contract
-        .stateTransitionManager(U256::from(chain_id))
-        .call()
-        .await?
-        ._0;
-    let base_token_address = contract.baseToken(U256::from(chain_id)).call().await?._0;
-    let st_address = contract
-        .getHyperchain(U256::from(chain_id))
-        .call()
-        .await?
-        ._0;
-    let shared_bridge_address = contract.sharedBridge().call().await?.sharedBridge;
-
-    let stm_contract = StateTransitionManager::new(stm_address, provider);
-
-    let validator_timelock_address = stm_contract
-        .validatorTimelock()
-        .call()
-        .await?
-        .validatorTimelock;
-
-    println!("    Bridgehub:          {}", bridgehub);
-    println!("    STM:                {}", stm_address);
-    println!("    ST:                 {}", st_address);
-    println!("    Base Token:         {}", base_token_address);
-    println!("    Shared bridge:      {}", shared_bridge_address);
-    println!("    Validator timelock: {}", validator_timelock_address);
-    Ok(BridgehubAddresses {
-        stm_address,
-        st_address,
-        shared_bridge_address,
-    })
 }
 
 #[derive(Debug)]
@@ -196,44 +132,66 @@ async fn main() -> eyre::Result<()> {
     let l2_provider = l2_sequencer.get_provider();
     let chain_id = l2_sequencer.chain_id;
 
-    let url = format!("http://127.0.0.1:{GATEWAY_PORT}");
-    let bridgehub = get_bridgehub_address(&url).await?;
+    if let SequencerType::L2(info) = &l2_sequencer.sequencer_type {
+        let mut bridgehub =
+            bridgehub::Bridgehub::new(&l1_sequencer, info.bridgehub_address).await?;
+        println!("Bridgehub: {}", bridgehub);
+        bridgehub.update_chains(&l1_sequencer).await?;
 
-    println!("Gateway contracts on L1:");
-    let l1_bh_addresses = get_bridgehub_contracts(&l1_provider, bridgehub, chain_id).await?;
+        println!("Found chains: {:?}", bridgehub.known_chains);
 
-    let gateway_bridgehub_address = address!("0000000000000000000000000000000000010002");
+        println!("Gateway contracts on L1:");
+        let l1_bh_addresses = bridgehub
+            .get_bridgehub_contracts(&l1_provider, chain_id)
+            .await?;
 
-    let l3_chain_id = 320;
+        let gateway_bridgehub_address = address!("0000000000000000000000000000000000010002");
+        let mut gateway_bridgehub =
+            bridgehub::Bridgehub::new(&l2_sequencer, gateway_bridgehub_address).await?;
 
-    println!("L2 contracts on Gateway:");
-    let l2_bh_addresses =
-        get_bridgehub_contracts(&l2_provider, gateway_bridgehub_address, l3_chain_id).await?;
+        let l3_chain_id = 320;
 
-    let h1_storage = get_hyperchain_storage(&l1_provider, l1_bh_addresses.st_address).await?;
-    let h2_storage = get_hyperchain_storage(&l2_provider, l2_bh_addresses.st_address).await?;
+        println!("L2 contracts on Gateway:");
+        let l2_bh_addresses = gateway_bridgehub
+            .get_bridgehub_contracts(&l2_provider, l3_chain_id)
+            .await?;
 
-    println!("h1 storage: {:?}", h1_storage);
-    println!("h2 storage: {:?}", h2_storage);
+        let h1_storage = get_hyperchain_storage(&l1_provider, l1_bh_addresses.st_address).await?;
+        let h2_storage = get_hyperchain_storage(&l2_provider, l2_bh_addresses.st_address).await?;
 
-    let contract = Bridgehub::new(bridgehub, &l1_provider);
-    let stm_asset_l3 = contract
-        .stmAssetIdFromChainId(U256::from(l3_chain_id))
-        .call()
-        .await?
-        ._0;
-    println!("Asset id {:?}", stm_asset_l3);
+        println!("h1 storage: {:?}", h1_storage);
+        println!("h2 storage: {:?}", h2_storage);
+        /*
+        let contract = IBridgehub::new(bridgehub, &l1_provider);
+        let stm_asset_l3 = contract
+            .stmAssetIdFromChainId(U256::from(l3_chain_id))
+            .call()
+            .await?
+            ._0;
+        println!("Asset id {:?}", stm_asset_l3);
 
-    let shared_bridge_contract =
-        SharedBridge::new(l1_bh_addresses.shared_bridge_address, &l1_provider);
+        let shared_bridge_contract =
+            SharedBridge::new(l1_bh_addresses.shared_bridge_address, &l1_provider);
 
-    let l3_asset_handler = shared_bridge_contract
-        .assetHandlerAddress(stm_asset_l3)
-        .call()
-        .await?
-        ._0;
+        let l3_asset_handler = shared_bridge_contract
+            .assetHandlerAddress(stm_asset_l3)
+            .call()
+            .await?
+            ._0;
 
-    println!("L3 asset handler: {:?}", l3_asset_handler);
+        println!("L3 asset handler: {:?}", l3_asset_handler);*/
+    }
+
+    /*
+    let filter = Filter::new()
+        .from_block(1)
+        .to_block(5000)
+        .address(address!("9cAC3E80223AF3aF00d591e53336CBe05953c0a0"))
+        .event("NewChain(uint256,address,address)");
+    let logs = l1_provider.get_logs(&filter).await?;
+    for log in logs {
+        println!("{:?}", log);
+    }*/
 
     // TODO: add L3 too.
 
