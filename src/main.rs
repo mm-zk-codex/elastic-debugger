@@ -4,11 +4,14 @@ use alloy::providers::{Provider, ProviderBuilder};
 use alloy::sol;
 use colored::Colorize;
 use reqwest::Client;
+use sequencer::detect_sequencer;
 use serde::Deserialize;
 use serde_json::json;
 
 use std::net::TcpStream;
 use std::time::Duration;
+
+mod sequencer;
 
 fn is_port_active(address: &str, port: u16) -> bool {
     let timeout = Duration::from_secs(1);
@@ -181,41 +184,17 @@ async fn main() -> eyre::Result<()> {
         );
         return Ok(());
     }
+    let l1_sequencer = detect_sequencer("http://127.0.0.1:8545").await?;
 
-    // Set up the HTTP transport which is consumed by the RPC client.
-    let l1_rpc_url = format!("http://127.0.0.1:{L1_PORT}").parse()?;
-    // Create a provider with the HTTP transport using the `reqwest` crate.
-    let l1_provider = ProviderBuilder::new().on_http(l1_rpc_url);
-    let latest_block = l1_provider.get_block_number().await?;
+    println!("{} L1 (ethereum) - {}", "[OK]".green(), l1_sequencer);
 
-    println!(
-        "{} - L1 found on 8545. Latest block: {}",
-        "[OK]".green(),
-        latest_block
-    );
+    let l1_provider = l1_sequencer.get_provider();
 
-    if !is_port_active("127.0.0.1", GATEWAY_PORT) {
-        println!(
-            "{}",
-            "[FAIL] - localhost:3050 is not active - cannot find Gateway".red()
-        );
-        return Ok(());
-    }
+    let l2_sequencer = detect_sequencer("http://127.0.0.1:3050").await?;
+    println!("{} L2 (gateway)  - {}", "[OK]".green(), l2_sequencer);
 
-    let l2_rpc_url = format!("http://127.0.0.1:{GATEWAY_PORT}").parse()?;
-    // Create a provider with the HTTP transport using the `reqwest` crate.
-    let l2_provider: alloy::providers::RootProvider<
-        alloy::transports::http::Http<alloy::transports::http::Client>,
-    > = ProviderBuilder::new().on_http(l2_rpc_url);
-
-    let latest_block = l2_provider.get_block_number().await?;
-    let chain_id = l2_provider.get_chain_id().await?;
-    println!(
-        "{} - Gateway found on 3050. Latest block: {}, Chain id: {}",
-        "[OK]".green(),
-        latest_block,
-        chain_id
-    );
+    let l2_provider = l2_sequencer.get_provider();
+    let chain_id = l2_sequencer.chain_id;
 
     let url = format!("http://127.0.0.1:{GATEWAY_PORT}");
     let bridgehub = get_bridgehub_address(&url).await?;
