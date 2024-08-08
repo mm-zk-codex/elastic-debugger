@@ -1,11 +1,13 @@
 use std::collections::HashSet;
 use std::fmt::Display;
+use std::ops::Add;
 
 use alloy::primitives::{Address, IntoLogData, U256};
 use alloy::providers::Provider;
 use alloy::rpc::types::Filter;
 use alloy::sol;
 use alloy::sol_types::SolEvent;
+use eyre::OptionExt;
 
 use crate::sequencer::Sequencer;
 
@@ -30,15 +32,32 @@ sol! {
     }
 }
 
-pub struct Bridgehub {
-    pub address: Address,
-    pub shared_bridge: Address,
-    pub known_chains: Option<HashSet<u64>>,
-}
 pub struct BridgehubAddresses {
     pub stm_address: Address,
     pub st_address: Address,
     pub shared_bridge_address: Address,
+    pub base_token_address: Address,
+    pub validator_timelock_address: Address,
+}
+
+impl Display for BridgehubAddresses {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        writeln!(f, "    Shared bridge:      {}", self.shared_bridge_address)?;
+        writeln!(f, "    STM:                {}", self.stm_address)?;
+        writeln!(f, "    ST:                 {}", self.st_address)?;
+        writeln!(f, "    Base Token:         {}", self.base_token_address)?;
+        writeln!(
+            f,
+            "    Validator timelock: {}",
+            self.validator_timelock_address
+        )
+    }
+}
+
+pub struct Bridgehub {
+    pub address: Address,
+    pub shared_bridge: Address,
+    pub known_chains: Option<HashSet<u64>>,
 }
 
 impl Display for Bridgehub {
@@ -52,7 +71,11 @@ impl Display for Bridgehub {
 }
 
 impl Bridgehub {
-    pub async fn new(sequencer: &Sequencer, address: Address) -> eyre::Result<Bridgehub> {
+    pub async fn new(
+        sequencer: &Sequencer,
+        address: Address,
+        autodetect_chains: bool,
+    ) -> eyre::Result<Bridgehub> {
         let provider = sequencer.get_provider();
 
         let data = provider.get_code_at(address).await?;
@@ -68,20 +91,23 @@ impl Bridgehub {
         let contract = IBridgehub::new(address, provider);
         let shared_bridge = contract.sharedBridge().call().await?.sharedBridge;
 
+        let known_chains = if autodetect_chains {
+            Some(Bridgehub::detect_chains(sequencer, address).await?)
+        } else {
+            None
+        };
+
         Ok(Bridgehub {
             address,
             shared_bridge,
-            known_chains: None,
+            known_chains,
         })
     }
 
-    pub async fn update_chains(&mut self, sequencer: &Sequencer) -> eyre::Result<()> {
-        let chains = self.detect_chains(sequencer).await?;
-        self.known_chains = Some(chains);
-        Ok(())
-    }
-
-    pub async fn detect_chains(&self, sequencer: &Sequencer) -> eyre::Result<HashSet<u64>> {
+    pub async fn detect_chains(
+        sequencer: &Sequencer,
+        bridgehub: Address,
+    ) -> eyre::Result<HashSet<u64>> {
         let provider = sequencer.get_provider();
         let mut current_block = provider.get_block_number().await?;
         let mut known_chains = HashSet::new();
@@ -92,7 +118,7 @@ impl Bridgehub {
             let filter = Filter::new()
                 .from_block(prev_limit + 1)
                 .to_block(current_block)
-                .address(self.address);
+                .address(bridgehub);
 
             let logs = sequencer.get_provider().get_logs(&filter).await?;
             for log in logs {
@@ -113,6 +139,25 @@ impl Bridgehub {
         }
 
         Ok(known_chains)
+    }
+
+    pub async fn print_detailed_info(
+        &self,
+        provider: &alloy::providers::RootProvider<
+            alloy::transports::http::Http<alloy::transports::http::Client>,
+        >,
+    ) -> eyre::Result<()> {
+        let chains = self.known_chains.clone().ok_or_eyre("chains not scanned")?;
+
+        println!("  Bridgehub:          {}", self.address);
+
+        for chain_id in chains {
+            println!("  Chain: {:?}", chain_id);
+            let addresses = self.get_bridgehub_contracts(provider, chain_id).await?;
+            println!("{}", addresses);
+        }
+
+        Ok(())
     }
 
     pub async fn get_bridgehub_contracts(
@@ -152,16 +197,12 @@ impl Bridgehub {
             .await?
             .validatorTimelock;
 
-        println!("    Bridgehub:          {}", self.address);
-        println!("    STM:                {}", stm_address);
-        println!("    ST:                 {}", st_address);
-        println!("    Base Token:         {}", base_token_address);
-        println!("    Shared bridge:      {}", shared_bridge_address);
-        println!("    Validator timelock: {}", validator_timelock_address);
         Ok(BridgehubAddresses {
             stm_address,
             st_address,
             shared_bridge_address,
+            base_token_address,
+            validator_timelock_address,
         })
     }
 }
