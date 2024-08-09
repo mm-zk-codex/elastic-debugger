@@ -9,6 +9,7 @@ use alloy::{
 use serde::Deserialize;
 use serde_json::json;
 
+#[derive(Clone)]
 pub struct Sequencer {
     pub rpc_url: String,
     pub chain_id: u64,
@@ -16,11 +17,13 @@ pub struct Sequencer {
     pub sequencer_type: SequencerType,
 }
 
+#[derive(Clone)]
 pub enum SequencerType {
     L1,
     L2(L2SequencerInfo),
 }
 
+#[derive(Clone)]
 pub struct L2SequencerInfo {
     pub l1_chain_id: u64,
     pub bridgehub_address: Address,
@@ -106,7 +109,7 @@ async fn get_l1_chain_id(url: &str) -> eyre::Result<u64> {
 // Can detect both L1 and L2.
 pub async fn detect_sequencer(rpc_url: &str) -> eyre::Result<Sequencer> {
     if !is_port_active(rpc_url) {
-        eyre::bail!("Port not active: address");
+        eyre::bail!("Port not active: {}", rpc_url);
     }
 
     // Create a provider with the HTTP transport using the `reqwest` crate.

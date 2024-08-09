@@ -2,11 +2,13 @@ use std::collections::HashSet;
 use std::fmt::Display;
 
 use crate::sequencer::Sequencer;
-use alloy::primitives::{Address, U256};
-use alloy::providers::Provider;
+use crate::statetransition::StateTransition;
+use alloy::primitives::{Address, FixedBytes, U256};
+use alloy::providers::{Provider, RootProvider};
 use alloy::rpc::types::Filter;
 use alloy::sol;
 use alloy::sol_types::SolEvent;
+use alloy::transports::http::{Client, Http};
 use colored::Colorize;
 use eyre::OptionExt;
 
@@ -26,20 +28,19 @@ sol! {
             bytes32 indexed additionalData,
             address sender
         );
-
-
     }
 }
 
-pub struct BridgehubAddresses {
+pub struct BridgehubChainDetails {
     pub stm_address: Address,
     pub st_address: Address,
     pub shared_bridge_address: Address,
     pub base_token_address: Address,
     pub validator_timelock_address: Address,
+    pub stm_asset_id: FixedBytes<32>,
 }
 
-impl Display for BridgehubAddresses {
+impl Display for BridgehubChainDetails {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         writeln!(f, "    Shared bridge:      {}", self.shared_bridge_address)?;
         writeln!(f, "    STM:                {}", self.stm_address)?;
@@ -49,7 +50,9 @@ impl Display for BridgehubAddresses {
             f,
             "    Validator timelock: {}",
             self.validator_timelock_address
-        )
+        )?;
+        writeln!(f, "    STM Asset id:       {}", self.stm_asset_id)?;
+        Ok(())
     }
 }
 
@@ -57,6 +60,7 @@ pub struct Bridgehub {
     pub address: Address,
     pub shared_bridge: Address,
     pub known_chains: Option<HashSet<u64>>,
+    provider: RootProvider<Http<Client>>,
 }
 
 impl Display for Bridgehub {
@@ -100,6 +104,7 @@ impl Bridgehub {
             address,
             shared_bridge,
             known_chains,
+            provider: sequencer.get_provider(),
         })
     }
 
@@ -140,32 +145,21 @@ impl Bridgehub {
         Ok(known_chains)
     }
 
-    pub async fn print_detailed_info(
-        &self,
-        provider: &alloy::providers::RootProvider<
-            alloy::transports::http::Http<alloy::transports::http::Client>,
-        >,
-    ) -> eyre::Result<()> {
+    pub async fn print_detailed_info(&self) -> eyre::Result<()> {
         let chains = self.known_chains.clone().ok_or_eyre("chains not scanned")?;
 
         println!("  Bridgehub:          {}", self.address);
 
         for chain_id in chains {
             println!("{}", format!("  Chain: {:?}", chain_id).bold());
-            let addresses = self.get_bridgehub_contracts(provider, chain_id).await?;
-            println!("{}", addresses);
+            let details = self.get_chain_details(chain_id).await?;
+            println!("{}", details);
         }
 
         Ok(())
     }
 
-    pub async fn get_bridgehub_contracts(
-        &self,
-        provider: &alloy::providers::RootProvider<
-            alloy::transports::http::Http<alloy::transports::http::Client>,
-        >,
-        chain_id: u64,
-    ) -> eyre::Result<BridgehubAddresses> {
+    pub async fn get_chain_details(&self, chain_id: u64) -> eyre::Result<BridgehubChainDetails> {
         sol! {
             #[sol(rpc)]
             contract StateTransitionManager {
@@ -173,7 +167,7 @@ impl Bridgehub {
             }
         }
 
-        let contract = IBridgehub::new(self.address, provider);
+        let contract = IBridgehub::new(self.address, &self.provider);
 
         let stm_address = contract
             .stateTransitionManager(U256::from(chain_id))
@@ -188,7 +182,7 @@ impl Bridgehub {
             ._0;
         let shared_bridge_address = contract.sharedBridge().call().await?.sharedBridge;
 
-        let stm_contract = StateTransitionManager::new(stm_address, provider);
+        let stm_contract = StateTransitionManager::new(stm_address, &self.provider);
 
         let validator_timelock_address = stm_contract
             .validatorTimelock()
@@ -196,12 +190,30 @@ impl Bridgehub {
             .await?
             .validatorTimelock;
 
-        Ok(BridgehubAddresses {
+        let asset_id = contract
+            .stmAssetIdFromChainId(U256::from(chain_id))
+            .call()
+            .await?
+            ._0;
+
+        Ok(BridgehubChainDetails {
             stm_address,
             st_address,
             shared_bridge_address,
             base_token_address,
             validator_timelock_address,
+            stm_asset_id: asset_id,
         })
+    }
+
+    pub async fn get_state_transition(&self, chain_id: u64) -> eyre::Result<StateTransition> {
+        let contract = IBridgehub::new(self.address, &self.provider);
+
+        let st_address = contract
+            .getHyperchain(U256::from(chain_id))
+            .call()
+            .await?
+            ._0;
+        StateTransition::new(&self.provider, st_address).await
     }
 }

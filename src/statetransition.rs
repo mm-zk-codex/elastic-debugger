@@ -3,9 +3,10 @@ use std::fmt::Display;
 use alloy::primitives::FixedBytes;
 use alloy::primitives::{Address, U256};
 use alloy::sol;
+use colored::Colorize;
 
 #[derive(Debug)]
-pub struct STStorage {
+pub struct StateTransition {
     verifier: Address,
     total_batches_executed: U256,
     total_batches_verified: U256,
@@ -37,10 +38,19 @@ sol! {
     }
 }
 
-impl Display for STStorage {
+fn mark_red_if_not_empty<T: std::fmt::Display + core::cmp::PartialEq>(
+    address: T,
+    empty: T,
+) -> String {
+    if address == empty {
+        return address.to_string();
+    }
+    return format!("{}", address).red().to_string();
+}
+
+impl Display for StateTransition {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         writeln!(f, "Chain id: {}", self.chain_id)?;
-        // TODO: print proper protocol version.
         writeln!(
             f,
             "  Protocol version: {}.{}.{}",
@@ -55,7 +65,7 @@ impl Display for STStorage {
         writeln!(
             f,
             "  System upgrade:   {}",
-            self.system_upgrade_tx_hash.to_string()
+            mark_red_if_not_empty(self.system_upgrade_tx_hash, FixedBytes::<32>::ZERO)
         )?;
         writeln!(
             f,
@@ -69,52 +79,61 @@ impl Display for STStorage {
             "  Bootloader hash:  {}",
             self.bootloader_hash.to_string()
         )?;
-        writeln!(f, "  Sync layer:  {}", self.sync_layer)
+
+        writeln!(
+            f,
+            "  Sync layer:       {}",
+            mark_red_if_not_empty(self.sync_layer, Address::ZERO)
+        )?;
+
+        Ok(())
     }
 }
 
-pub async fn get_state_transition_storage(
-    provider: &alloy::providers::RootProvider<
-        alloy::transports::http::Http<alloy::transports::http::Client>,
-    >,
-    hyperchain: Address,
-) -> eyre::Result<STStorage> {
-    let contract = IHyperchain::new(hyperchain, provider);
+impl StateTransition {
+    pub async fn new(
+        provider: &alloy::providers::RootProvider<
+            alloy::transports::http::Http<alloy::transports::http::Client>,
+        >,
+        hyperchain: Address,
+    ) -> eyre::Result<StateTransition> {
+        let contract = IHyperchain::new(hyperchain, provider);
 
-    let verifier = contract.getVerifier().call().await?._0;
-    let total_batches_committed = contract.getTotalBatchesCommitted().call().await?._0;
-    let total_batches_verified = contract.getTotalBatchesCommitted().call().await?._0;
-    let total_batches_executed = contract.getTotalBatchesCommitted().call().await?._0;
-    let protocol_version = contract.getSemverProtocolVersion().call().await?;
+        let verifier = contract.getVerifier().call().await?._0;
+        let total_batches_committed = contract.getTotalBatchesCommitted().call().await?._0;
+        let total_batches_verified = contract.getTotalBatchesCommitted().call().await?._0;
+        let total_batches_executed = contract.getTotalBatchesCommitted().call().await?._0;
+        let protocol_version = contract.getSemverProtocolVersion().call().await?;
 
-    let admin = contract.getAdmin().call().await?._0;
+        let admin = contract.getAdmin().call().await?._0;
 
-    let bootloader_hash = contract.getL2BootloaderBytecodeHash().call().await?._0;
-    let default_account_hash = contract.getL2DefaultAccountBytecodeHash().call().await?._0;
-    let system_upgrade_tx_hash = contract
-        .getL2SystemContractsUpgradeTxHash()
-        .call()
-        .await?
-        ._0;
+        let bootloader_hash = contract.getL2BootloaderBytecodeHash().call().await?._0;
+        let default_account_hash = contract.getL2DefaultAccountBytecodeHash().call().await?._0;
+        let system_upgrade_tx_hash = contract
+            .getL2SystemContractsUpgradeTxHash()
+            .call()
+            .await?
+            ._0;
 
-    let chain_id = contract.getChainId().call().await?._0;
-    let sync_layer = contract.getSyncLayer().call().await?._0;
+        let chain_id = contract.getChainId().call().await?._0;
+        let sync_layer = contract.getSyncLayer().call().await?._0;
 
-    Ok(STStorage {
-        verifier,
-        total_batches_executed,
-        total_batches_verified,
-        total_batches_committed,
-        bootloader_hash,
-        default_account_hash,
-        protocol_version: (
-            protocol_version._0,
-            protocol_version._1,
-            protocol_version._2,
-        ),
-        system_upgrade_tx_hash,
-        admin,
-        chain_id,
-        sync_layer,
-    })
+        Ok(StateTransition {
+            verifier,
+            total_batches_executed,
+            total_batches_verified,
+            total_batches_committed,
+            bootloader_hash,
+            default_account_hash,
+            protocol_version: (
+                protocol_version._0,
+                protocol_version._1,
+                protocol_version._2,
+            ),
+            system_upgrade_tx_hash,
+            admin,
+            chain_id,
+            sync_layer,
+        })
+    }
 }

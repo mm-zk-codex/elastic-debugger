@@ -2,7 +2,6 @@ use alloy::primitives::address;
 use alloy::sol;
 use colored::Colorize;
 use sequencer::{detect_sequencer, SequencerType};
-use statetransition::get_state_transition_storage;
 
 mod bridgehub;
 mod sequencer;
@@ -18,19 +17,26 @@ sol! {
 
 #[tokio::main]
 async fn main() -> eyre::Result<()> {
+    println!("====================================");
     println!("=====   Elastic chain debugger =====");
+    println!("====================================");
 
     let l1_sequencer = detect_sequencer("http://127.0.0.1:8545").await?;
 
     println!("{} L1 (ethereum) - {}", "[OK]".green(), l1_sequencer);
 
-    let l1_provider = l1_sequencer.get_provider();
-
     let l2_sequencer = detect_sequencer("http://127.0.0.1:3050").await?;
     println!("{} L2 (gateway)  - {}", "[OK]".green(), l2_sequencer);
 
-    let l2_provider = l2_sequencer.get_provider();
+    // The client sequencer might not be running - but that's ok.
+    let l3_sequencer = detect_sequencer("http://127.0.0.1:3060").await;
+    match l3_sequencer {
+        Ok(l3_sequencer) => println!("{} L3 (client)   - {}", "[OK]".green(), l3_sequencer),
+        Err(err) => println!("{} L3 (client)   - {}", "[ERROR]".red(), err),
+    };
+
     let l2_chain_id = l2_sequencer.chain_id;
+    let l3_chain_id = 320;
 
     let info = match &l2_sequencer.sequencer_type {
         SequencerType::L1 => eyre::bail!("port 3050 doesn't have zksync sequencer"),
@@ -38,6 +44,10 @@ async fn main() -> eyre::Result<()> {
     };
 
     let bridgehub = bridgehub::Bridgehub::new(&l1_sequencer, info.bridgehub_address, true).await?;
+
+    println!("===");
+    println!("=== Bridehubs");
+    println!("===");
 
     println!(
         "Found {} chains on L1 bridgehub: {:?}",
@@ -49,33 +59,35 @@ async fn main() -> eyre::Result<()> {
         bridgehub.known_chains
     );
 
-    println!("Gateway contracts on L1:");
-    bridgehub.print_detailed_info(&l1_provider).await?;
-    let l1_bh_addresses = bridgehub
-        .get_bridgehub_contracts(&l1_provider, l2_chain_id)
-        .await?;
+    println!("Contracts on L1:");
+    bridgehub.print_detailed_info().await?;
 
     let gateway_bridgehub_address = address!("0000000000000000000000000000000000010002");
     let mut gateway_bridgehub =
         bridgehub::Bridgehub::new(&l2_sequencer, gateway_bridgehub_address, true).await?;
 
     // HACK: currently we cannot autodetect chains that are in Gateway - as we don't publish any events.
-    gateway_bridgehub.known_chains = Some([320].into());
-
-    let l3_chain_id = 320;
+    gateway_bridgehub.known_chains = Some([l3_chain_id].into());
 
     println!("L2 contracts on Gateway:");
-    gateway_bridgehub.print_detailed_info(&l2_provider).await?;
+    gateway_bridgehub.print_detailed_info().await?;
 
-    let l2_bh_addresses = gateway_bridgehub
-        .get_bridgehub_contracts(&l2_provider, l3_chain_id)
-        .await?;
+    println!("===");
+    println!("=== State Transitions");
+    println!("===");
 
-    let h1_storage = get_state_transition_storage(&l1_provider, l1_bh_addresses.st_address).await?;
-    let h2_storage = get_state_transition_storage(&l2_provider, l2_bh_addresses.st_address).await?;
-
-    println!("Chain 270 on L1: {}", h1_storage);
-    println!("Chain 320 on Gateway: {}", h2_storage);
+    println!(
+        "Chain 270 on L1: {}",
+        bridgehub.get_state_transition(l2_chain_id).await?
+    );
+    println!(
+        "Chain 320 on L1: {}",
+        bridgehub.get_state_transition(l3_chain_id).await?
+    );
+    println!(
+        "Chain 320 on Gateway: {}",
+        gateway_bridgehub.get_state_transition(l3_chain_id).await?
+    );
     /*
     let contract = IBridgehub::new(bridgehub, &l1_provider);
     let stm_asset_l3 = contract
