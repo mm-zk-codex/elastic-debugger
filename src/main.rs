@@ -6,6 +6,7 @@ use sequencer::{detect_sequencer, SequencerType};
 mod bridgehub;
 mod sequencer;
 mod statetransition;
+mod stm;
 
 sol! {
     #[sol(rpc)]
@@ -35,9 +36,6 @@ async fn main() -> eyre::Result<()> {
         Err(err) => println!("{} L3 (client)   - {}", "[ERROR]".red(), err),
     };
 
-    let l2_chain_id = l2_sequencer.chain_id;
-    let l3_chain_id = 320;
-
     let info = match &l2_sequencer.sequencer_type {
         SequencerType::L1 => eyre::bail!("port 3050 doesn't have zksync sequencer"),
         SequencerType::L2(info) => info,
@@ -63,11 +61,18 @@ async fn main() -> eyre::Result<()> {
     bridgehub.print_detailed_info().await?;
 
     let gateway_bridgehub_address = address!("0000000000000000000000000000000000010002");
-    let mut gateway_bridgehub =
+    let gateway_bridgehub =
         bridgehub::Bridgehub::new(&l2_sequencer, gateway_bridgehub_address, true).await?;
 
-    // HACK: currently we cannot autodetect chains that are in Gateway - as we don't publish any events.
-    gateway_bridgehub.known_chains = Some([l3_chain_id].into());
+    println!(
+        "Found {} chains on Gateway bridgehub: {:?}",
+        gateway_bridgehub
+            .known_chains
+            .as_ref()
+            .map(|x| x.len())
+            .unwrap_or(0),
+        gateway_bridgehub.known_chains
+    );
 
     println!("L2 contracts on Gateway:");
     gateway_bridgehub.print_detailed_info().await?;
@@ -76,50 +81,25 @@ async fn main() -> eyre::Result<()> {
     println!("=== State Transitions");
     println!("===");
 
-    println!(
-        "Chain 270 on L1: {}",
-        bridgehub.get_state_transition(l2_chain_id).await?
-    );
-    println!(
-        "Chain 320 on L1: {}",
-        bridgehub.get_state_transition(l3_chain_id).await?
-    );
-    println!(
-        "Chain 320 on Gateway: {}",
-        gateway_bridgehub.get_state_transition(l3_chain_id).await?
-    );
-    /*
-    let contract = IBridgehub::new(bridgehub, &l1_provider);
-    let stm_asset_l3 = contract
-        .stmAssetIdFromChainId(U256::from(l3_chain_id))
-        .call()
-        .await?
-        ._0;
-    println!("Asset id {:?}", stm_asset_l3);
+    if let Some(chains) = &bridgehub.known_chains {
+        for chain in chains {
+            println!(
+                "Chain {} on L1: {}",
+                chain,
+                bridgehub.get_state_transition(*chain).await?
+            );
+        }
+    }
 
-    let shared_bridge_contract =
-        SharedBridge::new(l1_bh_addresses.shared_bridge_address, &l1_provider);
-
-    let l3_asset_handler = shared_bridge_contract
-        .assetHandlerAddress(stm_asset_l3)
-        .call()
-        .await?
-        ._0;
-
-    println!("L3 asset handler: {:?}", l3_asset_handler);*/
-
-    /*
-    let filter = Filter::new()
-        .from_block(1)
-        .to_block(5000)
-        .address(address!("9cAC3E80223AF3aF00d591e53336CBe05953c0a0"))
-        .event("NewChain(uint256,address,address)");
-    let logs = l1_provider.get_logs(&filter).await?;
-    for log in logs {
-        println!("{:?}", log);
-    }*/
-
-    // TODO: add L3 too.
+    if let Some(chains) = &gateway_bridgehub.known_chains {
+        for chain in chains {
+            println!(
+                "Chain {} on Gateway: {}",
+                chain,
+                gateway_bridgehub.get_state_transition(*chain).await?
+            );
+        }
+    }
 
     Ok(())
 }

@@ -3,6 +3,7 @@ use std::fmt::Display;
 
 use crate::sequencer::Sequencer;
 use crate::statetransition::StateTransition;
+use crate::stm::detect_hyperchains;
 use alloy::primitives::{Address, FixedBytes, U256};
 use alloy::providers::{Provider, RootProvider};
 use alloy::rpc::types::Filter;
@@ -107,8 +108,23 @@ impl Bridgehub {
             provider: sequencer.get_provider(),
         })
     }
-
     pub async fn detect_chains(
+        sequencer: &Sequencer,
+        bridgehub: Address,
+    ) -> eyre::Result<HashSet<u64>> {
+        match sequencer.sequencer_type {
+            crate::sequencer::SequencerType::L1 => {
+                Bridgehub::detect_chains_with_newchain_event(sequencer, bridgehub).await
+            }
+            crate::sequencer::SequencerType::L2(_) => {
+                // For L2, we have to depend on NewHyperchain.
+                let hyperchains = detect_hyperchains(sequencer).await?;
+                Ok(hyperchains.iter().map(|(chain, _)| chain.clone()).collect())
+            }
+        }
+    }
+
+    async fn detect_chains_with_newchain_event(
         sequencer: &Sequencer,
         bridgehub: Address,
     ) -> eyre::Result<HashSet<u64>> {
