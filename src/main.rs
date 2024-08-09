@@ -30,7 +30,7 @@ async fn main() -> eyre::Result<()> {
     println!("{} L2 (gateway)  - {}", "[OK]".green(), l2_sequencer);
 
     let l2_provider = l2_sequencer.get_provider();
-    let chain_id = l2_sequencer.chain_id;
+    let l2_chain_id = l2_sequencer.chain_id;
 
     let info = match &l2_sequencer.sequencer_type {
         SequencerType::L1 => eyre::bail!("port 3050 doesn't have zksync sequencer"),
@@ -38,14 +38,21 @@ async fn main() -> eyre::Result<()> {
     };
 
     let bridgehub = bridgehub::Bridgehub::new(&l1_sequencer, info.bridgehub_address, true).await?;
-    println!("Bridgehub: {}", bridgehub);
 
-    println!("Found chains: {:?}", bridgehub.known_chains);
+    println!(
+        "Found {} chains on L1 bridgehub: {:?}",
+        bridgehub
+            .known_chains
+            .as_ref()
+            .map(|x| x.len())
+            .unwrap_or(0),
+        bridgehub.known_chains
+    );
 
     println!("Gateway contracts on L1:");
     bridgehub.print_detailed_info(&l1_provider).await?;
     let l1_bh_addresses = bridgehub
-        .get_bridgehub_contracts(&l1_provider, chain_id)
+        .get_bridgehub_contracts(&l1_provider, l2_chain_id)
         .await?;
 
     let gateway_bridgehub_address = address!("0000000000000000000000000000000000010002");

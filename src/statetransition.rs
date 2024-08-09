@@ -1,9 +1,8 @@
 use std::fmt::Display;
 
-use alloy::{
-    primitives::{Address, U160, U256},
-    providers::Provider,
-};
+use alloy::primitives::FixedBytes;
+use alloy::primitives::{Address, U256};
+use alloy::sol;
 
 #[derive(Debug)]
 pub struct STStorage {
@@ -11,21 +10,31 @@ pub struct STStorage {
     total_batches_executed: U256,
     total_batches_verified: U256,
     total_batches_committed: U256,
-    bootloader_hash: U256,
-    default_account_hash: U256,
-    protocol_version: U256,
-    system_upgrade_tx_hash: U256,
+    bootloader_hash: FixedBytes<32>,
+    default_account_hash: FixedBytes<32>,
+    protocol_version: (u32, u32, u32),
+    system_upgrade_tx_hash: FixedBytes<32>,
     admin: Address,
     chain_id: U256,
+    sync_layer: Address,
 }
 
-fn protocol_version_to_string(protocol_version: U256) -> String {
-    if protocol_version <= U256::from(24) {
-        return protocol_version.to_string();
-    }
-    let (minor, patch) = protocol_version.div_rem(U256::from(1u64 << 32));
+sol! {
+    #[sol(rpc)]
+    contract IHyperchain {
+        function getVerifier() external view returns (address);
+        function getAdmin() external view returns (address);
+        function getTotalBatchesCommitted() external view returns (uint256);
+        function getTotalBatchesVerified() external view returns (uint256);
+        function getTotalBatchesExecuted() external view returns (uint256);
+        function getSemverProtocolVersion() external view returns (uint32, uint32, uint32);
 
-    return format!("{}.{}", minor, patch);
+        function getL2BootloaderBytecodeHash() external view returns (bytes32);
+        function getL2DefaultAccountBytecodeHash() external view returns (bytes32);
+        function getL2SystemContractsUpgradeTxHash() external view returns (bytes32);
+        function getChainId() external view returns (uint256);
+        function getSyncLayer() external view returns (address);
+    }
 }
 
 impl Display for STStorage {
@@ -34,24 +43,33 @@ impl Display for STStorage {
         // TODO: print proper protocol version.
         writeln!(
             f,
-            "  Protocol version: {}",
-            protocol_version_to_string(self.protocol_version)
+            "  Protocol version: {}.{}.{}",
+            self.protocol_version.0, self.protocol_version.1, self.protocol_version.2
         )?;
         writeln!(
             f,
-            "  Batches (C,V,E): {} {} {}",
+            "  Batches (C,V,E):  {} {} {}",
             self.total_batches_committed, self.total_batches_verified, self.total_batches_executed
         )?;
 
         writeln!(
             f,
-            "  System upgrade: {}",
+            "  System upgrade:   {}",
             self.system_upgrade_tx_hash.to_string()
         )?;
-        writeln!(f, "  AA hash: {}", self.default_account_hash.to_string())?;
-        writeln!(f, "  Verifier: {}", self.verifier)?;
-        writeln!(f, "  Admin: {}", self.admin)?;
-        writeln!(f, "  Bootloader hash: {}", self.bootloader_hash.to_string())
+        writeln!(
+            f,
+            "  AA hash:          {}",
+            self.default_account_hash.to_string()
+        )?;
+        writeln!(f, "  Verifier:         {}", self.verifier)?;
+        writeln!(f, "  Admin:            {}", self.admin)?;
+        writeln!(
+            f,
+            "  Bootloader hash:  {}",
+            self.bootloader_hash.to_string()
+        )?;
+        writeln!(f, "  Sync layer:  {}", self.sync_layer)
     }
 }
 
@@ -61,30 +79,42 @@ pub async fn get_state_transition_storage(
     >,
     hyperchain: Address,
 ) -> eyre::Result<STStorage> {
-    const VERIFIER_SLOT: u32 = 10;
-    const TOTAL_BATCHES_EXEC_SLOT: u32 = 11;
-    const TOTAL_BATCHES_VERIFIED_SLOT: u32 = 12;
-    const TOTAL_BATCHES_COMMITTED_SLOT: u32 = 13;
-    const BOOTLOADER_SLOT: u32 = 23;
-    const DEFAULT_AA_SLOT: u32 = 24;
-    const PROTOCOL_VERSION_SLOT: u32 = 33;
-    const SYSTEM_UPGRADE_TX_HASH_SLOT: u32 = 34;
-    const ADMIN_SLOT: u32 = 36;
-    // TODO: fee params
-    const CHAIN_ID_SLOT: u32 = 40;
+    let contract = IHyperchain::new(hyperchain, provider);
 
-    let get_storage = |slot| provider.get_storage_at(hyperchain, U256::from(slot));
+    let verifier = contract.getVerifier().call().await?._0;
+    let total_batches_committed = contract.getTotalBatchesCommitted().call().await?._0;
+    let total_batches_verified = contract.getTotalBatchesCommitted().call().await?._0;
+    let total_batches_executed = contract.getTotalBatchesCommitted().call().await?._0;
+    let protocol_version = contract.getSemverProtocolVersion().call().await?;
+
+    let admin = contract.getAdmin().call().await?._0;
+
+    let bootloader_hash = contract.getL2BootloaderBytecodeHash().call().await?._0;
+    let default_account_hash = contract.getL2DefaultAccountBytecodeHash().call().await?._0;
+    let system_upgrade_tx_hash = contract
+        .getL2SystemContractsUpgradeTxHash()
+        .call()
+        .await?
+        ._0;
+
+    let chain_id = contract.getChainId().call().await?._0;
+    let sync_layer = contract.getSyncLayer().call().await?._0;
 
     Ok(STStorage {
-        verifier: Address::from(U160::from(get_storage(VERIFIER_SLOT).await.unwrap())),
-        total_batches_executed: get_storage(TOTAL_BATCHES_EXEC_SLOT).await.unwrap(),
-        total_batches_verified: get_storage(TOTAL_BATCHES_VERIFIED_SLOT).await.unwrap(),
-        total_batches_committed: get_storage(TOTAL_BATCHES_COMMITTED_SLOT).await.unwrap(),
-        bootloader_hash: get_storage(BOOTLOADER_SLOT).await.unwrap(),
-        default_account_hash: get_storage(DEFAULT_AA_SLOT).await.unwrap(),
-        protocol_version: get_storage(PROTOCOL_VERSION_SLOT).await.unwrap(),
-        system_upgrade_tx_hash: get_storage(SYSTEM_UPGRADE_TX_HASH_SLOT).await.unwrap(),
-        admin: Address::from(U160::from(get_storage(ADMIN_SLOT).await.unwrap())),
-        chain_id: get_storage(CHAIN_ID_SLOT).await.unwrap(),
+        verifier,
+        total_batches_executed,
+        total_batches_verified,
+        total_batches_committed,
+        bootloader_hash,
+        default_account_hash,
+        protocol_version: (
+            protocol_version._0,
+            protocol_version._1,
+            protocol_version._2,
+        ),
+        system_upgrade_tx_hash,
+        admin,
+        chain_id,
+        sync_layer,
     })
 }
