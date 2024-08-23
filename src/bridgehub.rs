@@ -14,6 +14,8 @@ use alloy::transports::http::{Client, Http};
 use colored::Colorize;
 use eyre::OptionExt;
 
+use futures::future::join_all;
+
 sol! {
     #[sol(rpc)]
     contract IBridgehub {
@@ -22,6 +24,8 @@ sol! {
         mapping(uint256 chainId => address) public baseToken;
         function getHyperchain(uint256 _chainId) public view returns (address) {}
         function stmAssetIdFromChainId(uint256 chain_id) public view returns (bytes32) {}
+
+        function stmAssetId(address) public view returns (bytes32) {}
 
         event NewChain(uint256 indexed chainId, address stateTransitionManager, address indexed chainGovernance);
         event AssetRegistered(
@@ -73,6 +77,7 @@ pub struct Bridgehub {
     pub known_chains: Option<HashSet<u64>>,
     pub stms: Vec<StateTransitionManager>,
     provider: RootProvider<Http<Client>>,
+    pub stm_deployer: Address,
 }
 
 impl Display for Bridgehub {
@@ -82,6 +87,7 @@ impl Display for Bridgehub {
             "Bridgehub at {}. Shared bridge: {}",
             self.address, self.shared_bridge
         )?;
+        writeln!(f, "   STM deployer (on L1): {}", self.stm_deployer)?;
         writeln!(f, "STMS: {}", self.stms.len())?;
 
         for stm in &self.stms {
@@ -129,6 +135,8 @@ impl Bridgehub {
             None
         };
 
+        let stm_deployer = contract.stmDeployer().call().await?.stmDeployer;
+
         let stm_addresses = get_all_events(
             sequencer,
             address,
@@ -139,13 +147,15 @@ impl Bridgehub {
         .map(|log| address_from_fixedbytes(log.topics().get(1).unwrap()).unwrap());
 
         let stms = stm_addresses.map(|address| StateTransitionManager::new(sequencer, address));
+        let stms = join_all(stms).await;
 
         Ok(Bridgehub {
             address,
             shared_bridge,
             known_chains,
             provider: sequencer.get_provider(),
-            stms: stms.collect(),
+            stms: stms,
+            stm_deployer,
         })
     }
     pub async fn detect_chains(

@@ -1,35 +1,71 @@
 use std::fmt::Display;
 
 use alloy::{
-    primitives::{Address, U256},
+    primitives::{Address, FixedBytes, U256},
     providers::Provider,
     rpc::types::Filter,
     sol,
     sol_types::SolEvent,
 };
 
-use crate::sequencer::Sequencer;
+use crate::{bridgehub::IBridgehub, sequencer::Sequencer};
 
 sol! {
     #[sol(rpc)]
     contract IStateTransitionManager {
         event NewHyperchain(uint256 indexed _chainId, address indexed _hyperchainContract);
+        function BRIDGE_HUB() external view returns (address);
+        function admin() external view returns (address);
+        function owner() external view returns (address);
     }
 }
 
 pub struct StateTransitionManager {
     pub address: Address,
+    pub bridgehub: Address,
+    pub admin: Address,
+    pub owner: Address,
+    pub asset_id: FixedBytes<32>,
 }
 
 impl StateTransitionManager {
-    pub fn new(sequencer: &Sequencer, address: Address) -> Self {
-        Self { address }
+    pub async fn new(sequencer: &Sequencer, address: Address) -> Self {
+        let provider = sequencer.get_provider();
+        let contract = IStateTransitionManager::new(address, provider);
+
+        let bridgehub = contract.BRIDGE_HUB().call().await.unwrap()._0;
+
+        let admin = contract.admin().call().await.unwrap()._0;
+        let owner = contract.owner().call().await.unwrap()._0;
+        //let bridgehub = Address::ZERO;
+        let provider = sequencer.get_provider();
+
+        let bridgehub_contract = IBridgehub::new(bridgehub, provider);
+
+        let asset_id = bridgehub_contract
+            .stmAssetId(address)
+            .call()
+            .await
+            .unwrap()
+            ._0;
+        Self {
+            address,
+            bridgehub,
+            admin,
+            owner,
+            asset_id,
+        }
     }
 }
 
 impl Display for StateTransitionManager {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        writeln!(f, "STM - @{}", self.address)?;
+        writeln!(f, "=== STM - @   {}", self.address)?;
+        writeln!(f, "   Asset id:  {}", self.asset_id)?;
+        writeln!(f, "   Bridgehub: {}", self.bridgehub)?;
+        writeln!(f, "   Admin:     {}", self.admin)?;
+        writeln!(f, "   Owner:     {}", self.owner)?;
+
         Ok(())
     }
 }

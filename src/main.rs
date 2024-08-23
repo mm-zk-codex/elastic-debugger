@@ -67,6 +67,8 @@ async fn main() -> eyre::Result<()> {
     let gateway_bridgehub =
         bridgehub::Bridgehub::new(&l2_sequencer, gateway_bridgehub_address, true).await?;
 
+    println!("{}", gateway_bridgehub);
+
     println!(
         "Found {} chains on Gateway bridgehub: {:?}",
         gateway_bridgehub
