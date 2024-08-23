@@ -7,6 +7,7 @@ mod bridgehub;
 mod sequencer;
 mod statetransition;
 mod stm;
+mod utils;
 
 sol! {
     #[sol(rpc)]
@@ -46,6 +47,8 @@ async fn main() -> eyre::Result<()> {
     println!("===");
     println!("=== Bridehubs");
     println!("===");
+
+    println!("{}", bridgehub);
 
     println!(
         "Found {} chains on L1 bridgehub: {:?}",

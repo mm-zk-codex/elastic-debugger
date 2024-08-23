@@ -3,7 +3,8 @@ use std::fmt::Display;
 
 use crate::sequencer::Sequencer;
 use crate::statetransition::StateTransition;
-use crate::stm::detect_hyperchains;
+use crate::stm::{detect_hyperchains, StateTransitionManager};
+use crate::utils::get_all_events;
 use alloy::primitives::{Address, FixedBytes, U256};
 use alloy::providers::{Provider, RootProvider};
 use alloy::rpc::types::Filter;
@@ -29,6 +30,13 @@ sol! {
             bytes32 indexed additionalData,
             address sender
         );
+
+        event StateTransitionManagerAdded(address indexed stateTransitionManager);
+
+        event StateTransitionManagerRemoved(address indexed stateTransitionManager);
+
+
+        address public stmDeployer;
     }
 }
 
@@ -39,6 +47,7 @@ pub struct BridgehubChainDetails {
     pub base_token_address: Address,
     pub validator_timelock_address: Address,
     pub stm_asset_id: FixedBytes<32>,
+    pub stm_deployer: Address,
 }
 
 impl Display for BridgehubChainDetails {
@@ -53,6 +62,7 @@ impl Display for BridgehubChainDetails {
             self.validator_timelock_address
         )?;
         writeln!(f, "    STM Asset id:       {}", self.stm_asset_id)?;
+        writeln!(f, "    STM deployer:       {}", self.stm_deployer)?;
         Ok(())
     }
 }
@@ -61,17 +71,35 @@ pub struct Bridgehub {
     pub address: Address,
     pub shared_bridge: Address,
     pub known_chains: Option<HashSet<u64>>,
+    pub stms: Vec<StateTransitionManager>,
     provider: RootProvider<Http<Client>>,
 }
 
 impl Display for Bridgehub {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
+        writeln!(
             f,
             "Bridgehub at {}. Shared bridge: {}",
             self.address, self.shared_bridge
-        )
+        )?;
+        writeln!(f, "STMS: {}", self.stms.len())?;
+
+        for stm in &self.stms {
+            writeln!(f, "{}", stm)?;
+        }
+
+        Ok(())
     }
+}
+
+fn address_from_fixedbytes(bytes: &FixedBytes<32>) -> eyre::Result<Address> {
+    for i in 0..12 {
+        if bytes.0[i] != 0 {
+            eyre::bail!("cannot cast 32 bytes to address - non zero value in first 12 bytes");
+        }
+    }
+
+    Ok(Address::from_slice(&bytes.0[12..32]))
 }
 
 impl Bridgehub {
@@ -101,11 +129,23 @@ impl Bridgehub {
             None
         };
 
+        let stm_addresses = get_all_events(
+            sequencer,
+            address,
+            IBridgehub::StateTransitionManagerAdded::SIGNATURE_HASH,
+        )
+        .await?
+        .into_iter()
+        .map(|log| address_from_fixedbytes(log.topics().get(1).unwrap()).unwrap());
+
+        let stms = stm_addresses.map(|address| StateTransitionManager::new(sequencer, address));
+
         Ok(Bridgehub {
             address,
             shared_bridge,
             known_chains,
             provider: sequencer.get_provider(),
+            stms: stms.collect(),
         })
     }
     pub async fn detect_chains(
@@ -217,6 +257,8 @@ impl Bridgehub {
             .await?
             ._0;
 
+        let stm_deployer = contract.stmDeployer().call().await?.stmDeployer;
+
         Ok(BridgehubChainDetails {
             stm_address,
             st_address,
@@ -224,6 +266,7 @@ impl Bridgehub {
             base_token_address,
             validator_timelock_address,
             stm_asset_id: asset_id,
+            stm_deployer,
         })
     }
 

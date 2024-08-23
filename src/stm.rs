@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use alloy::{
     primitives::{Address, U256},
     providers::Provider,
@@ -12,6 +14,23 @@ sol! {
     #[sol(rpc)]
     contract IStateTransitionManager {
         event NewHyperchain(uint256 indexed _chainId, address indexed _hyperchainContract);
+    }
+}
+
+pub struct StateTransitionManager {
+    pub address: Address,
+}
+
+impl StateTransitionManager {
+    pub fn new(sequencer: &Sequencer, address: Address) -> Self {
+        Self { address }
+    }
+}
+
+impl Display for StateTransitionManager {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        writeln!(f, "STM - @{}", self.address)?;
+        Ok(())
     }
 }
 
