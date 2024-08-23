@@ -4,6 +4,8 @@ use colored::Colorize;
 use sequencer::{detect_sequencer, SequencerType};
 
 mod bridgehub;
+mod l1_asset_router;
+mod l2_asset_router;
 mod sequencer;
 mod statetransition;
 mod stm;

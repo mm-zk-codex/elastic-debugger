@@ -1,5 +1,5 @@
 use alloy::{
-    primitives::{keccak256, Address, B256},
+    primitives::{keccak256, Address, FixedBytes, B256},
     providers::Provider,
     rpc::types::{Filter, Log},
 };
@@ -41,4 +41,14 @@ pub fn get_human_name_for<T: AsRef<[u8]>>(entry: T) -> String {
         ADJECTIVES[pos % ADJECTIVES.len()],
         NOUNS[pos % NOUNS.len()]
     )
+}
+
+pub fn address_from_fixedbytes(bytes: &FixedBytes<32>) -> eyre::Result<Address> {
+    for i in 0..12 {
+        if bytes.0[i] != 0 {
+            eyre::bail!("cannot cast 32 bytes to address - non zero value in first 12 bytes");
+        }
+    }
+
+    Ok(Address::from_slice(&bytes.0[12..32]))
 }

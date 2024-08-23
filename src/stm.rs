@@ -39,7 +39,6 @@ impl StateTransitionManager {
 
         let admin = contract.admin().call().await.unwrap()._0;
         let owner = contract.owner().call().await.unwrap()._0;
-        //let bridgehub = Address::ZERO;
         let provider = sequencer.get_provider();
 
         let bridgehub_contract = IBridgehub::new(bridgehub, provider);

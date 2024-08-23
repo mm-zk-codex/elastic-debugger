@@ -1,10 +1,12 @@
 use std::collections::HashSet;
 use std::fmt::Display;
 
+use crate::l1_asset_router::L1AssetRouter;
+use crate::l2_asset_router::L2AssetRouter;
 use crate::sequencer::Sequencer;
 use crate::statetransition::StateTransition;
 use crate::stm::{detect_hyperchains, StateTransitionManager};
-use crate::utils::get_all_events;
+use crate::utils::{address_from_fixedbytes, get_all_events, get_human_name_for};
 use alloy::primitives::{Address, FixedBytes, U256};
 use alloy::providers::{Provider, RootProvider};
 use alloy::rpc::types::Filter;
@@ -47,16 +49,18 @@ sol! {
 pub struct BridgehubChainDetails {
     pub stm_address: Address,
     pub st_address: Address,
-    pub shared_bridge_address: Address,
     pub base_token_address: Address,
     pub validator_timelock_address: Address,
     pub stm_asset_id: FixedBytes<32>,
-    pub stm_deployer: Address,
 }
 
 impl Display for BridgehubChainDetails {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        writeln!(f, "    Shared bridge:      {}", self.shared_bridge_address)?;
+        writeln!(
+            f,
+            "    STM:      {}",
+            get_human_name_for(self.stm_asset_id).bold()
+        )?;
         writeln!(f, "    STM:                {}", self.stm_address)?;
         writeln!(f, "    ST:                 {}", self.st_address)?;
         writeln!(f, "    Base Token:         {}", self.base_token_address)?;
@@ -65,8 +69,28 @@ impl Display for BridgehubChainDetails {
             "    Validator timelock: {}",
             self.validator_timelock_address
         )?;
-        writeln!(f, "    STM Asset id:       {}", self.stm_asset_id)?;
-        writeln!(f, "    STM deployer:       {}", self.stm_deployer)?;
+        Ok(())
+    }
+}
+
+pub enum AssetRouter {
+    L1(L1AssetRouter),
+    L2(L2AssetRouter),
+}
+
+impl Display for AssetRouter {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            AssetRouter::L1(router) => {
+                writeln!(f, "L1 asset router")?;
+                writeln!(f, "{}", router)?;
+            }
+            AssetRouter::L2(router) => {
+                writeln!(f, "L2 asset router")?;
+                writeln!(f, "{}", router)?;
+            }
+        }
+
         Ok(())
     }
 }
@@ -78,6 +102,8 @@ pub struct Bridgehub {
     pub stms: Option<Vec<StateTransitionManager>>,
     provider: RootProvider<Http<Client>>,
     pub stm_deployer: Address,
+
+    pub asset_router: AssetRouter,
 }
 
 impl Display for Bridgehub {
@@ -96,18 +122,11 @@ impl Display for Bridgehub {
             }
         }
 
+        writeln!(f, "== Asset router")?;
+        writeln!(f, "{}", self.asset_router)?;
+
         Ok(())
     }
-}
-
-fn address_from_fixedbytes(bytes: &FixedBytes<32>) -> eyre::Result<Address> {
-    for i in 0..12 {
-        if bytes.0[i] != 0 {
-            eyre::bail!("cannot cast 32 bytes to address - non zero value in first 12 bytes");
-        }
-    }
-
-    Ok(Address::from_slice(&bytes.0[12..32]))
 }
 
 impl Bridgehub {
@@ -159,6 +178,15 @@ impl Bridgehub {
             crate::sequencer::SequencerType::L2(_) => None,
         };
 
+        let asset_router = match sequencer.sequencer_type {
+            crate::sequencer::SequencerType::L1 => {
+                AssetRouter::L1(L1AssetRouter::new(sequencer, shared_bridge).await)
+            }
+            crate::sequencer::SequencerType::L2(_) => {
+                AssetRouter::L2(L2AssetRouter::new(sequencer, shared_bridge).await)
+            }
+        };
+
         Ok(Bridgehub {
             address,
             shared_bridge,
@@ -166,6 +194,7 @@ impl Bridgehub {
             provider: sequencer.get_provider(),
             stms,
             stm_deployer,
+            asset_router,
         })
     }
     pub async fn detect_chains(
@@ -261,7 +290,6 @@ impl Bridgehub {
             .call()
             .await?
             ._0;
-        let shared_bridge_address = contract.sharedBridge().call().await?.sharedBridge;
 
         let stm_contract = StateTransitionManager::new(stm_address, &self.provider);
 
@@ -277,16 +305,12 @@ impl Bridgehub {
             .await?
             ._0;
 
-        let stm_deployer = contract.stmDeployer().call().await?.stmDeployer;
-
         Ok(BridgehubChainDetails {
             stm_address,
             st_address,
-            shared_bridge_address,
             base_token_address,
             validator_timelock_address,
             stm_asset_id: asset_id,
-            stm_deployer,
         })
     }
 
