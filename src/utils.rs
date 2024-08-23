@@ -1,8 +1,9 @@
 use alloy::{
-    primitives::{Address, B256},
+    primitives::{keccak256, Address, B256},
     providers::Provider,
     rpc::types::{Filter, Log},
 };
+use names::{ADJECTIVES, NOUNS};
 
 use crate::sequencer::Sequencer;
 
@@ -30,4 +31,14 @@ pub async fn get_all_events(
     }
 
     Ok(result)
+}
+
+pub fn get_human_name_for<T: AsRef<[u8]>>(entry: T) -> String {
+    let hashed_address = keccak256(entry);
+    let pos = usize::from_be_bytes(hashed_address[0..8].try_into().unwrap());
+    format!(
+        "{}_{}",
+        ADJECTIVES[pos % ADJECTIVES.len()],
+        NOUNS[pos % NOUNS.len()]
+    )
 }

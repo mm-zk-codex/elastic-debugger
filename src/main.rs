@@ -45,7 +45,7 @@ async fn main() -> eyre::Result<()> {
     let bridgehub = bridgehub::Bridgehub::new(&l1_sequencer, info.bridgehub_address, true).await?;
 
     println!("===");
-    println!("=== Bridehubs");
+    println!("=== Bridgehubs");
     println!("===");
 
     println!("{}", bridgehub);

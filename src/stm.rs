@@ -7,8 +7,9 @@ use alloy::{
     sol,
     sol_types::SolEvent,
 };
+use colored::Colorize;
 
-use crate::{bridgehub::IBridgehub, sequencer::Sequencer};
+use crate::{bridgehub::IBridgehub, sequencer::Sequencer, utils::get_human_name_for};
 
 sol! {
     #[sol(rpc)]
@@ -26,6 +27,7 @@ pub struct StateTransitionManager {
     pub admin: Address,
     pub owner: Address,
     pub asset_id: FixedBytes<32>,
+    pub asset_name: String,
 }
 
 impl StateTransitionManager {
@@ -48,19 +50,23 @@ impl StateTransitionManager {
             .await
             .unwrap()
             ._0;
+        let asset_name = get_human_name_for(asset_id);
+
         Self {
             address,
             bridgehub,
             admin,
             owner,
             asset_id,
+            asset_name,
         }
     }
 }
 
 impl Display for StateTransitionManager {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        writeln!(f, "=== STM - @   {}", self.address)?;
+        writeln!(f, "=== STM -     {}", self.asset_name.bold().white())?;
+        writeln!(f, "   Address:   {}", self.address)?;
         writeln!(f, "   Asset id:  {}", self.asset_id)?;
         writeln!(f, "   Bridgehub: {}", self.bridgehub)?;
         writeln!(f, "   Admin:     {}", self.admin)?;

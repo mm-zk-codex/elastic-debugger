@@ -75,7 +75,7 @@ pub struct Bridgehub {
     pub address: Address,
     pub shared_bridge: Address,
     pub known_chains: Option<HashSet<u64>>,
-    pub stms: Vec<StateTransitionManager>,
+    pub stms: Option<Vec<StateTransitionManager>>,
     provider: RootProvider<Http<Client>>,
     pub stm_deployer: Address,
 }
@@ -88,10 +88,12 @@ impl Display for Bridgehub {
             self.address, self.shared_bridge
         )?;
         writeln!(f, "   STM deployer (on L1): {}", self.stm_deployer)?;
-        writeln!(f, "STMS: {}", self.stms.len())?;
+        if let Some(stms) = &self.stms {
+            writeln!(f, "STMS: {}", stms.len())?;
 
-        for stm in &self.stms {
-            writeln!(f, "{}", stm)?;
+            for stm in stms {
+                writeln!(f, "{}", stm)?;
+            }
         }
 
         Ok(())
@@ -137,24 +139,32 @@ impl Bridgehub {
 
         let stm_deployer = contract.stmDeployer().call().await?.stmDeployer;
 
-        let stm_addresses = get_all_events(
-            sequencer,
-            address,
-            IBridgehub::StateTransitionManagerAdded::SIGNATURE_HASH,
-        )
-        .await?
-        .into_iter()
-        .map(|log| address_from_fixedbytes(log.topics().get(1).unwrap()).unwrap());
+        let stms = match sequencer.sequencer_type {
+            crate::sequencer::SequencerType::L1 => {
+                let stm_addresses = get_all_events(
+                    sequencer,
+                    address,
+                    IBridgehub::StateTransitionManagerAdded::SIGNATURE_HASH,
+                )
+                .await?
+                .into_iter()
+                .map(|log| address_from_fixedbytes(log.topics().get(1).unwrap()).unwrap());
 
-        let stms = stm_addresses.map(|address| StateTransitionManager::new(sequencer, address));
-        let stms = join_all(stms).await;
+                let stms =
+                    stm_addresses.map(|address| StateTransitionManager::new(sequencer, address));
+                let stms = join_all(stms).await;
+                Some(stms)
+            }
+            // FIXME: Currently broken for L2.
+            crate::sequencer::SequencerType::L2(_) => None,
+        };
 
         Ok(Bridgehub {
             address,
             shared_bridge,
             known_chains,
             provider: sequencer.get_provider(),
-            stms: stms,
+            stms,
             stm_deployer,
         })
     }
