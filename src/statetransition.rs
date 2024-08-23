@@ -17,7 +17,7 @@ pub struct StateTransition {
     system_upgrade_tx_hash: FixedBytes<32>,
     admin: Address,
     chain_id: U256,
-    sync_layer: Address,
+    settlement_layer: Address,
 }
 
 sol! {
@@ -34,7 +34,7 @@ sol! {
         function getL2DefaultAccountBytecodeHash() external view returns (bytes32);
         function getL2SystemContractsUpgradeTxHash() external view returns (bytes32);
         function getChainId() external view returns (uint256);
-        function getSyncLayer() external view returns (address);
+        function getSettlementLayer() external view returns (address);
     }
 }
 
@@ -82,8 +82,8 @@ impl Display for StateTransition {
 
         writeln!(
             f,
-            "  Sync layer:       {}",
-            mark_red_if_not_empty(self.sync_layer, Address::ZERO)
+            "  Settlement layer: {}",
+            mark_red_if_not_empty(self.settlement_layer, Address::ZERO)
         )?;
 
         Ok(())
@@ -116,7 +116,7 @@ impl StateTransition {
             ._0;
 
         let chain_id = contract.getChainId().call().await?._0;
-        let sync_layer = contract.getSyncLayer().call().await?._0;
+        let settlement_layer = contract.getSettlementLayer().call().await?._0;
 
         Ok(StateTransition {
             verifier,
@@ -133,7 +133,7 @@ impl StateTransition {
             system_upgrade_tx_hash,
             admin,
             chain_id,
-            sync_layer,
+            settlement_layer,
         })
     }
 }

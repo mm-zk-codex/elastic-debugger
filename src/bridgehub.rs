@@ -190,7 +190,12 @@ impl Bridgehub {
             .call()
             .await?
             ._0;
-        let base_token_address = contract.baseToken(U256::from(chain_id)).call().await?._0;
+
+        let base_token_address = match contract.baseToken(U256::from(chain_id)).call().await {
+            Ok(base_token) => base_token._0,
+            // FIXME: remove after we fix an issue where basetoken is not set after migration.
+            Err(_) => Address::ZERO,
+        };
         let st_address = contract
             .getHyperchain(U256::from(chain_id))
             .call()
