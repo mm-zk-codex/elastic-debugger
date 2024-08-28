@@ -1,7 +1,7 @@
 use std::{collections::HashMap, fmt::Display};
 
 use alloy::{
-    primitives::{address, Address, FixedBytes},
+    primitives::{address, Address, FixedBytes, U256},
     sol,
     sol_types::SolEvent,
 };
@@ -34,6 +34,8 @@ sol! {
     contract NativeTokenVault {
         function tokenAddress(bytes32) external view returns(address);
         function getERC20Getters(address _token) external view returns (bytes memory);
+        function chainBalance(uint256 _chainId, address _l1Token) external view returns (uint256);
+
     }
     #[sol(rpc)]
     contract ERC20 {
@@ -184,5 +186,29 @@ impl L1AssetRouter {
             native_token_vault,
             registered_assets: HashMap::from_iter(registered_assets),
         }
+    }
+
+    pub async fn chain_balance(
+        &self,
+        sequencer: &Sequencer,
+        chain_id: U256,
+        asset_id: &FixedBytes<32>,
+    ) -> U256 {
+        let provider = sequencer.get_provider();
+        let contract = NativeTokenVault::new(self.native_token_vault, provider);
+        let address = contract
+            .tokenAddress(asset_id.clone())
+            .call()
+            .await
+            .unwrap()
+            ._0;
+        let balance = contract
+            .chainBalance(chain_id, address)
+            .call()
+            .await
+            .unwrap()
+            ._0;
+
+        balance
     }
 }

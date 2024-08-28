@@ -1,4 +1,4 @@
-use alloy::primitives::address;
+use alloy::primitives::{address, U256};
 use alloy::sol;
 use colored::Colorize;
 use sequencer::{detect_sequencer, SequencerType};
@@ -16,6 +16,30 @@ sol! {
     contract SharedBridge {
         function assetHandlerAddress(bytes32 asset_id) public view returns (address) {}
 
+    }
+}
+
+fn format_wei_amount(wei: &U256) -> String {
+    let wei_string = wei.to_string();
+    let len = wei_string.len();
+
+    if len > 18 {
+        // Insert a decimal 18 places from the end
+        format!("{}.{}", &wei_string[..len - 18], &wei_string[len - 18..])
+    } else {
+        // If the string is shorter than 18 characters, pad with zeros
+        format!(
+            "0.{}",
+            wei_string
+                .chars()
+                .rev()
+                .chain("000000000000000000".chars())
+                .take(18)
+                .collect::<String>()
+                .chars()
+                .rev()
+                .collect::<String>()
+        )
     }
 }
 
@@ -65,10 +89,24 @@ async fn main() -> eyre::Result<()> {
     println!("Contracts on L1:");
     bridgehub.print_detailed_info().await?;
 
+    println!("Balances: ");
+
+    let balances = bridgehub
+        .get_all_chains_balances(&l1_sequencer)
+        .await
+        .unwrap();
+    for (chain, balance) in balances.iter() {
+        println!("  Chain : {}", format!("{}", chain).bold());
+        for (token, amount) in balance.iter() {
+            println!("      {:.20} : {}", token.bold(), format_wei_amount(amount));
+        }
+    }
+
     let gateway_bridgehub_address = address!("0000000000000000000000000000000000010002");
     let gateway_bridgehub =
         bridgehub::Bridgehub::new(&l2_sequencer, gateway_bridgehub_address, true).await?;
 
+    println!(" ===== ");
     println!("{}", gateway_bridgehub);
 
     println!(

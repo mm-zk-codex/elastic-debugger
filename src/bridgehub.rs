@@ -1,7 +1,7 @@
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::fmt::Display;
 
-use crate::l1_asset_router::L1AssetRouter;
+use crate::l1_asset_router::{AssetHandler, L1AssetRouter};
 use crate::l2_asset_router::L2AssetRouter;
 use crate::sequencer::Sequencer;
 use crate::statetransition::StateTransition;
@@ -46,6 +46,9 @@ sol! {
     }
 }
 
+// Information about a single chain that is connected to a bridgehub.
+// The chain_id is supposed to be a globally unique identifier.
+// Note, that this object might exist in 'passive' mode - if the chain has migrated to a different sync layer.
 pub struct BridgehubChainDetails {
     pub stm_address: Address,
     pub st_address: Address,
@@ -94,7 +97,8 @@ impl Display for AssetRouter {
         Ok(())
     }
 }
-
+/// Bridgehub is the main coordination contract on each chain.
+/// the 'main main' bridgehub is located on L1.
 pub struct Bridgehub {
     pub address: Address,
     pub shared_bridge: Address,
@@ -108,14 +112,11 @@ pub struct Bridgehub {
 
 impl Display for Bridgehub {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        writeln!(
-            f,
-            "Bridgehub at {}. Shared bridge: {}",
-            self.address, self.shared_bridge
-        )?;
+        writeln!(f, "   Bridgehub at {}", self.address,)?;
+        writeln!(f, "   Shared bridge: {}", self.shared_bridge)?;
         writeln!(f, "   STM deployer (on L1): {}", self.stm_deployer)?;
         if let Some(stms) = &self.stms {
-            writeln!(f, "STMS: {}", stms.len())?;
+            writeln!(f, "   STMS: {}", stms.len())?;
 
             for stm in stms {
                 writeln!(f, "{}", stm)?;
@@ -323,5 +324,50 @@ impl Bridgehub {
             .await?
             ._0;
         StateTransition::new(&self.provider, st_address).await
+    }
+
+    pub async fn get_all_chains_balances(
+        &self,
+        sequencer: &Sequencer,
+    ) -> eyre::Result<HashMap<u64, HashMap<String, U256>>> {
+        let chains = self.known_chains.clone().unwrap();
+        let mut result = HashMap::new();
+
+        for chain_id in chains {
+            let foo = self.get_chain_balances(sequencer, chain_id).await?;
+            result.insert(chain_id, foo);
+        }
+
+        Ok(result)
+    }
+
+    pub async fn get_chain_balances(
+        &self,
+        sequencer: &Sequencer,
+        chain_id: u64,
+    ) -> eyre::Result<HashMap<String, U256>> {
+        let mut result = HashMap::new();
+        match &self.asset_router {
+            AssetRouter::L1(router) => {
+                let assets = router.registered_assets.iter().filter_map(|(k, x)| {
+                    if let AssetHandler::NativeTokenVault(_) = &x.handler {
+                        Some((k, x))
+                    } else {
+                        None
+                    }
+                });
+                for (asset_id, asset) in assets {
+                    let amount = router
+                        .chain_balance(sequencer, chain_id.try_into().unwrap(), asset_id)
+                        .await;
+
+                    result.insert(asset.name(), amount);
+                }
+            }
+
+            AssetRouter::L2(_) => eyre::bail!("Not implemented yet"),
+        };
+
+        Ok(result)
     }
 }
