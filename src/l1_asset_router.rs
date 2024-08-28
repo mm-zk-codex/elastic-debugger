@@ -1,14 +1,14 @@
-use std::{collections::HashMap, fmt::Display, ops::Add};
+use std::{collections::HashMap, fmt::Display};
 
 use alloy::{
-    primitives::{Address, FixedBytes},
+    primitives::{address, Address, FixedBytes},
     sol,
     sol_types::SolEvent,
 };
+
 use futures::future::join_all;
 
 use crate::{
-    bridgehub::{self, IBridgehub::stmDeployerCall},
     sequencer::Sequencer,
     utils::{address_from_fixedbytes, get_all_events, get_human_name_for},
 };
@@ -33,6 +33,12 @@ sol! {
     #[sol(rpc)]
     contract NativeTokenVault {
         function tokenAddress(bytes32) external view returns(address);
+        function getERC20Getters(address _token) external view returns (bytes memory);
+    }
+    #[sol(rpc)]
+    contract ERC20 {
+        function name() external view returns(string);
+
     }
 }
 
@@ -42,9 +48,15 @@ pub struct RegisteredAsset {
 }
 
 #[derive(Debug)]
+pub struct NativeTokenVaultAsset {
+    pub address: Address,
+    pub token_name: String,
+}
+
+#[derive(Debug)]
 pub enum AssetHandler {
     Bridgehub,
-    NativeTokenVault(Address),
+    NativeTokenVault(NativeTokenVaultAsset),
     Other(Address),
 }
 
@@ -68,8 +80,21 @@ impl RegisteredAsset {
                     .await
                     .unwrap()
                     ._0;
-                AssetHandler::NativeTokenVault(token_address)
+
+                let token_name =
+                    if token_address == address!("0000000000000000000000000000000000000001") {
+                        "ETH".to_owned()
+                    } else {
+                        let erc20_contract = ERC20::new(token_address, sequencer.get_provider());
+                        erc20_contract.name().call().await.unwrap()._0
+                    };
+
+                AssetHandler::NativeTokenVault(NativeTokenVaultAsset {
+                    address: token_address,
+                    token_name,
+                })
             }
+
             ref dt if dt == bridgehub => AssetHandler::Bridgehub,
             _ => AssetHandler::Other(deployment_tracker),
         };
@@ -80,7 +105,15 @@ impl RegisteredAsset {
     }
 
     pub fn name(&self) -> String {
-        get_human_name_for(self.asset_id)
+        match &self.handler {
+            AssetHandler::Bridgehub => get_human_name_for(self.asset_id),
+            AssetHandler::NativeTokenVault(vault_asset) => format!(
+                "{}-{}",
+                vault_asset.token_name,
+                get_human_name_for(self.asset_id)
+            ),
+            AssetHandler::Other(_) => get_human_name_for(self.asset_id),
+        }
     }
 }
 
