@@ -71,34 +71,28 @@ async fn main() -> eyre::Result<()> {
     let bridgehub = bridgehub::Bridgehub::new(&l1_sequencer, info.bridgehub_address, true).await?;
 
     println!("===");
-    println!("=== Bridgehubs");
+    println!("=== {} ", format!("Bridgehub - L1").bold().green());
     println!("===");
 
     println!("{}", bridgehub);
 
-    println!(
-        "Found {} chains on L1 bridgehub: {:?}",
-        bridgehub
-            .known_chains
-            .as_ref()
-            .map(|x| x.len())
-            .unwrap_or(0),
-        bridgehub.known_chains
-    );
-
-    println!("Contracts on L1:");
+    println!("=== Bridgehub chains");
     bridgehub.print_detailed_info().await?;
 
-    println!("Balances: ");
+    println!("=== Balances ");
 
     let balances = bridgehub
         .get_all_chains_balances(&l1_sequencer)
         .await
         .unwrap();
     for (chain, balance) in balances.iter() {
-        println!("  Chain : {}", format!("{}", chain).bold());
+        println!("   Chain : {}", format!("{}", chain).bold());
         for (token, amount) in balance.iter() {
-            println!("      {:.20} : {}", token.bold(), format_wei_amount(amount));
+            println!(
+                "      {:<20} : {:>28}",
+                token.bold(),
+                format_wei_amount(amount)
+            );
         }
     }
 
@@ -106,24 +100,17 @@ async fn main() -> eyre::Result<()> {
     let gateway_bridgehub =
         bridgehub::Bridgehub::new(&l2_sequencer, gateway_bridgehub_address, true).await?;
 
-    println!(" ===== ");
+    println!("===");
+    println!("=== {} ", format!("Bridgehub - Gateway").bold().green());
+    println!("===");
+
     println!("{}", gateway_bridgehub);
 
-    println!(
-        "Found {} chains on Gateway bridgehub: {:?}",
-        gateway_bridgehub
-            .known_chains
-            .as_ref()
-            .map(|x| x.len())
-            .unwrap_or(0),
-        gateway_bridgehub.known_chains
-    );
-
-    println!("L2 contracts on Gateway:");
+    println!("\n=== Chains");
     gateway_bridgehub.print_detailed_info().await?;
 
     println!("===");
-    println!("=== State Transitions");
+    println!("=== {} ", format!("ST / Hyperchains").bold().green());
     println!("===");
 
     if let Some(chains) = &bridgehub.known_chains {

@@ -83,13 +83,20 @@ pub enum AssetRouter {
 
 impl Display for AssetRouter {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.detailed_fmt(f, 0)
+    }
+}
+
+impl AssetRouter {
+    fn detailed_fmt(&self, f: &mut std::fmt::Formatter<'_>, pad_size: usize) -> std::fmt::Result {
+        let pad = " ".repeat(pad_size);
         match self {
             AssetRouter::L1(router) => {
-                writeln!(f, "L1 asset router")?;
-                writeln!(f, "{}", router)?;
+                writeln!(f, "{}L1 asset router", pad)?;
+                router.detailed_fmt(f, pad_size + 3)?;
             }
             AssetRouter::L2(router) => {
-                writeln!(f, "L2 asset router")?;
+                writeln!(f, "{}L2 asset router", pad)?;
                 writeln!(f, "{}", router)?;
             }
         }
@@ -97,6 +104,7 @@ impl Display for AssetRouter {
         Ok(())
     }
 }
+
 /// Bridgehub is the main coordination contract on each chain.
 /// the 'main main' bridgehub is located on L1.
 pub struct Bridgehub {
@@ -119,12 +127,12 @@ impl Display for Bridgehub {
             writeln!(f, "   STMS: {}", stms.len())?;
 
             for stm in stms {
-                writeln!(f, "{}", stm)?;
+                stm.detailed_fmt(f, 3)?;
             }
         }
 
-        writeln!(f, "    == Asset router")?;
-        writeln!(f, "{}", self.asset_router)?;
+        writeln!(f, "   === Asset router")?;
+        self.asset_router.detailed_fmt(f, 3)?;
 
         Ok(())
     }

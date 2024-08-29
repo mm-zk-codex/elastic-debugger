@@ -21,9 +21,8 @@ pub struct L2AssetRouter {
 }
 impl Display for L2AssetRouter {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        writeln!(f, "=== L2 Asset -  @ {}  ", self.address)?;
+        writeln!(f, "=== L2 Asset -  {}  ", self.address)?;
         writeln!(f, "   L1 router:   {}", self.l1_router)?;
-
         Ok(())
     }
 }

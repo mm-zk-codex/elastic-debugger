@@ -62,6 +62,18 @@ pub enum AssetHandler {
     Other(Address),
 }
 
+impl AssetHandler {
+    pub fn short_fmt(&self) -> String {
+        match self {
+            AssetHandler::Bridgehub => "Bridgehub (STM)".to_owned(),
+            AssetHandler::NativeTokenVault(ntv_asset) => {
+                format!("Token {} {}", ntv_asset.token_name, ntv_asset.address)
+            }
+            AssetHandler::Other(address) => format!("Uknown {}", address),
+        }
+    }
+}
+
 impl RegisteredAsset {
     pub async fn new(
         sequencer: &Sequencer,
@@ -117,15 +129,20 @@ impl RegisteredAsset {
             AssetHandler::Other(_) => get_human_name_for(self.asset_id),
         }
     }
+
+    pub fn detailed_fmt(&self, f: &mut std::fmt::Formatter<'_>, pad: usize) -> std::fmt::Result {
+        let pad = " ".repeat(pad);
+        writeln!(f, "{}Asset:     {}", pad, self.name().bold())?;
+        writeln!(f, "{}  id:      {}", pad, self.asset_id)?;
+        writeln!(f, "{}  tracker: {}", pad, self.handler.short_fmt())?;
+
+        Ok(())
+    }
 }
 
 impl Display for RegisteredAsset {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        writeln!(f, "Asset:     {}", self.name().bold())?;
-        writeln!(f, "  id:      {}", self.asset_id)?;
-        writeln!(f, "  tracker: {:?}", self.handler)?;
-
-        Ok(())
+        self.detailed_fmt(f, 0)
     }
 }
 
@@ -137,14 +154,7 @@ pub struct L1AssetRouter {
 }
 impl Display for L1AssetRouter {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        writeln!(f, "=== L1 Asset -  @ {}  ", self.address)?;
-        writeln!(f, "   Native vault:   {}", self.native_token_vault)?;
-        writeln!(f, "   Assets: ")?;
-        for v in self.registered_assets.values() {
-            writeln!(f, "   {}", v)?;
-        }
-
-        Ok(())
+        self.detailed_fmt(f, 0)
     }
 }
 
@@ -210,5 +220,25 @@ impl L1AssetRouter {
             ._0;
 
         balance
+    }
+
+    pub fn detailed_fmt(
+        &self,
+        f: &mut std::fmt::Formatter<'_>,
+        pad_size: usize,
+    ) -> std::fmt::Result {
+        let pad = " ".repeat(pad_size);
+        writeln!(f, "{}=== L1 Asset Router -  {}  ", pad, self.address)?;
+        writeln!(
+            f,
+            "{}Native vault:          {}",
+            pad, self.native_token_vault
+        )?;
+        writeln!(f, "{}Assets: ", pad)?;
+        for v in self.registered_assets.values() {
+            v.detailed_fmt(f, pad_size + 3)?;
+        }
+
+        Ok(())
     }
 }

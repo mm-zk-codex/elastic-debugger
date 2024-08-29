@@ -60,18 +60,23 @@ impl StateTransitionManager {
             asset_name,
         }
     }
+
+    pub fn detailed_fmt(&self, f: &mut std::fmt::Formatter<'_>, pad: usize) -> std::fmt::Result {
+        let pad = " ".repeat(pad);
+        writeln!(f, "{}=== STM -     {}", pad, self.asset_name.bold().white())?;
+        writeln!(f, "{}   Address:   {}", pad, self.address)?;
+        writeln!(f, "{}   Asset id:  {}", pad, self.asset_id)?;
+        writeln!(f, "{}   Bridgehub: {}", pad, self.bridgehub)?;
+        writeln!(f, "{}   Admin:     {}", pad, self.admin)?;
+        writeln!(f, "{}   Owner:     {}", pad, self.owner)?;
+
+        Ok(())
+    }
 }
 
 impl Display for StateTransitionManager {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        writeln!(f, "=== STM -     {}", self.asset_name.bold().white())?;
-        writeln!(f, "   Address:   {}", self.address)?;
-        writeln!(f, "   Asset id:  {}", self.asset_id)?;
-        writeln!(f, "   Bridgehub: {}", self.bridgehub)?;
-        writeln!(f, "   Admin:     {}", self.admin)?;
-        writeln!(f, "   Owner:     {}", self.owner)?;
-
-        Ok(())
+        self.detailed_fmt(f, 0)
     }
 }
 

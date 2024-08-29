@@ -50,43 +50,7 @@ fn mark_red_if_not_empty<T: std::fmt::Display + core::cmp::PartialEq>(
 
 impl Display for StateTransition {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        writeln!(f, "Chain id: {}", self.chain_id)?;
-        writeln!(
-            f,
-            "  Protocol version: {}.{}.{}",
-            self.protocol_version.0, self.protocol_version.1, self.protocol_version.2
-        )?;
-        writeln!(
-            f,
-            "  Batches (C,V,E):  {} {} {}",
-            self.total_batches_committed, self.total_batches_verified, self.total_batches_executed
-        )?;
-
-        writeln!(
-            f,
-            "  System upgrade:   {}",
-            mark_red_if_not_empty(self.system_upgrade_tx_hash, FixedBytes::<32>::ZERO)
-        )?;
-        writeln!(
-            f,
-            "  AA hash:          {}",
-            self.default_account_hash.to_string()
-        )?;
-        writeln!(f, "  Verifier:         {}", self.verifier)?;
-        writeln!(f, "  Admin:            {}", self.admin)?;
-        writeln!(
-            f,
-            "  Bootloader hash:  {}",
-            self.bootloader_hash.to_string()
-        )?;
-
-        writeln!(
-            f,
-            "  Settlement layer: {}",
-            mark_red_if_not_empty(self.settlement_layer, Address::ZERO)
-        )?;
-
-        Ok(())
+        self.detailed_fmt(f, 0)
     }
 }
 
@@ -135,5 +99,53 @@ impl StateTransition {
             chain_id,
             settlement_layer,
         })
+    }
+
+    pub fn detailed_fmt(&self, f: &mut std::fmt::Formatter<'_>, pad: usize) -> std::fmt::Result {
+        let pad = " ".repeat(pad);
+        writeln!(f, "{}Chain id: {}", pad, self.chain_id)?;
+        writeln!(
+            f,
+            "{}  Protocol version: {}.{}.{}",
+            pad, self.protocol_version.0, self.protocol_version.1, self.protocol_version.2
+        )?;
+        writeln!(
+            f,
+            "{}  Batches (C,V,E):  {} {} {}",
+            pad,
+            self.total_batches_committed,
+            self.total_batches_verified,
+            self.total_batches_executed
+        )?;
+
+        writeln!(
+            f,
+            "{}  System upgrade:   {}",
+            pad,
+            mark_red_if_not_empty(self.system_upgrade_tx_hash, FixedBytes::<32>::ZERO)
+        )?;
+        writeln!(
+            f,
+            "{}  AA hash:          {}",
+            pad,
+            self.default_account_hash.to_string()
+        )?;
+        writeln!(f, "{}  Verifier:         {}", pad, self.verifier)?;
+        writeln!(f, "{}  Admin:            {}", pad, self.admin)?;
+        writeln!(
+            f,
+            "{}  Bootloader hash:  {}",
+            pad,
+            self.bootloader_hash.to_string()
+        )?;
+
+        writeln!(
+            f,
+            "{}  Settlement layer: {}",
+            pad,
+            mark_red_if_not_empty(self.settlement_layer, Address::ZERO)
+        )?;
+
+        Ok(())
     }
 }
