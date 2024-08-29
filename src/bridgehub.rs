@@ -112,8 +112,8 @@ pub struct Bridgehub {
 
 impl Display for Bridgehub {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        writeln!(f, "   Bridgehub at {}", self.address,)?;
-        writeln!(f, "   Shared bridge: {}", self.shared_bridge)?;
+        writeln!(f, "   Bridgehub at          {}", self.address,)?;
+        writeln!(f, "   Shared bridge:        {}", self.shared_bridge)?;
         writeln!(f, "   STM deployer (on L1): {}", self.stm_deployer)?;
         if let Some(stms) = &self.stms {
             writeln!(f, "   STMS: {}", stms.len())?;
@@ -123,7 +123,7 @@ impl Display for Bridgehub {
             }
         }
 
-        writeln!(f, "== Asset router")?;
+        writeln!(f, "    == Asset router")?;
         writeln!(f, "{}", self.asset_router)?;
 
         Ok(())
