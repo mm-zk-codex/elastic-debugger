@@ -6,6 +6,7 @@ use sequencer::{detect_sequencer, SequencerType};
 mod bridgehub;
 mod l1_asset_router;
 mod l2_asset_router;
+mod priority_transactions;
 mod sequencer;
 mod statetransition;
 mod stm;
@@ -115,11 +116,13 @@ async fn main() -> eyre::Result<()> {
 
     if let Some(chains) = &bridgehub.known_chains {
         for chain in chains {
-            println!(
-                "Chain {} on L1: {}",
-                chain,
-                bridgehub.get_state_transition(*chain).await?
-            );
+            let st = bridgehub.get_state_transition(*chain).await?;
+
+            print!("Chain {} on L1: {}", chain, st);
+            // For L1 bridgehub - verify all the priority queue hashes.
+            st.verify_priority_root_hash(&l1_sequencer).await?;
+            println!("  Priority tree hash: {}", "VALID".green());
+            println!("");
         }
     }
 

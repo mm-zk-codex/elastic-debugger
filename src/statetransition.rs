@@ -1,9 +1,14 @@
 use std::fmt::Display;
 
-use alloy::primitives::FixedBytes;
 use alloy::primitives::{Address, U256};
+use alloy::primitives::{FixedBytes, B256};
 use alloy::sol;
 use colored::Colorize;
+
+use crate::priority_transactions::{
+    compute_merkle_tree, fetch_all_priority_transactions, PriorityTransaction,
+};
+use crate::sequencer::Sequencer;
 
 #[derive(Debug)]
 pub struct StateTransition {
@@ -18,6 +23,12 @@ pub struct StateTransition {
     admin: Address,
     chain_id: U256,
     settlement_layer: Address,
+
+    unprocessed_queue_size: U256,
+    total_queue_size: U256,
+    priority_tree_root: B256,
+
+    hyperchain: Address,
 }
 
 sol! {
@@ -35,6 +46,11 @@ sol! {
         function getL2SystemContractsUpgradeTxHash() external view returns (bytes32);
         function getChainId() external view returns (uint256);
         function getSettlementLayer() external view returns (address);
+
+        function getPriorityQueueSize() external view returns (uint256);
+        function getTotalPriorityTxs() external view returns (uint256);
+        function getPriorityTreeRoot() external view returns (bytes32);
+
     }
 }
 
@@ -82,6 +98,11 @@ impl StateTransition {
         let chain_id = contract.getChainId().call().await?._0;
         let settlement_layer = contract.getSettlementLayer().call().await?._0;
 
+        let unprocessed_queue_size = contract.getPriorityQueueSize().call().await?._0;
+        let total_queue_size = contract.getTotalPriorityTxs().call().await?._0;
+
+        let priority_tree_root = contract.getPriorityTreeRoot().call().await?._0;
+
         Ok(StateTransition {
             verifier,
             total_batches_executed,
@@ -98,6 +119,10 @@ impl StateTransition {
             admin,
             chain_id,
             settlement_layer,
+            unprocessed_queue_size,
+            total_queue_size,
+            priority_tree_root,
+            hyperchain,
         })
     }
 
@@ -145,6 +170,32 @@ impl StateTransition {
             pad,
             mark_red_if_not_empty(self.settlement_layer, Address::ZERO)
         )?;
+
+        writeln!(
+            f,
+            "{}  Queue unprocessed / total: {} / {}",
+            pad, self.unprocessed_queue_size, self.total_queue_size
+        )?;
+
+        Ok(())
+    }
+
+    pub async fn get_priority_transactions(
+        &self,
+        sequencer: &Sequencer,
+    ) -> eyre::Result<Vec<PriorityTransaction>> {
+        fetch_all_priority_transactions(sequencer, self.hyperchain).await
+    }
+
+    pub async fn verify_priority_root_hash(&self, sequencer: &Sequencer) -> eyre::Result<()> {
+        let txs = self.get_priority_transactions(sequencer).await?;
+        if compute_merkle_tree(&txs) != self.priority_tree_root {
+            eyre::bail!(
+                "Priority tree root hash invalid: {} vs {}",
+                self.priority_tree_root,
+                compute_merkle_tree(&txs)
+            )
+        }
 
         Ok(())
     }
