@@ -5,6 +5,7 @@ use alloy::primitives::{FixedBytes, B256};
 use alloy::sol;
 use colored::Colorize;
 
+use crate::addresses::add_address_name;
 use crate::priority_transactions::{
     compute_merkle_tree, fetch_all_priority_transactions, PriorityTransaction,
 };
@@ -96,6 +97,8 @@ impl StateTransition {
             ._0;
 
         let chain_id = contract.getChainId().call().await?._0;
+
+        add_address_name(admin, format!("Admin {}", chain_id));
         let settlement_layer = contract.getSettlementLayer().call().await?._0;
 
         let unprocessed_queue_size = contract.getPriorityQueueSize().call().await?._0;

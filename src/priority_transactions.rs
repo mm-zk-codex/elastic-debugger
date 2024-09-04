@@ -1,3 +1,6 @@
+use std::fmt::{Debug, Display};
+
+use crate::addresses::{address_to_human, u256_to_address};
 use crate::{sequencer::Sequencer, utils::get_all_events};
 use alloy::primitives::{keccak256, Address, B256};
 use alloy::rpc::types::Log;
@@ -46,24 +49,60 @@ sol! {
 }
 }
 
-#[derive(Debug)]
 pub struct PriorityTransaction {
-    index: u64,
+    pub index: u64,
     tx_id: B256,
     expiration_timestamp: u64,
+    l2_tx: L2CanonicalTransaction,
+}
+
+impl Debug for PriorityTransaction {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("PriorityTransaction")
+            .field("index", &self.index)
+            .field("tx_id", &self.tx_id)
+            .field("expiration_timestamp", &self.expiration_timestamp)
+            .finish()
+    }
+}
+
+impl Display for PriorityTransaction {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.detailed_fmt(f, 0)
+    }
+}
+
+impl PriorityTransaction {
+    pub fn detailed_fmt(&self, f: &mut std::fmt::Formatter<'_>, pad: usize) -> std::fmt::Result {
+        let pad = " ".repeat(pad);
+        writeln!(f, "{}Tx: {} - {}", pad, self.index, self.tx_id)?;
+
+        writeln!(
+            f,
+            "{}    {} -> {}",
+            pad,
+            address_to_human(&u256_to_address(self.l2_tx.from)),
+            address_to_human(&u256_to_address(self.l2_tx.to))
+        )?;
+
+        Ok(())
+    }
 }
 
 impl From<Log> for PriorityTransaction {
     fn from(value: Log) -> Self {
-        let data = &value.data().data;
-        let index = u64::from_be_bytes(data[24..32].try_into().unwrap());
-        let tx_id = B256::from_slice(data[32..64].try_into().unwrap());
-        let expiration_timestamp = u64::from_be_bytes(data[88..96].try_into().unwrap());
+        let request =
+            IMailbox::NewPriorityRequest::abi_decode_data(&value.data().data, true).unwrap();
+
+        let index: u64 = request.0.try_into().unwrap();
+        let tx_id = request.1;
+        let expiration_timestamp = request.2;
 
         Self {
             index,
             tx_id,
             expiration_timestamp,
+            l2_tx: request.3,
         }
     }
 }

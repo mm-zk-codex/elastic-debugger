@@ -3,6 +3,7 @@ use alloy::sol;
 use colored::Colorize;
 use sequencer::{detect_sequencer, SequencerType};
 
+mod addresses;
 mod bridgehub;
 mod l1_asset_router;
 mod l2_asset_router;
@@ -133,6 +134,25 @@ async fn main() -> eyre::Result<()> {
                 chain,
                 gateway_bridgehub.get_state_transition(*chain).await?
             );
+        }
+    }
+
+    println!("===");
+    println!("=== {} ", format!("Priority TXs").bold().green());
+    println!("===");
+
+    if let Some(chains) = &bridgehub.known_chains {
+        for chain in chains {
+            let st = bridgehub.get_state_transition(*chain).await?;
+
+            println!("Chain {}", chain);
+
+            let mut txs = st.get_priority_transactions(&l1_sequencer).await?;
+            txs.sort_by_key(|x| x.index);
+            for tx in txs {
+                println!("{}", tx);
+            }
+            println!("");
         }
     }
 
