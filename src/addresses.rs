@@ -1,5 +1,6 @@
 use alloy::primitives::{address, Address, U256};
 
+use colored::Colorize;
 use lazy_static::lazy_static;
 use std::collections::HashMap;
 use std::sync::RwLock;
@@ -19,6 +20,10 @@ lazy_static! {
             (
                 address!("0000000000000000000000000000000000010003"),
                 "Shared Bridge",
+            ),
+            (
+                address!("1111111111111111111111111111111111111111"),
+                "SettlementLayerRelaySender",
             ),
         ];
         let mut m = HashMap::new();
@@ -47,7 +52,7 @@ pub fn address_to_human(address: &Address) -> String {
             "{}...{} ({:^26})",
             &tmp[0..5],
             &tmp[tmp.len() - 5..tmp.len()],
-            human_name
+            human_name.bold()
         )
     } else {
         format!("{}", address)

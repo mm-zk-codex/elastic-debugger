@@ -1,11 +1,14 @@
+use std::collections::HashMap;
 use std::fmt::{Debug, Display};
 
 use crate::addresses::{address_to_human, u256_to_address};
 use crate::{sequencer::Sequencer, utils::get_all_events};
-use alloy::primitives::{keccak256, Address, B256};
+use alloy::primitives::{keccak256, Address, B256, U256};
 use alloy::rpc::types::Log;
 use alloy::sol;
 use alloy::sol_types::SolEvent;
+use colored::Colorize;
+use lazy_static::lazy_static;
 
 sol! {
     struct L2CanonicalTransaction {
@@ -49,6 +52,15 @@ sol! {
 }
 }
 
+lazy_static! {
+    static ref KNOWN_SIGNATURES: HashMap<String, String> = {
+        let json_value = serde_json::from_slice(include_bytes!("data/abi_map.json")).unwrap();
+        let pairs: HashMap<String, String> = serde_json::from_value(json_value).unwrap();
+
+        pairs
+    };
+}
+
 pub struct PriorityTransaction {
     pub index: u64,
     tx_id: B256,
@@ -72,6 +84,26 @@ impl Display for PriorityTransaction {
     }
 }
 
+fn format_integer_with_underscores(input: &str) -> String {
+    let reversed_input: String = input.chars().rev().collect();
+
+    // Insert underscores every three characters
+    let mut formatted = String::new();
+    for (index, char) in reversed_input.chars().enumerate() {
+        if index % 3 == 0 && index != 0 {
+            formatted.push('_');
+        }
+        formatted.push(char);
+    }
+
+    // Reverse the formatted string to correct the order
+    formatted.chars().rev().collect()
+}
+
+pub fn wei_as_string(value: U256) -> String {
+    format_integer_with_underscores(&value.to_string())
+}
+
 impl PriorityTransaction {
     pub fn detailed_fmt(&self, f: &mut std::fmt::Formatter<'_>, pad: usize) -> std::fmt::Result {
         let pad = " ".repeat(pad);
@@ -85,6 +117,21 @@ impl PriorityTransaction {
             address_to_human(&u256_to_address(self.l2_tx.to))
         )?;
 
+        if self.l2_tx.data.len() > 4 {
+            let selector = hex::encode(&self.l2_tx.data[0..4]);
+            let entry = KNOWN_SIGNATURES.get(&selector).unwrap_or(&selector);
+
+            writeln!(f, "{}    Method           - {}", pad, entry.bold())?;
+        }
+
+        if self.l2_tx.reserved[0] > U256::ZERO {
+            writeln!(
+                f,
+                "{}    Value (reserved) - {}",
+                pad,
+                wei_as_string(self.l2_tx.reserved[0])
+            )?;
+        }
         Ok(())
     }
 }

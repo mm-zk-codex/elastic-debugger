@@ -1214,6 +1214,7 @@ dependencies = [
  "colored",
  "eyre",
  "futures",
+ "hex",
  "lazy_static",
  "names",
  "reqwest 0.11.27",
