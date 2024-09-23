@@ -7,10 +7,7 @@ use crate::sequencer::Sequencer;
 sol! {
     #[sol(rpc)]
     contract IL2AssetRouter {
-
-            function l1AssetRouter() external view returns (address);
-
-
+        function l1AssetRouter() external view returns (address);
     }
 }
 
@@ -21,9 +18,7 @@ pub struct L2AssetRouter {
 }
 impl Display for L2AssetRouter {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        writeln!(f, "=== L2 Asset -  {}  ", self.address)?;
-        writeln!(f, "   L1 router:   {}", self.l1_router)?;
-        Ok(())
+        self.detailed_fmt(f, 0)
     }
 }
 
@@ -35,5 +30,15 @@ impl L2AssetRouter {
         let l1_router = contract.l1AssetRouter().call().await.unwrap()._0;
 
         Self { address, l1_router }
+    }
+    pub fn detailed_fmt(
+        &self,
+        f: &mut std::fmt::Formatter<'_>,
+        pad_size: usize,
+    ) -> std::fmt::Result {
+        let pad = " ".repeat(pad_size);
+        writeln!(f, "{}=== L2 Asset -  {}  ", pad, self.address)?;
+        writeln!(f, "{}   L1 router:   {}", pad, self.l1_router)?;
+        Ok(())
     }
 }

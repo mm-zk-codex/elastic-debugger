@@ -64,7 +64,7 @@ impl ChainTypeManager {
 
     pub fn detailed_fmt(&self, f: &mut std::fmt::Formatter<'_>, pad: usize) -> std::fmt::Result {
         let pad = " ".repeat(pad);
-        writeln!(f, "{}=== STM -     {}", pad, self.asset_name.bold().white())?;
+        writeln!(f, "{}=== CTM -     {}", pad, self.asset_name.bold().white())?;
         writeln!(f, "{}   Address:   {}", pad, self.address)?;
         writeln!(f, "{}   Asset id:  {}", pad, self.asset_id)?;
         writeln!(f, "{}   Bridgehub: {}", pad, self.bridgehub)?;

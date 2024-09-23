@@ -61,10 +61,10 @@ impl Display for BridgehubChainDetails {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         writeln!(
             f,
-            "    STM:      {}",
+            "    CTM:      {}",
             get_human_name_for(self.stm_asset_id).bold()
         )?;
-        writeln!(f, "    STM:                {}", self.stm_address)?;
+        writeln!(f, "    CTM:                {}", self.stm_address)?;
         writeln!(f, "    ST:                 {}", self.st_address)?;
         writeln!(f, "    Base Token:         {}", self.base_token_address)?;
         writeln!(
@@ -97,7 +97,7 @@ impl AssetRouter {
             }
             AssetRouter::L2(router) => {
                 writeln!(f, "{}L2 asset router", pad)?;
-                writeln!(f, "{}", router)?;
+                router.detailed_fmt(f, pad_size + 3)?;
             }
         }
 

@@ -34,7 +34,7 @@ sol! {
     contract NativeTokenVault {
         function tokenAddress(bytes32) external view returns(address);
         function getERC20Getters(address _token) external view returns (bytes memory);
-        function chainBalance(uint256 _chainId, address _l1Token) external view returns (uint256);
+        function chainBalance(uint256 _chainId, bytes32 assetId) external view returns (uint256);
 
     }
     #[sol(rpc)]
@@ -206,20 +206,12 @@ impl L1AssetRouter {
     ) -> U256 {
         let provider = sequencer.get_provider();
         let contract = NativeTokenVault::new(self.native_token_vault, provider);
-        let address = contract
-            .tokenAddress(asset_id.clone())
+        let balance = contract
+            .chainBalance(chain_id, *asset_id)
             .call()
             .await
             .unwrap()
             ._0;
-        let balance = U256::ZERO;
-        // FIXME
-        /*let balance = contract
-        .chainBalance(chain_id, address)
-        .call()
-        .await
-        .unwrap()
-        ._0;*/
 
         balance
     }
