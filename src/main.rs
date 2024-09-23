@@ -55,11 +55,11 @@ async fn main() -> eyre::Result<()> {
 
     println!("{} L1 (ethereum) - {}", "[OK]".green(), l1_sequencer);
 
-    let l2_sequencer = detect_sequencer("http://127.0.0.1:3050").await?;
+    let l2_sequencer = detect_sequencer("http://127.0.0.1:3150").await?;
     println!("{} L2 (gateway)  - {}", "[OK]".green(), l2_sequencer);
 
     // The client sequencer might not be running - but that's ok.
-    let l3_sequencer = detect_sequencer("http://127.0.0.1:3060").await;
+    let l3_sequencer = detect_sequencer("http://127.0.0.1:3050").await;
     match l3_sequencer {
         Ok(l3_sequencer) => println!("{} L3 (client)   - {}", "[OK]".green(), l3_sequencer),
         Err(err) => println!("{} L3 (client)   - {}", "[ERROR]".red(), err),

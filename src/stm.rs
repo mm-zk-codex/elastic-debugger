@@ -13,15 +13,16 @@ use crate::{bridgehub::IBridgehub, sequencer::Sequencer, utils::get_human_name_f
 
 sol! {
     #[sol(rpc)]
-    contract IStateTransitionManager {
+    contract IChainTypeManager {
         event NewHyperchain(uint256 indexed _chainId, address indexed _hyperchainContract);
+        event MigrationFinalized(uint256 indexed chainId, bytes32 indexed assetId, address indexed zkChain);
         function BRIDGE_HUB() external view returns (address);
         function admin() external view returns (address);
         function owner() external view returns (address);
     }
 }
 
-pub struct StateTransitionManager {
+pub struct ChainTypeManager {
     pub address: Address,
     pub bridgehub: Address,
     pub admin: Address,
@@ -30,10 +31,10 @@ pub struct StateTransitionManager {
     pub asset_name: String,
 }
 
-impl StateTransitionManager {
+impl ChainTypeManager {
     pub async fn new(sequencer: &Sequencer, address: Address) -> Self {
         let provider = sequencer.get_provider();
-        let contract = IStateTransitionManager::new(address, provider);
+        let contract = IChainTypeManager::new(address, provider);
 
         let bridgehub = contract.BRIDGE_HUB().call().await.unwrap()._0;
 
@@ -44,7 +45,7 @@ impl StateTransitionManager {
         let bridgehub_contract = IBridgehub::new(bridgehub, provider);
 
         let asset_id = bridgehub_contract
-            .stmAssetId(address)
+            .ctmAssetId(address)
             .call()
             .await
             .unwrap()
@@ -74,7 +75,7 @@ impl StateTransitionManager {
     }
 }
 
-impl Display for StateTransitionManager {
+impl Display for ChainTypeManager {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         self.detailed_fmt(f, 0)
     }
@@ -92,16 +93,17 @@ pub async fn detect_hyperchains(sequencer: &Sequencer) -> eyre::Result<Vec<(u64,
         let filter = Filter::new()
             .from_block(prev_limit + 1)
             .to_block(current_block)
-            .event_signature(IStateTransitionManager::NewHyperchain::SIGNATURE_HASH);
+            .event_signature(IChainTypeManager::MigrationFinalized::SIGNATURE_HASH);
 
         let logs = sequencer.get_provider().get_logs(&filter).await?;
         for log in logs {
             let chain_id: U256 = log.topics()[1].into();
             let chain_id = U256::to::<u64>(&chain_id);
 
-            let st_address: alloy::primitives::FixedBytes<32> = log.topics()[2];
+            let st_address: alloy::primitives::FixedBytes<32> = log.topics()[3];
             let st_address: [u8; 20] = st_address.0[12..].try_into().unwrap();
             let st_address = Address::from(st_address);
+
             result.push((chain_id, st_address));
         }
         current_block = prev_limit;

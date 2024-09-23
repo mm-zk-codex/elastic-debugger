@@ -159,11 +159,11 @@ impl Display for L1AssetRouter {
 }
 
 impl L1AssetRouter {
-    pub async fn new(sequencer: &Sequencer, address: Address) -> Self {
+    pub async fn new(sequencer: &Sequencer, address: Address) -> eyre::Result<Self> {
         let provider = sequencer.get_provider();
         let contract = IL1AssetRouter::new(address, provider);
 
-        let native_token_vault = contract.nativeTokenVault().call().await.unwrap()._0;
+        let native_token_vault = contract.nativeTokenVault().call().await?._0;
         let bridgehub = contract.BRIDGE_HUB().call().await.unwrap()._0;
 
         let registered_assets = get_all_events(
@@ -191,11 +191,11 @@ impl L1AssetRouter {
             .into_iter()
             .map(|elem| (elem.asset_id, elem));
 
-        Self {
+        Ok(Self {
             address,
             native_token_vault,
             registered_assets: HashMap::from_iter(registered_assets),
-        }
+        })
     }
 
     pub async fn chain_balance(
@@ -212,12 +212,14 @@ impl L1AssetRouter {
             .await
             .unwrap()
             ._0;
-        let balance = contract
-            .chainBalance(chain_id, address)
-            .call()
-            .await
-            .unwrap()
-            ._0;
+        let balance = U256::ZERO;
+        // FIXME
+        /*let balance = contract
+        .chainBalance(chain_id, address)
+        .call()
+        .await
+        .unwrap()
+        ._0;*/
 
         balance
     }

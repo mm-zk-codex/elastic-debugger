@@ -5,7 +5,7 @@ use crate::l1_asset_router::{AssetHandler, L1AssetRouter};
 use crate::l2_asset_router::L2AssetRouter;
 use crate::sequencer::Sequencer;
 use crate::statetransition::StateTransition;
-use crate::stm::{detect_hyperchains, StateTransitionManager};
+use crate::stm::{detect_hyperchains, ChainTypeManager};
 use crate::utils::{address_from_fixedbytes, get_all_events, get_human_name_for};
 use alloy::primitives::{Address, FixedBytes, U256};
 use alloy::providers::{Provider, RootProvider};
@@ -22,14 +22,14 @@ sol! {
     #[sol(rpc)]
     contract IBridgehub {
         address public sharedBridge;
-        mapping(uint256 chainId => address) public stateTransitionManager;
+        mapping(uint256 chainId => address) public chainTypeManager;
         mapping(uint256 chainId => address) public baseToken;
         function getHyperchain(uint256 _chainId) public view returns (address) {}
-        function stmAssetIdFromChainId(uint256 chain_id) public view returns (bytes32) {}
+        function ctmAssetIdFromChainId(uint256 chain_id) public view returns (bytes32) {}
 
-        function stmAssetId(address) public view returns (bytes32) {}
+        function ctmAssetId(address) public view returns (bytes32) {}
 
-        event NewChain(uint256 indexed chainId, address stateTransitionManager, address indexed chainGovernance);
+        event NewChain(uint256 indexed chainId, address chainTypeManager, address indexed chainGovernance);
         event AssetRegistered(
             bytes32 indexed assetInfo,
             address indexed _assetAddress,
@@ -37,12 +37,12 @@ sol! {
             address sender
         );
 
-        event StateTransitionManagerAdded(address indexed stateTransitionManager);
+        event ChainTypeManagerAdded(address indexed chainTypeManager);
 
-        event StateTransitionManagerRemoved(address indexed stateTransitionManager);
+        event ChainTypeManagerRemoved(address indexed chainTypeManager);
 
 
-        address public stmDeployer;
+        address public l1CtmDeployer;
     }
 }
 
@@ -111,9 +111,9 @@ pub struct Bridgehub {
     pub address: Address,
     pub shared_bridge: Address,
     pub known_chains: Option<HashSet<u64>>,
-    pub stms: Option<Vec<StateTransitionManager>>,
+    pub ctms: Option<Vec<ChainTypeManager>>,
     provider: RootProvider<Http<Client>>,
-    pub stm_deployer: Address,
+    pub ctm_deployer: Address,
 
     pub asset_router: AssetRouter,
 }
@@ -122,11 +122,11 @@ impl Display for Bridgehub {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         writeln!(f, "   Bridgehub at          {}", self.address,)?;
         writeln!(f, "   Shared bridge:        {}", self.shared_bridge)?;
-        writeln!(f, "   STM deployer (on L1): {}", self.stm_deployer)?;
-        if let Some(stms) = &self.stms {
-            writeln!(f, "   STMS: {}", stms.len())?;
+        writeln!(f, "   CTM deployer (on L1): {}", self.ctm_deployer)?;
+        if let Some(ctms) = &self.ctms {
+            writeln!(f, "   CTMS: {}", ctms.len())?;
 
-            for stm in stms {
+            for stm in ctms {
                 stm.detailed_fmt(f, 3)?;
             }
         }
@@ -165,21 +165,20 @@ impl Bridgehub {
             None
         };
 
-        let stm_deployer = contract.stmDeployer().call().await?.stmDeployer;
+        let ctm_deployer = contract.l1CtmDeployer().call().await?.l1CtmDeployer;
 
-        let stms = match sequencer.sequencer_type {
+        let ctms = match sequencer.sequencer_type {
             crate::sequencer::SequencerType::L1 => {
-                let stm_addresses = get_all_events(
+                let ctm_addresses = get_all_events(
                     sequencer,
                     address,
-                    IBridgehub::StateTransitionManagerAdded::SIGNATURE_HASH,
+                    IBridgehub::ChainTypeManagerAdded::SIGNATURE_HASH,
                 )
                 .await?
                 .into_iter()
                 .map(|log| address_from_fixedbytes(log.topics().get(1).unwrap()).unwrap());
 
-                let stms =
-                    stm_addresses.map(|address| StateTransitionManager::new(sequencer, address));
+                let stms = ctm_addresses.map(|address| ChainTypeManager::new(sequencer, address));
                 let stms = join_all(stms).await;
                 Some(stms)
             }
@@ -189,7 +188,7 @@ impl Bridgehub {
 
         let asset_router = match sequencer.sequencer_type {
             crate::sequencer::SequencerType::L1 => {
-                AssetRouter::L1(L1AssetRouter::new(sequencer, shared_bridge).await)
+                AssetRouter::L1(L1AssetRouter::new(sequencer, shared_bridge).await?)
             }
             crate::sequencer::SequencerType::L2(_) => {
                 AssetRouter::L2(L2AssetRouter::new(sequencer, shared_bridge).await)
@@ -201,8 +200,8 @@ impl Bridgehub {
             shared_bridge,
             known_chains,
             provider: sequencer.get_provider(),
-            stms,
-            stm_deployer,
+            ctms,
+            ctm_deployer,
             asset_router,
         })
     }
@@ -276,7 +275,7 @@ impl Bridgehub {
     pub async fn get_chain_details(&self, chain_id: u64) -> eyre::Result<BridgehubChainDetails> {
         sol! {
             #[sol(rpc)]
-            contract StateTransitionManager {
+            contract IChainTypeManager {
                 address public validatorTimelock;
             }
         }
@@ -284,7 +283,7 @@ impl Bridgehub {
         let contract = IBridgehub::new(self.address, &self.provider);
 
         let stm_address = contract
-            .stateTransitionManager(U256::from(chain_id))
+            .chainTypeManager(U256::from(chain_id))
             .call()
             .await?
             ._0;
@@ -300,7 +299,7 @@ impl Bridgehub {
             .await?
             ._0;
 
-        let stm_contract = StateTransitionManager::new(stm_address, &self.provider);
+        let stm_contract = IChainTypeManager::new(stm_address, &self.provider);
 
         let validator_timelock_address = stm_contract
             .validatorTimelock()
@@ -309,7 +308,7 @@ impl Bridgehub {
             .validatorTimelock;
 
         let asset_id = contract
-            .stmAssetIdFromChainId(U256::from(chain_id))
+            .ctmAssetIdFromChainId(U256::from(chain_id))
             .call()
             .await?
             ._0;
