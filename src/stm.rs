@@ -45,7 +45,7 @@ impl ChainTypeManager {
         let bridgehub_contract = IBridgehub::new(bridgehub, provider);
 
         let asset_id = bridgehub_contract
-            .ctmAssetId(address)
+            .ctmAssetIdFromAddress(address)
             .call()
             .await
             .unwrap()
