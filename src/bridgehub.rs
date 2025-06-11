@@ -27,7 +27,7 @@ sol! {
         function getHyperchain(uint256 _chainId) public view returns (address) {}
         function ctmAssetIdFromChainId(uint256 chain_id) public view returns (bytes32) {}
 
-        function ctmAssetId(address) public view returns (bytes32) {}
+        function ctmAssetIdFromAddress(address) public view returns (bytes32) {}
 
         event NewChain(uint256 indexed chainId, address chainTypeManager, address indexed chainGovernance);
         event AssetRegistered(
