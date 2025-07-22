@@ -14,7 +14,7 @@ sol! {
 // a.k.a SharedBridge
 pub struct L2AssetRouter {
     pub address: Address,
-    pub l1_router: Address,
+    //pub l1_router: Address,
 }
 impl Display for L2AssetRouter {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -27,9 +27,9 @@ impl L2AssetRouter {
         let provider = sequencer.get_provider();
         let contract = IL2AssetRouter::new(address, provider);
 
-        let l1_router = contract.l1AssetRouter().call().await.unwrap()._0;
+        //let l1_router = contract.l1AssetRouter().call().await.unwrap()._0;
 
-        Self { address, l1_router }
+        Self { address }
     }
     pub fn detailed_fmt(
         &self,
@@ -38,7 +38,7 @@ impl L2AssetRouter {
     ) -> std::fmt::Result {
         let pad = " ".repeat(pad_size);
         writeln!(f, "{}=== L2 Asset -  {}  ", pad, self.address)?;
-        writeln!(f, "{}   L1 router:   {}", pad, self.l1_router)?;
+        //writeln!(f, "{}   L1 router:   {}", pad, self.l1_router)?;
         Ok(())
     }
 }
