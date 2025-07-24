@@ -82,8 +82,8 @@ impl StateTransition {
 
         let verifier = contract.getVerifier().call().await?._0;
         let total_batches_committed = contract.getTotalBatchesCommitted().call().await?._0;
-        let total_batches_verified = contract.getTotalBatchesCommitted().call().await?._0;
-        let total_batches_executed = contract.getTotalBatchesCommitted().call().await?._0;
+        let total_batches_verified = contract.getTotalBatchesVerified().call().await?._0;
+        let total_batches_executed = contract.getTotalBatchesExecuted().call().await?._0;
         let protocol_version = contract.getSemverProtocolVersion().call().await?;
 
         let admin = contract.getAdmin().call().await?._0;
