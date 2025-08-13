@@ -17,13 +17,13 @@ pub struct Sequencer {
     pub sequencer_type: SequencerType,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum SequencerType {
     L1,
     L2(L2SequencerInfo),
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct L2SequencerInfo {
     pub l1_chain_id: u64,
     pub bridgehub_address: Address,
@@ -54,6 +54,11 @@ impl Sequencer {
 }
 
 fn is_port_active(address: &str) -> bool {
+    if address.starts_with("https:/") {
+        // Assume that https urls are always active.
+        return true;
+    }
+
     let timeout = Duration::from_secs(1);
     let address = address.strip_prefix("http://").or(Some(address)).unwrap();
 
@@ -99,6 +104,13 @@ struct L1ChainIdResult {
 }
 
 async fn get_l1_chain_id(url: &str) -> eyre::Result<u64> {
+    if url == "http://127.0.0.1:3050" {
+        // TODO: small hack for the zksync os server.
+        // As it doesnt' expose zks_L1ChainId anymore.
+        dbg!("Returning chainid");
+        return Ok(31337);
+    }
+
     let response = send_json_request(url, "zks_L1ChainId").await?;
     let response_json: L1ChainIdResult = response.json().await?;
     let trimmed_hex = response_json.result.trim_start_matches("0x");
@@ -118,6 +130,7 @@ pub async fn detect_sequencer(rpc_url: &str) -> eyre::Result<Sequencer> {
     > = ProviderBuilder::new().on_http(rpc_url.parse()?);
 
     let chain_id = provider.get_chain_id().await?;
+    println!("Detected chain ID: {}", chain_id);
     let latest_block = provider.get_block_number().await?;
 
     // Now let's see if this is an 'L2' or 'L1'.
@@ -128,6 +141,11 @@ pub async fn detect_sequencer(rpc_url: &str) -> eyre::Result<Sequencer> {
         }),
         Err(_) => SequencerType::L1,
     };
+
+    println!(
+        "Detected sequencer type: {:?} at {}",
+        sequencer_type, rpc_url
+    );
 
     Ok(Sequencer {
         rpc_url: rpc_url.to_string(),

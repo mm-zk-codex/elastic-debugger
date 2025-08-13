@@ -24,8 +24,8 @@ impl Display for L2AssetRouter {
 
 impl L2AssetRouter {
     pub async fn new(sequencer: &Sequencer, address: Address) -> Self {
-        let provider = sequencer.get_provider();
-        let contract = IL2AssetRouter::new(address, provider);
+        //let provider = sequencer.get_provider();
+        //let contract = IL2AssetRouter::new(address, provider);
 
         //let l1_router = contract.l1AssetRouter().call().await.unwrap()._0;
 

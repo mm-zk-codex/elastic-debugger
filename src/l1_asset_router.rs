@@ -3,15 +3,9 @@ use std::{collections::HashMap, fmt::Display};
 use alloy::{
     primitives::{address, Address, FixedBytes, U256},
     sol,
-    sol_types::SolEvent,
 };
 
-use futures::future::join_all;
-
-use crate::{
-    sequencer::Sequencer,
-    utils::{address_from_fixedbytes, get_all_events, get_human_name_for},
-};
+use crate::{sequencer::Sequencer, utils::get_human_name_for};
 
 use colored::Colorize;
 
@@ -164,9 +158,9 @@ impl L1AssetRouter {
         let contract = IL1AssetRouter::new(address, provider);
 
         let native_token_vault = contract.nativeTokenVault().call().await?._0;
-        let bridgehub = contract.BRIDGE_HUB().call().await.unwrap()._0;
+        //let bridgehub = contract.BRIDGE_HUB().call().await.unwrap()._0;
 
-        let registered_assets = get_all_events(
+        /*let registered_assets = get_all_events(
             sequencer,
             address,
             IL1AssetRouter::AssetHandlerRegisteredInitial::SIGNATURE_HASH,
@@ -189,7 +183,9 @@ impl L1AssetRouter {
         let registered_assets = join_all(registered_assets)
             .await
             .into_iter()
-            .map(|elem| (elem.asset_id, elem));
+            .map(|elem| (elem.asset_id, elem));*/
+
+        let registered_assets = [];
 
         Ok(Self {
             address,

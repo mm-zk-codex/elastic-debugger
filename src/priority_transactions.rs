@@ -184,6 +184,7 @@ pub async fn fetch_all_priority_transactions(
                 sequencer,
                 address,
                 IMailbox::NewPriorityRequest::SIGNATURE_HASH,
+                5000, // 5k block limit
             )
             .await
             .unwrap();

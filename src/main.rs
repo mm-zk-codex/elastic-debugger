@@ -1,5 +1,6 @@
 use alloy::primitives::{address, U256};
 use alloy::sol;
+use clap::{Parser, ValueEnum};
 use colored::Colorize;
 use sequencer::{detect_sequencer, SequencerType};
 
@@ -45,24 +46,65 @@ fn format_wei_amount(wei: &U256) -> String {
     }
 }
 
+#[derive(Parser)]
+#[command(version, about, long_about = None)]
+struct Cli {
+    #[arg(short, long)]
+    network: Option<Network>,
+}
+
+#[derive(ValueEnum, Clone, Debug, PartialEq)]
+enum Network {
+    Local,
+    Mainnet,
+    Testnet,
+    Stage,
+}
+
 #[tokio::main]
 async fn main() -> eyre::Result<()> {
+    let args = Cli::parse();
+
+    let (l1_rpc, l2_rpc, l3_rpc) = match args.network.clone().unwrap_or(Network::Local) {
+        Network::Local => (
+            "http://127.0.0.1:8545",
+            "http://127.0.0.1:3150",
+            "http://127.0.0.1:3050",
+        ),
+        Network::Mainnet => (
+            //"https://rpc.flashbots.net",
+            "https://eth-mainnet.g.alchemy.com/v2/R5gbe3XikmVDSd1pnRW9R_01syhiAxVd",
+            "https://rpc.era-gateway-mainnet.zksync.dev/",
+            "https://mainnet.era.zksync.io",
+        ),
+        Network::Stage => (
+            "https://eth-sepolia.g.alchemy.com/v2/R5gbe3XikmVDSd1pnRW9R_01syhiAxVd",
+            "https://rpc.era-gateway-stage.zksync.dev/",
+            "https://dev-api.era-stage-proofs.zksync.dev/",
+        ),
+        Network::Testnet => (
+            "https://eth-sepolia.g.alchemy.com/v2/R5gbe3XikmVDSd1pnRW9R_01syhiAxVd",
+            "https://rpc.era-gateway-testnet.zksync.dev/",
+            "https://sepolia.era.zksync.dev",
+        ),
+    };
+
     println!("====================================");
     println!("=====   Elastic chain debugger =====");
     println!("====================================");
 
-    let l1_sequencer = detect_sequencer("http://127.0.0.1:8545").await?;
+    let l1_sequencer = detect_sequencer(l1_rpc).await?;
 
     println!("{} L1 (ethereum) - {}", "[OK]".green(), l1_sequencer);
 
-    let l2_sequencer = detect_sequencer("http://127.0.0.1:3150").await;
+    let l2_sequencer = detect_sequencer(l2_rpc).await;
     match &l2_sequencer {
         Ok(l2_sequencer) => println!("{} L2 (sequencer) - {}", "[OK]".green(), l2_sequencer),
         Err(err) => println!("{} L2 (sequencer) - {}", "[ERROR]".red(), err),
     };
 
     // The client sequencer might not be running - but that's ok.
-    let l3_sequencer = detect_sequencer("http://127.0.0.1:3050").await;
+    let l3_sequencer = detect_sequencer(l3_rpc).await;
     match &l3_sequencer {
         Ok(l3_sequencer) => println!("{} L3 (client)   - {}", "[OK]".green(), l3_sequencer),
         Err(err) => println!("{} L3 (client)   - {}", "[ERROR]".red(), err),
@@ -95,7 +137,7 @@ async fn main() -> eyre::Result<()> {
         }
     };
 
-    let bridgehub = bridgehub::Bridgehub::new(&l1_sequencer, info.bridgehub_address, true).await?;
+    let bridgehub = bridgehub::Bridgehub::new(&l1_sequencer, info.bridgehub_address).await?;
 
     println!("===");
     println!("=== {} ", format!("Bridgehub - L1").bold().green());
@@ -127,7 +169,7 @@ async fn main() -> eyre::Result<()> {
         Ok(l2_sequencer) => {
             let gateway_bridgehub_address = address!("0000000000000000000000000000000000010002");
             let gateway_bridgehub =
-                bridgehub::Bridgehub::new(&l2_sequencer, gateway_bridgehub_address, true).await?;
+                bridgehub::Bridgehub::new(&l2_sequencer, gateway_bridgehub_address).await?;
 
             println!("===");
             println!("=== {} ", format!("Bridgehub - Gateway").bold().green());
@@ -146,27 +188,36 @@ async fn main() -> eyre::Result<()> {
         Err(_) => None,
     };
 
-    if let Some(chains) = &bridgehub.known_chains {
-        for chain in chains {
-            let st = bridgehub.get_state_transition(*chain).await?;
+    for chain in &bridgehub.known_chains {
+        let st = bridgehub.get_state_transition(*chain).await;
 
+        if let Ok(st) = st {
             print!("Chain {} on L1: {}", chain, st);
-            // For L1 bridgehub - verify all the priority queue hashes.
-            st.verify_priority_root_hash(&l1_sequencer).await?;
-            println!("  Priority tree hash: {}", "VALID".green());
-            println!("");
+            if args.network.as_ref().unwrap_or(&Network::Local) == &Network::Local {
+                // For L1 bridgehub - verify all the priority queue hashes.
+                st.verify_priority_root_hash(&l1_sequencer).await?;
+                println!("  Priority tree hash: {}", "VALID".green());
+            } else {
+                println!("  Skipping priority hash verification on non-local chains.");
+            }
+        } else {
+            println!(
+                "Failed to get info for Chain {} on L1: {}",
+                chain,
+                st.unwrap_err()
+            );
         }
+
+        println!("");
     }
 
     if let Some(gateway_bridgehub) = &gateway_bridgehub {
-        if let Some(chains) = &gateway_bridgehub.known_chains {
-            for chain in chains {
-                println!(
-                    "Chain {} on Gateway: {}",
-                    chain,
-                    gateway_bridgehub.get_state_transition(*chain).await?
-                );
-            }
+        for chain in &gateway_bridgehub.known_chains {
+            println!(
+                "Chain {} on Gateway: {}",
+                chain,
+                gateway_bridgehub.get_state_transition(*chain).await?
+            );
         }
     }
 
@@ -174,18 +225,24 @@ async fn main() -> eyre::Result<()> {
     println!("=== {} ", format!("Priority TXs").bold().green());
     println!("===");
 
-    if let Some(chains) = &bridgehub.known_chains {
-        for chain in chains {
-            let st = bridgehub.get_state_transition(*chain).await?;
+    for chain in &bridgehub.known_chains {
+        let st = bridgehub.get_state_transition(*chain).await;
 
-            println!("Chain {}", chain);
+        println!("Chain {}", chain);
 
+        if let Ok(st) = st {
             let mut txs = st.get_priority_transactions(&l1_sequencer).await?;
             txs.sort_by_key(|x| x.index);
             for tx in txs {
                 println!("{}", tx);
             }
             println!("");
+        } else {
+            println!(
+                "Failed to get priority transactions for Chain {}: {}",
+                chain,
+                st.unwrap_err()
+            );
         }
     }
 

@@ -5,16 +5,13 @@ use crate::l1_asset_router::{AssetHandler, L1AssetRouter};
 use crate::l2_asset_router::L2AssetRouter;
 use crate::sequencer::Sequencer;
 use crate::statetransition::StateTransition;
-use crate::stm::{detect_hyperchains, ChainTypeManager};
-use crate::utils::{address_from_fixedbytes, get_all_events, get_human_name_for};
+use crate::stm::ChainTypeManager;
+use crate::utils::get_human_name_for;
 use alloy::primitives::{Address, FixedBytes, U256};
 use alloy::providers::{Provider, RootProvider};
-use alloy::rpc::types::Filter;
 use alloy::sol;
-use alloy::sol_types::SolEvent;
 use alloy::transports::http::{Client, Http};
 use colored::Colorize;
-use eyre::OptionExt;
 
 use futures::future::join_all;
 
@@ -41,6 +38,7 @@ sol! {
 
         event ChainTypeManagerRemoved(address indexed chainTypeManager);
 
+        function getAllZKChainChainIDs() external view returns (uint256[] memory);
 
         address public l1CtmDeployer;
     }
@@ -110,7 +108,7 @@ impl AssetRouter {
 pub struct Bridgehub {
     pub address: Address,
     pub shared_bridge: Address,
-    pub known_chains: Option<HashSet<u64>>,
+    pub known_chains: HashSet<u64>,
     pub ctms: Option<Vec<ChainTypeManager>>,
     provider: RootProvider<Http<Client>>,
     pub ctm_deployer: Address,
@@ -139,11 +137,7 @@ impl Display for Bridgehub {
 }
 
 impl Bridgehub {
-    pub async fn new(
-        sequencer: &Sequencer,
-        address: Address,
-        autodetect_chains: bool,
-    ) -> eyre::Result<Bridgehub> {
+    pub async fn new(sequencer: &Sequencer, address: Address) -> eyre::Result<Bridgehub> {
         let provider = sequencer.get_provider();
 
         let data = provider.get_code_at(address).await?;
@@ -159,31 +153,31 @@ impl Bridgehub {
         let contract = IBridgehub::new(address, provider);
         let shared_bridge = contract.sharedBridge().call().await?.sharedBridge;
 
-        let known_chains = if autodetect_chains {
-            Some(Bridgehub::detect_chains(sequencer, address).await?)
-        } else {
-            None
-        };
+        let known_chains = contract.getAllZKChainChainIDs().call().await?._0;
+
+        let known_chains: HashSet<u64> =
+            known_chains.iter().map(|x| x.try_into().unwrap()).collect();
 
         let ctm_deployer = contract.l1CtmDeployer().call().await?.l1CtmDeployer;
 
-        let ctms = match sequencer.sequencer_type {
-            crate::sequencer::SequencerType::L1 => {
-                let ctm_addresses = get_all_events(
-                    sequencer,
-                    address,
-                    IBridgehub::ChainTypeManagerAdded::SIGNATURE_HASH,
-                )
-                .await?
-                .into_iter()
-                .map(|log| address_from_fixedbytes(log.topics().get(1).unwrap()).unwrap());
+        let mut ctm_addresses = HashSet::new();
 
-                let stms = ctm_addresses.map(|address| ChainTypeManager::new(sequencer, address));
-                let stms = join_all(stms).await;
-                Some(stms)
-            }
-            // FIXME: Currently broken for L2.
-            crate::sequencer::SequencerType::L2(_) => None,
+        for chain_id in known_chains.iter() {
+            let aa = contract
+                .chainTypeManager(U256::from(*chain_id))
+                .call()
+                .await
+                .map(|x| x._0)
+                .unwrap();
+            ctm_addresses.insert(aa);
+        }
+
+        let ctms = {
+            let stms = ctm_addresses
+                .into_iter()
+                .map(|address| ChainTypeManager::new(sequencer, address));
+            let stms = join_all(stms).await;
+            Some(stms)
         };
 
         let asset_router = match sequencer.sequencer_type {
@@ -205,67 +199,13 @@ impl Bridgehub {
             asset_router,
         })
     }
-    pub async fn detect_chains(
-        sequencer: &Sequencer,
-        bridgehub: Address,
-    ) -> eyre::Result<HashSet<u64>> {
-        match sequencer.sequencer_type {
-            crate::sequencer::SequencerType::L1 => {
-                Bridgehub::detect_chains_with_newchain_event(sequencer, bridgehub).await
-            }
-            crate::sequencer::SequencerType::L2(_) => {
-                // For L2, we have to depend on NewHyperchain.
-                let hyperchains = detect_hyperchains(sequencer).await?;
-                Ok(hyperchains.iter().map(|(chain, _)| chain.clone()).collect())
-            }
-        }
-    }
-
-    async fn detect_chains_with_newchain_event(
-        sequencer: &Sequencer,
-        bridgehub: Address,
-    ) -> eyre::Result<HashSet<u64>> {
-        let provider = sequencer.get_provider();
-        let mut current_block = provider.get_block_number().await?;
-        let mut known_chains = HashSet::new();
-
-        while current_block > 0 {
-            let prev_limit = current_block.saturating_sub(10000);
-
-            let filter = Filter::new()
-                .from_block(prev_limit + 1)
-                .to_block(current_block)
-                .address(bridgehub);
-
-            let logs = sequencer.get_provider().get_logs(&filter).await?;
-            for log in logs {
-                match log.topic0() {
-                    Some(&IBridgehub::NewChain::SIGNATURE_HASH) => {
-                        let chain_id: U256 = log.topics()[1].into();
-                        known_chains.insert(chain_id.to::<u64>());
-                    }
-
-                    Some(&IBridgehub::AssetRegistered::SIGNATURE_HASH) => {
-                        // TODO: do something with assets.
-                        //println!("New asset. {:?}", log);
-                    }
-                    _ => (),
-                }
-            }
-            current_block = prev_limit;
-        }
-
-        Ok(known_chains)
-    }
 
     pub async fn print_detailed_info(&self) -> eyre::Result<()> {
-        let chains = self.known_chains.clone().ok_or_eyre("chains not scanned")?;
-
         println!("  Bridgehub:          {}", self.address);
 
-        for chain_id in chains {
+        for chain_id in &self.known_chains {
             println!("{}", format!("  Chain: {:?}", chain_id).bold());
-            let details = self.get_chain_details(chain_id).await?;
+            let details = self.get_chain_details(*chain_id).await?;
             println!("{}", details);
         }
 
@@ -337,12 +277,11 @@ impl Bridgehub {
         &self,
         sequencer: &Sequencer,
     ) -> eyre::Result<HashMap<u64, HashMap<String, U256>>> {
-        let chains = self.known_chains.clone().unwrap();
         let mut result = HashMap::new();
 
-        for chain_id in chains {
-            let foo = self.get_chain_balances(sequencer, chain_id).await?;
-            result.insert(chain_id, foo);
+        for chain_id in &self.known_chains {
+            let foo = self.get_chain_balances(sequencer, *chain_id).await?;
+            result.insert(*chain_id, foo);
         }
 
         Ok(result)
