@@ -1,4 +1,4 @@
-use alloy::primitives::{address, U256};
+use alloy::primitives::{address, Address, U256};
 use alloy::sol;
 use clap::{Parser, ValueEnum};
 use colored::Colorize;
@@ -51,6 +51,12 @@ fn format_wei_amount(wei: &U256) -> String {
 struct Cli {
     #[arg(short, long)]
     network: Option<Network>,
+
+    #[arg(long)]
+    bridgehub: Option<Address>,
+
+    #[arg(long)]
+    l1_url: Option<String>,
 }
 
 #[derive(ValueEnum, Clone, Debug, PartialEq)]
@@ -73,21 +79,24 @@ async fn main() -> eyre::Result<()> {
         ),
         Network::Mainnet => (
             //"https://rpc.flashbots.net",
-            "https://eth-mainnet.g.alchemy.com/v2/R5gbe3XikmVDSd1pnRW9R_01syhiAxVd",
+            "https://eth.llamarpc.com",
             "https://rpc.era-gateway-mainnet.zksync.dev/",
             "https://mainnet.era.zksync.io",
         ),
         Network::Stage => (
-            "https://eth-sepolia.g.alchemy.com/v2/R5gbe3XikmVDSd1pnRW9R_01syhiAxVd",
+            "https://1rpc.io/sepolia",
             "https://rpc.era-gateway-stage.zksync.dev/",
             "https://dev-api.era-stage-proofs.zksync.dev/",
         ),
         Network::Testnet => (
-            "https://eth-sepolia.g.alchemy.com/v2/R5gbe3XikmVDSd1pnRW9R_01syhiAxVd",
+            "https://1rpc.io/sepolia",
+            // TODO: for testnet, we'll have to point at the new testnet gateway once it's live
             "https://rpc.era-gateway-testnet.zksync.dev/",
             "https://sepolia.era.zksync.dev",
         ),
     };
+
+    let l1_rpc = args.l1_url.as_deref().unwrap_or(l1_rpc);
 
     println!("====================================");
     println!("=====   Elastic chain debugger =====");
@@ -110,10 +119,10 @@ async fn main() -> eyre::Result<()> {
         Err(err) => println!("{} L3 (client)   - {}", "[ERROR]".red(), err),
     };
 
-    let info = match &l2_sequencer {
+    let bridgehub_address = match &l2_sequencer {
         Ok(l2_sequencer) => {
             if let SequencerType::L2(info) = &l2_sequencer.sequencer_type {
-                info
+                info.bridgehub_address
             } else {
                 eyre::bail!("port 3050 doesn't have zksync sequencer");
             }
@@ -125,7 +134,7 @@ async fn main() -> eyre::Result<()> {
             );
             if let Ok(l3_sequencer) = &l3_sequencer {
                 if let SequencerType::L2(info) = &l3_sequencer.sequencer_type {
-                    info
+                    info.bridgehub_address
                 } else {
                     eyre::bail!("port 3050 doesn't have zksync sequencer");
                 }
@@ -137,7 +146,9 @@ async fn main() -> eyre::Result<()> {
         }
     };
 
-    let bridgehub = bridgehub::Bridgehub::new(&l1_sequencer, info.bridgehub_address).await?;
+    let bridgehub =
+        bridgehub::Bridgehub::new(&l1_sequencer, args.bridgehub.unwrap_or(bridgehub_address))
+            .await?;
 
     println!("===");
     println!("=== {} ", format!("Bridgehub - L1").bold().green());
