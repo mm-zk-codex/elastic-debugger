@@ -145,3 +145,226 @@
     padding: 1.25rem;
   }
 }
+
+/* New layout and components */
+.layout {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.layout__row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.section-title {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.node__header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.node__title {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.node__subtitle {
+  color: #6b7280;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.9rem;
+}
+
+.arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: 999px;
+  background: #f1f5f9;
+  width: fit-content;
+}
+
+.arrow__label {
+  color: #6b7280;
+  font-size: 0.85rem;
+}
+
+.arrow__icon {
+  font-weight: 700;
+}
+
+.arrow__target {
+  font-weight: 600;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  width: fit-content;
+}
+
+.badge--success {
+  background: #e7f8ef;
+  color: #127a3a;
+}
+
+.badge--danger {
+  background: #feecec;
+  color: #a31212;
+}
+
+.badge--neutral {
+  background: #eef2ff;
+  color: #1e3a8a;
+}
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.pill {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #0f172a;
+  padding: 0.35rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+}
+
+.pill--ok {
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+}
+
+.pill--warn {
+  background: #fff7ed;
+  border-color: #fed7aa;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.75rem 1rem;
+}
+
+.kv {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.kv__k {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.kv__v {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.chain__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.chain__title {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.row-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.row-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.settlement {
+  color: #6b7280;
+  font-weight: 600;
+}
+
+.collapsible {
+  border-top: 1px solid #e5e7eb;
+  padding-top: 0.5rem;
+}
+
+.collapsible__trigger {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: transparent;
+  border: none;
+  padding: 0.25rem 0;
+  font-weight: 600;
+  cursor: pointer;
+  color: #111827;
+}
+
+.chevron {
+  transition: transform 0.2s ease;
+  display: inline-block;
+}
+
+.chevron.open {
+  transform: rotate(90deg);
+}
+
+.collapsible__content {
+  margin-top: 0.5rem;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+.table th,
+.table td {
+  text-align: left;
+  padding: 0.5rem 0.6rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.table th {
+  color: #6b7280;
+  font-weight: 600;
+}
+
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
