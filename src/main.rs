@@ -1,8 +1,17 @@
 use alloy::primitives::{address, Address, U256};
 use alloy::sol;
+use bridgehub::BridgehubSummary;
 use clap::{Parser, ValueEnum};
 use colored::Colorize;
+use priority_transactions::PriorityTransactionReport;
 use sequencer::{detect_sequencer, SequencerType};
+use serde::Serialize;
+use statetransition::{StateTransition, StateTransitionReport};
+use std::collections::BTreeMap;
+use std::fmt;
+use std::fs;
+use std::path::{Path, PathBuf};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 mod addresses;
 mod bridgehub;
@@ -13,6 +22,8 @@ mod sequencer;
 mod statetransition;
 mod stm;
 mod utils;
+
+use chrono::Utc;
 
 sol! {
     #[sol(rpc)]
@@ -57,6 +68,12 @@ struct Cli {
 
     #[arg(long)]
     l1_url: Option<String>,
+
+    #[arg(long, value_name = "PATH", default_value = "data/output.json")]
+    output: PathBuf,
+
+    #[arg(long)]
+    versioned_output: bool,
 }
 
 #[derive(ValueEnum, Clone, Debug, PartialEq)]
@@ -65,6 +82,153 @@ enum Network {
     Mainnet,
     Testnet,
     Stage,
+}
+
+impl fmt::Display for Network {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let label = match self {
+            Network::Local => "local",
+            Network::Mainnet => "mainnet",
+            Network::Testnet => "testnet",
+            Network::Stage => "stage",
+        };
+        write!(f, "{}", label)
+    }
+}
+
+#[derive(Serialize)]
+struct DiagnosticsReport {
+    generated_at_unix: u64,
+    network: String,
+    sequencers: SequencersReport,
+    bridgehub: BridgehubSummary,
+    gateway_bridgehub: Option<BridgehubSummary>,
+    l1_balances: Vec<ChainBalanceReport>,
+    chains: Vec<ChainDiagnostics>,
+}
+
+#[derive(Serialize)]
+struct SequencersReport {
+    l1: SequencerStatus,
+    l2: SequencerStatus,
+    l3: SequencerStatus,
+}
+
+#[derive(Serialize)]
+struct SequencerStatus {
+    status: String,
+    sequencer: Option<sequencer::Sequencer>,
+    error: Option<String>,
+}
+
+impl SequencerStatus {
+    fn ok(sequencer: sequencer::Sequencer) -> Self {
+        Self {
+            status: "ok".to_string(),
+            sequencer: Some(sequencer),
+            error: None,
+        }
+    }
+
+    fn err(error: &eyre::Report) -> Self {
+        Self {
+            status: "error".to_string(),
+            sequencer: None,
+            error: Some(error.to_string()),
+        }
+    }
+}
+
+#[derive(Serialize)]
+struct ChainBalanceReport {
+    chain_id: u64,
+    tokens: Vec<TokenBalanceReport>,
+}
+
+#[derive(Serialize)]
+struct TokenBalanceReport {
+    token: String,
+    raw_wei: String,
+    formatted: String,
+}
+
+#[derive(Serialize)]
+struct ChainDiagnostics {
+    chain_id: u64,
+    state_transition: Option<StateTransitionReport>,
+    state_transition_error: Option<String>,
+    priority_tree_verified: Option<bool>,
+    priority_tree_note: Option<String>,
+    priority_transactions: Vec<PriorityTransactionReport>,
+    priority_tx_error: Option<String>,
+}
+
+impl ChainDiagnostics {
+    fn new(chain_id: u64) -> Self {
+        Self {
+            chain_id,
+            state_transition: None,
+            state_transition_error: None,
+            priority_tree_verified: None,
+            priority_tree_note: None,
+            priority_transactions: Vec::new(),
+            priority_tx_error: None,
+        }
+    }
+}
+
+fn resolve_output_path(base_path: &Path, versioned: bool) -> PathBuf {
+    if !versioned {
+        return base_path.to_path_buf();
+    }
+
+    let timestamp = Utc::now().format("%Y%m%dT%H%M%SZ");
+    let stem = base_path
+        .file_stem()
+        .and_then(|s| s.to_str())
+        .unwrap_or("output");
+    let extension = base_path
+        .extension()
+        .and_then(|s| s.to_str())
+        .unwrap_or("json");
+    let filename = format!("{stem}-{timestamp}.{extension}");
+
+    match base_path.parent() {
+        Some(parent) => parent.join(filename),
+        None => PathBuf::from(filename),
+    }
+}
+
+fn write_report(
+    report: &DiagnosticsReport,
+    base_path: &Path,
+    versioned: bool,
+) -> eyre::Result<PathBuf> {
+    let target_path = resolve_output_path(base_path, versioned);
+
+    if let Some(parent) = target_path.parent() {
+        fs::create_dir_all(parent)?;
+    }
+
+    let serialized = serde_json::to_vec_pretty(report)?;
+
+    let tmp_extension = {
+        let ext = target_path
+            .extension()
+            .and_then(|ext| ext.to_str())
+            .unwrap_or("json");
+        if ext.is_empty() {
+            "tmp".to_string()
+        } else {
+            format!("{ext}.tmp")
+        }
+    };
+    let tmp_path = target_path.with_extension(tmp_extension);
+
+    fs::write(&tmp_path, serialized)?;
+    fs::rename(&tmp_path, &target_path)?;
+
+    Ok(target_path)
 }
 
 #[tokio::main]
@@ -161,26 +325,42 @@ async fn main() -> eyre::Result<()> {
 
     println!("=== Balances ");
 
-    let balances = bridgehub
-        .get_all_chains_balances(&l1_sequencer)
-        .await
-        .unwrap();
-    for (chain, balance) in balances.iter() {
-        println!("   Chain : {}", format!("{}", chain).bold());
-        for (token, amount) in balance.iter() {
-            println!(
-                "      {:<20} : {:>28}",
-                token.bold(),
-                format_wei_amount(amount)
-            );
+    let balances = bridgehub.get_all_chains_balances(&l1_sequencer).await?;
+
+    let mut balance_reports = Vec::new();
+    let mut sorted_balance_keys: Vec<u64> = balances.keys().copied().collect();
+    sorted_balance_keys.sort_unstable();
+    for chain in sorted_balance_keys {
+        if let Some(balance) = balances.get(&chain) {
+            println!("   Chain : {}", format!("{}", chain).bold());
+
+            let mut token_reports = Vec::new();
+            let mut tokens: Vec<_> = balance.iter().collect();
+            tokens.sort_by(|a, b| a.0.cmp(b.0));
+            for (token, amount) in tokens {
+                println!(
+                    "      {:<20} : {:>28}",
+                    token.bold(),
+                    format_wei_amount(amount)
+                );
+                token_reports.push(TokenBalanceReport {
+                    token: token.clone(),
+                    raw_wei: amount.to_string(),
+                    formatted: format_wei_amount(amount),
+                });
+            }
+            balance_reports.push(ChainBalanceReport {
+                chain_id: chain,
+                tokens: token_reports,
+            });
         }
     }
 
-    let gateway_bridgehub = match l2_sequencer {
+    let gateway_bridgehub = match &l2_sequencer {
         Ok(l2_sequencer) => {
             let gateway_bridgehub_address = address!("0000000000000000000000000000000000010002");
             let gateway_bridgehub =
-                bridgehub::Bridgehub::new(&l2_sequencer, gateway_bridgehub_address).await?;
+                bridgehub::Bridgehub::new(l2_sequencer, gateway_bridgehub_address).await?;
 
             println!("===");
             println!("=== {} ", format!("Bridgehub - Gateway").bold().green());
@@ -199,27 +379,42 @@ async fn main() -> eyre::Result<()> {
         Err(_) => None,
     };
 
-    for chain in &bridgehub.known_chains {
+    let bridgehub_summary = bridgehub.to_summary();
+    let gateway_summary = gateway_bridgehub.as_ref().map(|g| g.to_summary());
+
+    let mut chain_reports: BTreeMap<u64, ChainDiagnostics> = BTreeMap::new();
+    let mut state_transitions: BTreeMap<u64, StateTransition> = BTreeMap::new();
+    let mut sorted_chains: Vec<u64> = bridgehub.known_chains.iter().copied().collect();
+    sorted_chains.sort_unstable();
+
+    for chain in &sorted_chains {
+        let mut diagnostics = ChainDiagnostics::new(*chain);
         let st = bridgehub.get_state_transition(*chain).await;
 
-        if let Ok(st) = st {
-            print!("Chain {} on L1: {}", chain, st);
-            if args.network.as_ref().unwrap_or(&Network::Local) == &Network::Local {
-                // For L1 bridgehub - verify all the priority queue hashes.
-                st.verify_priority_root_hash(&l1_sequencer).await?;
-                println!("  Priority tree hash: {}", "VALID".green());
-            } else {
-                println!("  Skipping priority hash verification on non-local chains.");
+        match st {
+            Ok(st) => {
+                print!("Chain {} on L1: {}", chain, &st);
+                diagnostics.state_transition = Some(st.to_report());
+                if args.network.as_ref().unwrap_or(&Network::Local) == &Network::Local {
+                    st.verify_priority_root_hash(&l1_sequencer).await?;
+                    println!("  Priority tree hash: {}", "VALID".green());
+                    diagnostics.priority_tree_verified = Some(true);
+                } else {
+                    println!("  Skipping priority hash verification on non-local chains.");
+                    diagnostics.priority_tree_note = Some(
+                        "Skipped priority hash verification on non-local networks.".to_string(),
+                    );
+                }
+                state_transitions.insert(*chain, st);
             }
-        } else {
-            println!(
-                "Failed to get info for Chain {} on L1: {}",
-                chain,
-                st.unwrap_err()
-            );
+            Err(err) => {
+                println!("Failed to get info for Chain {} on L1: {}", chain, err);
+                diagnostics.state_transition_error = Some(err.to_string());
+            }
         }
 
         println!("");
+        chain_reports.insert(*chain, diagnostics);
     }
 
     if let Some(gateway_bridgehub) = &gateway_bridgehub {
@@ -236,26 +431,59 @@ async fn main() -> eyre::Result<()> {
     println!("=== {} ", format!("Priority TXs").bold().green());
     println!("===");
 
-    for chain in &bridgehub.known_chains {
-        let st = bridgehub.get_state_transition(*chain).await;
-
+    for chain in &sorted_chains {
         println!("Chain {}", chain);
 
-        if let Ok(st) = st {
+        if let Some(st) = state_transitions.get(chain) {
             let mut txs = st.get_priority_transactions(&l1_sequencer).await?;
             txs.sort_by_key(|x| x.index);
-            for tx in txs {
+            for tx in &txs {
                 println!("{}", tx);
             }
             println!("");
-        } else {
-            println!(
-                "Failed to get priority transactions for Chain {}: {}",
-                chain,
-                st.unwrap_err()
-            );
+
+            if let Some(report) = chain_reports.get_mut(chain) {
+                report.priority_transactions = txs.into_iter().map(|tx| tx.to_report()).collect();
+            }
+        } else if let Some(report) = chain_reports.get_mut(chain) {
+            let message = "State transition details not available".to_string();
+            report.priority_tx_error = Some(message.clone());
+            println!("  {}", message);
         }
     }
+
+    let generated_at_unix = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_secs();
+
+    let sequencers_report = SequencersReport {
+        l1: SequencerStatus::ok(l1_sequencer.clone()),
+        l2: match &l2_sequencer {
+            Ok(seq) => SequencerStatus::ok(seq.clone()),
+            Err(err) => SequencerStatus::err(err),
+        },
+        l3: match &l3_sequencer {
+            Ok(seq) => SequencerStatus::ok(seq.clone()),
+            Err(err) => SequencerStatus::err(err),
+        },
+    };
+
+    let diagnostics = DiagnosticsReport {
+        generated_at_unix,
+        network: args.network.clone().unwrap_or(Network::Local).to_string(),
+        sequencers: sequencers_report,
+        bridgehub: bridgehub_summary,
+        gateway_bridgehub: gateway_summary,
+        l1_balances: balance_reports,
+        chains: chain_reports.into_values().collect(),
+    };
+
+    let output_path = write_report(&diagnostics, &args.output, args.versioned_output)?;
+    println!(
+        "Serialized diagnostics report saved to {}",
+        output_path.display()
+    );
 
     Ok(())
 }
