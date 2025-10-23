@@ -121,3 +121,20 @@ Chain 320 on Gateway: Chain id: 320
   Bootloader hash:  0x010008eb70b467979695d3f240d8db04b1b179dd02c0d7fd45a027fb4bd9ecaf
   Sync layer:       0x0000000000000000000000000000000000000000
 ```
+
+## Web dashboard
+
+A lightweight React dashboard lives under [`web/`](web/) and visualises the contents of
+`/data/output.json` served by your local environment.
+
+To run it locally:
+
+```bash
+cd web
+npm install
+npm run dev
+```
+
+The development server will start on [http://localhost:5173](http://localhost:5173) and will
+automatically reload as you make changes. The page periodically refreshes its data so it can handle
+regenerating `output.json` without a manual reload.
