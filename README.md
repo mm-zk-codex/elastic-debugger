@@ -11,6 +11,42 @@ It assumes that the L1 is running on port 8545, Gateway on port 3050, and then c
 cargo run
 ```
 
+To generate a structured snapshot as JSON you can point the tool at an
+output path. The default location is `data/output.json`, but any path can
+be provided:
+
+```
+cargo run -- --output data/output.json
+```
+
+Passing `--versioned-output` appends a UTC timestamp to the filename
+(`data/output-YYYYMMDDTHHMMSSZ.json`) so repeated runs from cron or other
+schedulers never clobber earlier snapshots.
+
+## JSON schema overview
+
+The emitted JSON captures the console output in a machine friendly form:
+
+* `generated_at_unix` – Unix timestamp (seconds) when the snapshot was taken.
+* `network` – string identifier for the network target (`local`, `mainnet`,
+  `testnet`, `stage`).
+* `sequencers` – per-layer status objects containing `status` (`ok`/`error`),
+  `sequencer` details (`rpc_url`, `chain_id`, `latest_block`, bridge hub info
+  for L2) and any `error` text.
+* `bridgehub` and `gateway_bridgehub` – summaries of each bridge hub including
+  addresses, known chains, registered CTMs and asset router metadata.
+* `l1_balances` – token balances per chain as both raw wei strings and
+  human-readable values.
+* `chains` – diagnostics for every discovered chain with:
+  * `state_transition` – verifier, batch counters, hashes and queue metrics.
+  * `priority_tree_verified` / `priority_tree_note` – validation status of the
+    priority queue root hash.
+  * `priority_transactions` – ordered list of priority transactions with
+    decoded addresses, gas settings and method selectors.
+
+Because the data is written via an atomic rename, long running jobs or periodic
+invocations can safely overwrite the target file without risking partial writes.
+
 Here's the example output from the tool:
 ```
 ====================================

@@ -9,6 +9,7 @@ use alloy::sol;
 use alloy::sol_types::SolEvent;
 use colored::Colorize;
 use lazy_static::lazy_static;
+use serde::Serialize;
 
 sol! {
     struct L2CanonicalTransaction {
@@ -59,6 +60,23 @@ lazy_static! {
 
         pairs
     };
+}
+
+#[derive(Serialize)]
+pub struct PriorityTransactionReport {
+    pub index: u64,
+    pub tx_id: String,
+    pub expiration_timestamp: u64,
+    pub from: String,
+    pub to: String,
+    pub value_wei: String,
+    pub value_formatted: String,
+    pub gas_limit: String,
+    pub gas_per_pubdata_byte_limit: String,
+    pub max_fee_per_gas: String,
+    pub max_priority_fee_per_gas: String,
+    pub method: Option<String>,
+    pub data: String,
 }
 
 pub struct PriorityTransaction {
@@ -133,6 +151,31 @@ impl PriorityTransaction {
             )?;
         }
         Ok(())
+    }
+
+    pub fn to_report(&self) -> PriorityTransactionReport {
+        let method = if self.l2_tx.data.len() > 4 {
+            let selector = hex::encode(&self.l2_tx.data[0..4]);
+            Some(KNOWN_SIGNATURES.get(&selector).cloned().unwrap_or(selector))
+        } else {
+            None
+        };
+
+        PriorityTransactionReport {
+            index: self.index,
+            tx_id: format!("{:#x}", self.tx_id),
+            expiration_timestamp: self.expiration_timestamp,
+            from: address_to_human(&u256_to_address(self.l2_tx.from)),
+            to: address_to_human(&u256_to_address(self.l2_tx.to)),
+            value_wei: self.l2_tx.value.to_string(),
+            value_formatted: wei_as_string(self.l2_tx.value),
+            gas_limit: self.l2_tx.gasLimit.to_string(),
+            gas_per_pubdata_byte_limit: self.l2_tx.gasPerPubdataByteLimit.to_string(),
+            max_fee_per_gas: self.l2_tx.maxFeePerGas.to_string(),
+            max_priority_fee_per_gas: self.l2_tx.maxPriorityFeePerGas.to_string(),
+            method,
+            data: format!("0x{}", hex::encode(&self.l2_tx.data)),
+        }
     }
 }
 
