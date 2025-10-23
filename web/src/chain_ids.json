@@ -1,0 +1,20 @@
+{
+    "chain_ids": {
+        "zksync": 324,
+        "gateway": 9075,
+        "lens": 232,
+        "zkCandy": 320,
+        "GRVT": 325,
+        "XPLA": 375,
+        "Cronos": 388,
+        "Space and Time": 1217,
+        "OpenZK": 1345,
+        "Abstract": 2741,
+        "Ripio": 2904,
+        "Wonder": 9637,
+        "Sophon": 50104,
+        "Memento": 51888,
+        "Treasure": 61166,
+        "Zero": 543210
+    }
+}

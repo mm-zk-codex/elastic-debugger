@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import chainIdsDoc from './chain_ids.json';
 import './App.css';
 
 // Helpers
@@ -175,12 +176,50 @@ export default function App() {
     };
   }, []);
 
+  // Build id -> name map from src/chain_ids.json (which maps name -> id)
+  const idToName = useMemo(() => {
+    try {
+      const mapping = chainIdsDoc?.chain_ids || {};
+      const inv = new Map();
+      for (const [name, id] of Object.entries(mapping)) {
+        inv.set(Number(id), name);
+      }
+      return inv;
+    } catch {
+      return new Map();
+    }
+  }, []);
+
   const gatewayChainSet = useMemo(() => {
     const s = new Set();
     if (data?.gateway_bridgehub?.known_chains) {
       for (const id of data.gateway_bridgehub.known_chains) s.add(Number(id));
     }
     return s;
+  }, [data]);
+
+  // Determine newest and previous protocol versions across all chains
+  const versionRanks = useMemo(() => {
+    if (!data?.chains) return { latest: null, previous: null, asKey: () => '' };
+    const toKey = (v) => (Array.isArray(v) && v.length === 3 ? `${v[0]}.${v[1]}.${v[2]}` : '');
+    const fromKey = (k) => k.split('.').map((n) => Number(n));
+    const uniq = new Set();
+    for (const c of data.chains) {
+      const v = c?.state_transition?.protocol_version;
+      const key = toKey(v);
+      if (key) uniq.add(key);
+    }
+    const list = Array.from(uniq);
+    list.sort((a, b) => {
+      const [ax, ay, az] = fromKey(a);
+      const [bx, by, bz] = fromKey(b);
+      if (ax !== bx) return ax - bx;
+      if (ay !== by) return ay - by;
+      return az - bz;
+    });
+    const latest = list[list.length - 1] || null;
+    const previous = list.length > 1 ? list[list.length - 2] : null;
+    return { latest, previous, asKey: toKey };
   }, [data]);
 
   const chainsBySettlement = useMemo(() => {
@@ -264,9 +303,58 @@ export default function App() {
             <div className="column">
               <h2 className="section-title">Chains settling to Gateway</h2>
               <div className="grid">
-                {chainsBySettlement.toGateway.map((c) => (
-                  <ChainCard key={c.chain_id} chain={c} settlesTo="Gateway" />
-                ))}
+                {chainsBySettlement.toGateway.map((c) => {
+                  const st = c.state_transition;
+                  const name = idToName.get(Number(c.chain_id));
+                  const key = versionRanks.asKey(st?.protocol_version);
+                  const verTone = key
+                    ? key === versionRanks.latest
+                      ? 'ok'
+                      : key === versionRanks.previous
+                      ? 'warn'
+                      : 'danger'
+                    : 'neutral';
+                  return (
+                    <section className="chain card" key={c.chain_id}>
+                      <header className="chain__header">
+                        <div className="row-left">
+                          <h3 className="chain__title">Chain {c.chain_id}{name ? ` · ${name}` : ''}</h3>
+                          <span className="settlement">→ Gateway</span>
+                        </div>
+                        <div className="row-right">
+                          <Badge tone={st ? 'success' : 'danger'}>{st ? 'HEALTHY' : 'ERROR'}</Badge>
+                        </div>
+                      </header>
+                      {st ? (
+                        <>
+                          <div className="stats">
+                            <div className={`pill ${verTone === 'ok' ? 'pill--ok' : verTone === 'warn' ? 'pill--warn' : verTone === 'danger' ? 'pill--danger' : ''}`}>
+                              Protocol {formatVersion(st.protocol_version)}
+                            </div>
+                            <div className="pill">Batches C/V/E {st.total_batches_committed}/{st.total_batches_verified}/{st.total_batches_executed}</div>
+                            <div className="pill">Queue {st.queue.unprocessed}/{st.queue.total}</div>
+                            {typeof c.priority_tree_verified === 'boolean' && (
+                              <div className={`pill ${c.priority_tree_verified ? 'pill--ok' : 'pill--warn'}`}>
+                                Priority root {c.priority_tree_verified ? 'VALID' : 'INVALID'}
+                              </div>
+                            )}
+                          </div>
+                          <div className="grid-2">
+                            <KeyValue label="Hyperchain" value={<code className="mono">{shorten(st.hyperchain)}</code>} />
+                            <KeyValue label="Verifier" value={<code className="mono">{shorten(st.verifier)}</code>} />
+                            <KeyValue label="Admin" value={<code className="mono">{shorten(st.admin)}</code>} />
+                            <KeyValue label="Settlement layer" value={<code className="mono">{shorten(st.settlement_layer)}</code>} />
+                          </div>
+                          <Collapsible title="Priority transactions" count={c.priority_transactions?.length || 0}>
+                            <PriorityTable txs={c.priority_transactions} />
+                          </Collapsible>
+                        </>
+                      ) : (
+                        <div className="muted">{c.state_transition_error ?? 'State transition unavailable'}</div>
+                      )}
+                    </section>
+                  );
+                })}
                 {chainsBySettlement.toGateway.length === 0 && (
                   <div className="muted">No chains registered on Gateway</div>
                 )}
@@ -276,9 +364,58 @@ export default function App() {
             <div className="column">
               <h2 className="section-title">Chains settling to L1</h2>
               <div className="grid">
-                {chainsBySettlement.toL1.map((c) => (
-                  <ChainCard key={c.chain_id} chain={c} settlesTo="L1" />
-                ))}
+                {chainsBySettlement.toL1.map((c) => {
+                  const st = c.state_transition;
+                  const name = idToName.get(Number(c.chain_id));
+                  const key = versionRanks.asKey(st?.protocol_version);
+                  const verTone = key
+                    ? key === versionRanks.latest
+                      ? 'ok'
+                      : key === versionRanks.previous
+                      ? 'warn'
+                      : 'danger'
+                    : 'neutral';
+                  return (
+                    <section className="chain card" key={c.chain_id}>
+                      <header className="chain__header">
+                        <div className="row-left">
+                          <h3 className="chain__title">Chain {c.chain_id}{name ? ` · ${name}` : ''}</h3>
+                          <span className="settlement">→ L1</span>
+                        </div>
+                        <div className="row-right">
+                          <Badge tone={st ? 'success' : 'danger'}>{st ? 'HEALTHY' : 'ERROR'}</Badge>
+                        </div>
+                      </header>
+                      {st ? (
+                        <>
+                          <div className="stats">
+                            <div className={`pill ${verTone === 'ok' ? 'pill--ok' : verTone === 'warn' ? 'pill--warn' : verTone === 'danger' ? 'pill--danger' : ''}`}>
+                              Protocol {formatVersion(st.protocol_version)}
+                            </div>
+                            <div className="pill">Batches C/V/E {st.total_batches_committed}/{st.total_batches_verified}/{st.total_batches_executed}</div>
+                            <div className="pill">Queue {st.queue.unprocessed}/{st.queue.total}</div>
+                            {typeof c.priority_tree_verified === 'boolean' && (
+                              <div className={`pill ${c.priority_tree_verified ? 'pill--ok' : 'pill--warn'}`}>
+                                Priority root {c.priority_tree_verified ? 'VALID' : 'INVALID'}
+                              </div>
+                            )}
+                          </div>
+                          <div className="grid-2">
+                            <KeyValue label="Hyperchain" value={<code className="mono">{shorten(st.hyperchain)}</code>} />
+                            <KeyValue label="Verifier" value={<code className="mono">{shorten(st.verifier)}</code>} />
+                            <KeyValue label="Admin" value={<code className="mono">{shorten(st.admin)}</code>} />
+                            <KeyValue label="Settlement layer" value={<code className="mono">{shorten(st.settlement_layer)}</code>} />
+                          </div>
+                          <Collapsible title="Priority transactions" count={c.priority_transactions?.length || 0}>
+                            <PriorityTable txs={c.priority_transactions} />
+                          </Collapsible>
+                        </>
+                      ) : (
+                        <div className="muted">{c.state_transition_error ?? 'State transition unavailable'}</div>
+                      )}
+                    </section>
+                  );
+                })}
                 {chainsBySettlement.toL1.length === 0 && (
                   <div className="muted">No chains registered on L1</div>
                 )}

@@ -265,6 +265,11 @@
   border-color: #fed7aa;
 }
 
+.pill--danger {
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
 .grid-2 {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
