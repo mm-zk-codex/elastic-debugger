@@ -137,7 +137,8 @@ pub async fn detect_sequencer(rpc_url: &str) -> eyre::Result<Sequencer> {
     let sequencer_type = match get_bridgehub_address(rpc_url).await {
         Ok(bridgehub_address) => SequencerType::L2(L2SequencerInfo {
             bridgehub_address,
-            l1_chain_id: get_l1_chain_id(rpc_url).await?,
+            // FIXME: default to 13 if we can't get it?
+            l1_chain_id: get_l1_chain_id(rpc_url).await.unwrap_or(13),
         }),
         Err(_) => SequencerType::L1,
     };
