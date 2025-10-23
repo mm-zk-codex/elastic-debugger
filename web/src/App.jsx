@@ -53,19 +53,48 @@ function NodeBox({ title, subtitle, status, details, arrowTo }) {
   );
 }
 
-function KeyValue({ label, value }) {
+// Etherscan base URLs per ecosystem
+const ETHERSCAN_BASES = {
+  mainnet: 'https://etherscan.io/address/',
+  testnet: 'https://sepolia.etherscan.io/address/',
+  testnet2: 'https://sepolia.etherscan.io/address/'
+};
+
+
+function AddressLink({ address, eco }) {
+  if (!address || typeof address !== 'string' || !address.startsWith('0x')) return <span>{address}</span>;
+  const base = ETHERSCAN_BASES[eco] || ETHERSCAN_BASES.mainnet;
   return (
-    <div className="kv">
-      <div className="kv__k">{label}</div>
-      <div className="kv__v">{value ?? <span className="muted">N/A</span>}</div>
-    </div>
+    <a
+      href={`${base}${address}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="address-link"
+      title={address}
+    >
+      {shorten(address)}
+    </a>
   );
 }
 
-function PriorityTable({ txs }) {
+function KeyValue({ label, value, eco }) {
+  const isAddr = typeof value === 'string' && value.startsWith('0x') && value.length === 42;
+  return (
+    <div className="kv">
+      <div className="kv__k">{label}</div>
+      <div className="kv__v">{isAddr ? <AddressLink address={value} eco={eco} /> : value ?? <span className="muted">N/A</span>}</div>
+    </div>
+  );
+}
+function PriorityTable({ txs, eco }) {
   if (!txs || txs.length === 0) {
     return <div className="muted">No priority transactions</div>;
   }
+  const extractAddr = (v) => {
+    if (typeof v !== 'string') return v;
+    const m = v.match(/(0x[a-fA-F0-9]{40})/);
+    return m ? m[1] : v;
+  };
   return (
     <div className="table-wrapper">
       <table className="table">
@@ -84,8 +113,8 @@ function PriorityTable({ txs }) {
             <tr key={`${t.index}-${t.tx_id}`}>
               <td>{t.index}</td>
               <td>{t.method ?? 'unknown'}</td>
-              <td><code className="mono">{t.from}</code></td>
-              <td><code className="mono">{t.to}</code></td>
+              <td><AddressLink address={extractAddr(t.from)} eco={eco} /></td>
+              <td><AddressLink address={extractAddr(t.to)} eco={eco} /></td>
               <td>{t.value_formatted}</td>
               <td>{t.gas_limit}</td>
             </tr>
@@ -127,10 +156,10 @@ function ChainCard({ chain, settlesTo }) {
 
       {ok && (
         <div className="grid-2">
-          <KeyValue label="Hyperchain" value={<code className="mono">{shorten(st.hyperchain)}</code>} />
-          <KeyValue label="Verifier" value={<code className="mono">{shorten(st.verifier)}</code>} />
-          <KeyValue label="Admin" value={<code className="mono">{shorten(st.admin)}</code>} />
-          <KeyValue label="Settlement layer" value={<code className="mono">{shorten(st.settlement_layer)}</code>} />
+          <KeyValue label="Hyperchain" value={st.hyperchain} eco={eco} />
+          <KeyValue label="Verifier" value={st.verifier} eco={eco} />
+          <KeyValue label="Admin" value={st.admin} eco={eco} />
+          <KeyValue label="Settlement layer" value={st.settlement_layer} eco={eco} />
         </div>
       )}
 
@@ -306,8 +335,8 @@ export default function App() {
                 <div className="grid-2">
                   <KeyValue label="Chain ID" value={data?.sequencers?.l1?.sequencer?.chain_id} />
                   <KeyValue label="Latest block" value={data?.sequencers?.l1?.sequencer?.latest_block} />
-                  <KeyValue label="Bridgehub" value={<code className="mono">{shorten(data?.bridgehub?.address)}</code>} />
-                  <KeyValue label="CTM deployer" value={<code className="mono">{shorten(data?.bridgehub?.ctm_deployer)}</code>} />
+                  <KeyValue label="Bridgehub" value={data?.bridgehub?.address} eco={eco} />
+                  <KeyValue label="CTM deployer" value={data?.bridgehub?.ctm_deployer} eco={eco} />
                   <KeyValue label="Known chains" value={data?.bridgehub?.known_chains?.length ?? 0} />
                 </div>
               }
@@ -324,7 +353,7 @@ export default function App() {
                   <div className="grid-2">
                     <KeyValue label="Chain ID" value={data?.sequencers?.l2?.sequencer?.chain_id} />
                     <KeyValue label="Latest block" value={data?.sequencers?.l2?.sequencer?.latest_block} />
-                    <KeyValue label="Bridgehub" value={<code className="mono">{shorten(data?.gateway_bridgehub?.address)}</code>} />
+                    <KeyValue label="Bridgehub" value={data?.gateway_bridgehub?.address} eco={eco} />
                     <KeyValue label="Known chains" value={data?.gateway_bridgehub?.known_chains?.length ?? 0} />
                   </div>
                 }
@@ -379,7 +408,7 @@ export default function App() {
                             <KeyValue label="Settlement layer" value={<code className="mono">{shorten(st.settlement_layer)}</code>} />
                           </div>
                           <Collapsible title="Priority transactions" count={c.priority_transactions?.length || 0}>
-                            <PriorityTable txs={c.priority_transactions} />
+                            <PriorityTable txs={c.priority_transactions} eco={eco} />
                           </Collapsible>
                         </>
                       ) : (
@@ -440,7 +469,7 @@ export default function App() {
                             <KeyValue label="Settlement layer" value={<code className="mono">{shorten(st.settlement_layer)}</code>} />
                           </div>
                           <Collapsible title="Priority transactions" count={c.priority_transactions?.length || 0}>
-                            <PriorityTable txs={c.priority_transactions} />
+                            <PriorityTable txs={c.priority_transactions} eco={eco} />
                           </Collapsible>
                         </>
                       ) : (
