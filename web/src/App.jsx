@@ -145,6 +145,22 @@ export default function App() {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [status, setStatus] = useState('idle');
+  const ECOSYSTEMS = [
+    { key: 'mainnet', label: 'Mainnet', file: 'output.mainnet.json' },
+    { key: 'testnet', label: 'Testnet', file: 'output.testnet.json' },
+    { key: 'testnet2', label: 'Testnet 2', file: 'output.testnet2.json' }
+  ];
+  const [eco, setEco] = useState(() => {
+    try {
+      return localStorage.getItem('eco') || 'mainnet';
+    } catch {
+      return 'mainnet';
+    }
+  });
+  const currentEndpoint = useMemo(() => {
+    const found = ECOSYSTEMS.find((e) => e.key === eco) || ECOSYSTEMS[0];
+    return found.file;
+  }, [eco]);
 
   useEffect(() => {
     let isMounted = true;
@@ -152,7 +168,7 @@ export default function App() {
     async function load() {
       try {
         setStatus('loading');
-        const response = await fetch('output.json');
+        const response = await fetch(currentEndpoint);
         if (!response.ok) throw new Error(`Request failed with status ${response.status}`);
         const payload = await response.json();
         if (isMounted) {
@@ -174,7 +190,7 @@ export default function App() {
       isMounted = false;
       clearInterval(interval);
     };
-  }, []);
+  }, [currentEndpoint]);
 
   // Build id -> name map from src/chain_ids.json (which maps name -> id)
   const idToName = useMemo(() => {
@@ -236,10 +252,27 @@ export default function App() {
   return (
     <div className="app">
       <header className="app__header">
-        <h1>Elastic Debugger Report</h1>
-        <p className="muted">
-          Loaded from <code>/data/output.json</code>. Auto-refreshes every minute.
-        </p>
+        <div className="toolbar">
+          <h1>Elastic Debugger Report</h1>
+          <div className="toolbar__right">
+            <label className="label" htmlFor="eco">Ecosystem</label>
+            <select
+              id="eco"
+              className="select"
+              value={eco}
+              onChange={(e) => {
+                const v = e.target.value;
+                setEco(v);
+                try { localStorage.setItem('eco', v); } catch { }
+              }}
+            >
+              {ECOSYSTEMS.map((e) => (
+                <option key={e.key} value={e.key}>{e.label}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+        <p className="muted">Loaded from <code>{currentEndpoint}</code>. Auto-refreshes every minute.</p>
       </header>
 
       {status === 'loading' && (
@@ -311,8 +344,8 @@ export default function App() {
                     ? key === versionRanks.latest
                       ? 'ok'
                       : key === versionRanks.previous
-                      ? 'warn'
-                      : 'danger'
+                        ? 'warn'
+                        : 'danger'
                     : 'neutral';
                   return (
                     <section className="chain card" key={c.chain_id}>
@@ -372,8 +405,8 @@ export default function App() {
                     ? key === versionRanks.latest
                       ? 'ok'
                       : key === versionRanks.previous
-                      ? 'warn'
-                      : 'danger'
+                        ? 'warn'
+                        : 'danger'
                     : 'neutral';
                   return (
                     <section className="chain card" key={c.chain_id}>

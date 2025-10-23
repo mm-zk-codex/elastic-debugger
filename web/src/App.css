@@ -13,6 +13,34 @@
   gap: 0.5rem;
 }
 
+/* Toolbar */
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.toolbar__right {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.label {
+  font-size: 0.9rem;
+  color: #4b5563;
+}
+
+.select {
+  padding: 0.4rem 0.6rem;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  color: #111827;
+}
+
+
 .app__header h1 {
   margin: 0;
   font-size: clamp(1.75rem, 2.5vw, 2.5rem);
