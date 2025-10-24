@@ -402,10 +402,10 @@ export default function App() {
                             )}
                           </div>
                           <div className="grid-2">
-                            <KeyValue label="Hyperchain" value={<code className="mono">{shorten(st.hyperchain)}</code>} />
-                            <KeyValue label="Verifier" value={<code className="mono">{shorten(st.verifier)}</code>} />
-                            <KeyValue label="Admin" value={<code className="mono">{shorten(st.admin)}</code>} />
-                            <KeyValue label="Settlement layer" value={<code className="mono">{shorten(st.settlement_layer)}</code>} />
+                            <KeyValue label="Hyperchain" value={st.hyperchain} eco={eco} />
+                            <KeyValue label="Verifier" value={st.verifier} eco={eco} />
+                            <KeyValue label="Admin" value={st.admin} eco={eco} />
+                            <KeyValue label="Settlement layer" value={st.settlement_layer} eco={eco} />
                           </div>
                           <Collapsible title="Priority transactions" count={c.priority_transactions?.length || 0}>
                             <PriorityTable txs={c.priority_transactions} eco={eco} />
@@ -463,10 +463,10 @@ export default function App() {
                             )}
                           </div>
                           <div className="grid-2">
-                            <KeyValue label="Hyperchain" value={<code className="mono">{shorten(st.hyperchain)}</code>} />
-                            <KeyValue label="Verifier" value={<code className="mono">{shorten(st.verifier)}</code>} />
-                            <KeyValue label="Admin" value={<code className="mono">{shorten(st.admin)}</code>} />
-                            <KeyValue label="Settlement layer" value={<code className="mono">{shorten(st.settlement_layer)}</code>} />
+                            <KeyValue label="Hyperchain" value={st.hyperchain} eco={eco} />
+                            <KeyValue label="Verifier" value={st.verifier} eco={eco} />
+                            <KeyValue label="Admin" value={st.admin} eco={eco} />
+                            <KeyValue label="Settlement layer" value={st.settlement_layer} eco={eco} />
                           </div>
                           <Collapsible title="Priority transactions" count={c.priority_transactions?.length || 0}>
                             <PriorityTable txs={c.priority_transactions} eco={eco} />
