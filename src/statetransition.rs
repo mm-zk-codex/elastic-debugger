@@ -43,6 +43,7 @@ pub struct StateTransition {
     priority_tree_root: B256,
 
     hyperchain: Address,
+    base_token_asset_id: B256,
 }
 
 #[derive(Serialize)]
@@ -67,6 +68,7 @@ pub struct StateTransitionReport {
     pub settlement_layer: String,
     pub queue: QueueReport,
     pub priority_tree_root: String,
+    pub base_token_asset_id: String,
 }
 
 sol! {
@@ -88,6 +90,8 @@ sol! {
         function getPriorityQueueSize() external view returns (uint256);
         function getTotalPriorityTxs() external view returns (uint256);
         function getPriorityTreeRoot() external view returns (bytes32);
+        function getBaseTokenAssetId() external view returns (bytes32);
+
 
     }
 }
@@ -143,6 +147,8 @@ impl StateTransition {
 
         let priority_tree_root = contract.getPriorityTreeRoot().call().await?._0;
 
+        let base_token_asset_id = contract.getBaseTokenAssetId().call().await?._0;
+
         Ok(StateTransition {
             verifier,
             total_batches_executed,
@@ -163,6 +169,7 @@ impl StateTransition {
             total_queue_size,
             priority_tree_root,
             hyperchain,
+            base_token_asset_id,
         })
     }
 
@@ -185,6 +192,7 @@ impl StateTransition {
                 total: self.total_queue_size.to_string(),
             },
             priority_tree_root: format_b256(self.priority_tree_root),
+            base_token_asset_id: format_b256(self.base_token_asset_id),
         }
     }
 

@@ -57,7 +57,7 @@ function NodeBox({ title, subtitle, status, details, arrowTo }) {
 const ETHERSCAN_BASES = {
   mainnet: 'https://etherscan.io/address/',
   testnet: 'https://sepolia.etherscan.io/address/',
-  testnet2: 'https://sepolia.etherscan.io/address/'
+  testnet_atlas: 'https://sepolia.etherscan.io/address/'
 };
 
 
@@ -177,7 +177,7 @@ export default function App() {
   const ECOSYSTEMS = [
     { key: 'mainnet', label: 'Mainnet', file: 'output.mainnet.json' },
     { key: 'testnet', label: 'Testnet', file: 'output.testnet.json' },
-    { key: 'testnet2', label: 'Testnet 2', file: 'output.testnet2.json' }
+    { key: 'testnet_atlas', label: 'Testnet Atlas', file: 'output.testnet_atlas.json' }
   ];
   const [eco, setEco] = useState(() => {
     try {

@@ -81,7 +81,7 @@ enum Network {
     Local,
     Mainnet,
     Testnet,
-    Testnet2,
+    TestnetAtlas,
     Stage,
 }
 
@@ -91,7 +91,7 @@ impl fmt::Display for Network {
             Network::Local => "local",
             Network::Mainnet => "mainnet",
             Network::Testnet => "testnet",
-            Network::Testnet2 => "testnet2",
+            Network::TestnetAtlas => "testnet_atlas",
             Network::Stage => "stage",
         };
         write!(f, "{}", label)
@@ -260,7 +260,7 @@ async fn main() -> eyre::Result<()> {
             "https://rpc.era-gateway-testnet.zksync.dev/",
             "https://sepolia.era.zksync.dev",
         ),
-        Network::Testnet2 => (
+        Network::TestnetAtlas => (
             "https://1rpc.io/sepolia",
             // Update once gateway launches there.
             "https://zksync-os-testnet-alpha.zksync.dev/",
