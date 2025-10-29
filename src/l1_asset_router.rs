@@ -15,6 +15,8 @@ sol! {
 
         function nativeTokenVault() external view returns(address);
         function BRIDGE_HUB() external view returns(address);
+        function ETH_TOKEN_ASSET_ID() external view returns(bytes32);
+        function assetHandlerAddress(bytes32 _assetId) external view returns (address);
 
         event AssetHandlerRegisteredInitial(
             bytes32 indexed assetId,
@@ -29,7 +31,7 @@ sol! {
         function tokenAddress(bytes32) external view returns(address);
         function getERC20Getters(address _token) external view returns (bytes memory);
         function chainBalance(uint256 _chainId, bytes32 assetId) external view returns (uint256);
-
+        function assetId(address _token) external view returns (bytes32);
     }
     #[sol(rpc)]
     contract ERC20 {
@@ -158,7 +160,43 @@ impl L1AssetRouter {
         let contract = IL1AssetRouter::new(address, provider);
 
         let native_token_vault = contract.nativeTokenVault().call().await?._0;
-        //let bridgehub = contract.BRIDGE_HUB().call().await.unwrap()._0;
+
+        let native_token_vault_contract =
+            NativeTokenVault::new(native_token_vault, sequencer.get_provider());
+
+        let bridgehub = contract.BRIDGE_HUB().call().await.unwrap()._0;
+
+        let mainnet_tokens: Vec<Address> = include_str!("data/mainnet_tokens.txt")
+            .lines()
+            .filter_map(|line| {
+                let line = line.trim();
+                if line.is_empty() || line.starts_with("//") {
+                    None
+                } else {
+                    Some(line.parse().unwrap())
+                }
+            })
+            .collect();
+        let testnet_tokens: Vec<Address> = include_str!("data/tokens_sepolia.txt")
+            .lines()
+            .filter_map(|line| {
+                let line = line.trim();
+                if line.is_empty() || line.starts_with("//") {
+                    None
+                } else {
+                    Some(line.parse().unwrap())
+                }
+            })
+            .collect();
+
+        let mut tokens = vec![address!("0000000000000000000000000000000000000001")]; // ETH
+        if sequencer.chain_id == 1u64 {
+            println!("Mainnet tokens loaded: {}", mainnet_tokens.len());
+            tokens.extend(mainnet_tokens);
+        } else if sequencer.chain_id == 11155111u64 {
+            println!("Sepolia tokens loaded: {}", testnet_tokens.len());
+            tokens.extend(testnet_tokens);
+        }
 
         /*let registered_assets = get_all_events(
             sequencer,
@@ -185,12 +223,46 @@ impl L1AssetRouter {
             .into_iter()
             .map(|elem| (elem.asset_id, elem));*/
 
-        let registered_assets = [];
+        // TODO: register more.
+        //let eth_asset = contract.ETH_TOKEN_ASSET_ID().call().await?._0;
+        //let eth_handler = contract.assetHandlerAddress(eth_asset).call().await?._0;
+
+        let mut registered_assets = HashMap::new();
+        for token in &tokens {
+            let asset_id = native_token_vault_contract
+                .assetId(*token)
+                .call()
+                .await
+                .unwrap()
+                ._0;
+            let handler_address = contract
+                .assetHandlerAddress(asset_id)
+                .call()
+                .await
+                .unwrap()
+                ._0;
+
+            println!(
+                "Token: {} Asset ID: {} Handler: {}",
+                token, asset_id, handler_address
+            );
+            registered_assets.insert(
+                asset_id,
+                RegisteredAsset::new(
+                    sequencer,
+                    asset_id,
+                    handler_address,
+                    &native_token_vault,
+                    &bridgehub,
+                )
+                .await,
+            );
+        }
 
         Ok(Self {
             address,
             native_token_vault,
-            registered_assets: HashMap::from_iter(registered_assets),
+            registered_assets,
         })
     }
 
