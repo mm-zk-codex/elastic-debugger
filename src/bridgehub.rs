@@ -14,6 +14,103 @@ use alloy::transports::http::{Client, Http};
 use colored::Colorize;
 
 use futures::future::join_all;
+use serde::Serialize;
+
+fn format_address(value: Address) -> String {
+    format!("{:#x}", value)
+}
+
+fn format_fixed_bytes(value: FixedBytes<32>) -> String {
+    format!("{:#x}", value)
+}
+
+#[derive(Serialize)]
+pub struct BridgehubSummary {
+    pub address: String,
+    pub shared_bridge: String,
+    pub ctm_deployer: String,
+    pub known_chains: Vec<u64>,
+    pub ctms: Option<Vec<ChainTypeManagerSummary>>,
+    pub asset_router: AssetRouterSummary,
+}
+
+#[derive(Serialize)]
+pub struct ChainTypeManagerSummary {
+    pub address: String,
+    pub bridgehub: String,
+    pub admin: String,
+    pub owner: String,
+    pub asset_id: String,
+    pub asset_name: String,
+}
+
+#[derive(Serialize)]
+pub struct RegisteredAssetSummary {
+    pub asset_id: String,
+    pub name: String,
+    pub handler: String,
+    pub token_address: Option<String>,
+    pub token_name: Option<String>,
+    pub handler_address: Option<String>,
+}
+
+#[derive(Serialize)]
+#[serde(tag = "kind", rename_all = "snake_case")]
+pub enum AssetRouterSummary {
+    L1 {
+        address: String,
+        native_token_vault: String,
+        registered_assets: Vec<RegisteredAssetSummary>,
+    },
+    L2 {
+        address: String,
+    },
+}
+
+impl From<&ChainTypeManager> for ChainTypeManagerSummary {
+    fn from(value: &ChainTypeManager) -> Self {
+        ChainTypeManagerSummary {
+            address: format_address(value.address),
+            bridgehub: format_address(value.bridgehub),
+            admin: format_address(value.admin),
+            owner: format_address(value.owner),
+            asset_id: format_fixed_bytes(value.asset_id),
+            asset_name: value.asset_name.clone(),
+        }
+    }
+}
+
+impl From<&crate::l1_asset_router::RegisteredAsset> for RegisteredAssetSummary {
+    fn from(value: &crate::l1_asset_router::RegisteredAsset) -> Self {
+        let name = value.name();
+        match &value.handler {
+            AssetHandler::Bridgehub => RegisteredAssetSummary {
+                asset_id: format_fixed_bytes(value.asset_id),
+                name,
+                handler: "bridgehub".to_string(),
+                token_address: None,
+                token_name: None,
+                handler_address: None,
+            },
+            AssetHandler::NativeTokenVault(asset) => RegisteredAssetSummary {
+                asset_id: format_fixed_bytes(value.asset_id),
+                name,
+                handler: "native_token_vault".to_string(),
+                token_address: Some(format_address(asset.address)),
+                token_name: Some(asset.token_name.clone()),
+                handler_address: None,
+            },
+            AssetHandler::Other(address) => RegisteredAssetSummary {
+                asset_id: format_fixed_bytes(value.asset_id),
+                name,
+                handler: "other".to_string(),
+                token_address: None,
+                token_name: None,
+                handler_address: Some(format_address(*address)),
+            },
+        }
+    }
+}
 
 sol! {
     #[sol(rpc)]
@@ -137,6 +234,46 @@ impl Display for Bridgehub {
 }
 
 impl Bridgehub {
+    pub fn to_summary(&self) -> BridgehubSummary {
+        let mut known_chains: Vec<u64> = self.known_chains.iter().copied().collect();
+        known_chains.sort_unstable();
+
+        let ctms = self.ctms.as_ref().map(|ctms| {
+            let mut summaries: Vec<_> = ctms.iter().map(ChainTypeManagerSummary::from).collect();
+            summaries.sort_by(|a, b| a.asset_name.cmp(&b.asset_name));
+            summaries
+        });
+
+        let asset_router = match &self.asset_router {
+            AssetRouter::L1(router) => {
+                let mut assets: Vec<_> = router.registered_assets.values().collect();
+                assets.sort_by(|a, b| a.name().cmp(&b.name()));
+                let registered_assets = assets
+                    .into_iter()
+                    .map(RegisteredAssetSummary::from)
+                    .collect();
+
+                AssetRouterSummary::L1 {
+                    address: format_address(router.address),
+                    native_token_vault: format_address(router.native_token_vault),
+                    registered_assets,
+                }
+            }
+            AssetRouter::L2(router) => AssetRouterSummary::L2 {
+                address: format_address(router.address),
+            },
+        };
+
+        BridgehubSummary {
+            address: format_address(self.address),
+            shared_bridge: format_address(self.shared_bridge),
+            ctm_deployer: format_address(self.ctm_deployer),
+            known_chains,
+            ctms,
+            asset_router,
+        }
+    }
+
     pub async fn new(sequencer: &Sequencer, address: Address) -> eyre::Result<Bridgehub> {
         let provider = sequencer.get_provider();
 

@@ -6,10 +6,10 @@ use alloy::{
     providers::{Provider, ProviderBuilder, RootProvider},
     transports::http::{reqwest::Response, Client, Http},
 };
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use serde_json::json;
 
-#[derive(Clone)]
+#[derive(Clone, Serialize)]
 pub struct Sequencer {
     pub rpc_url: String,
     pub chain_id: u64,
@@ -17,13 +17,13 @@ pub struct Sequencer {
     pub sequencer_type: SequencerType,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize)]
 pub enum SequencerType {
     L1,
     L2(L2SequencerInfo),
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize)]
 pub struct L2SequencerInfo {
     pub l1_chain_id: u64,
     pub bridgehub_address: Address,
@@ -137,7 +137,8 @@ pub async fn detect_sequencer(rpc_url: &str) -> eyre::Result<Sequencer> {
     let sequencer_type = match get_bridgehub_address(rpc_url).await {
         Ok(bridgehub_address) => SequencerType::L2(L2SequencerInfo {
             bridgehub_address,
-            l1_chain_id: get_l1_chain_id(rpc_url).await?,
+            // FIXME: default to 13 if we can't get it?
+            l1_chain_id: get_l1_chain_id(rpc_url).await.unwrap_or(13),
         }),
         Err(_) => SequencerType::L1,
     };

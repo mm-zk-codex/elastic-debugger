@@ -10,6 +10,19 @@ use crate::priority_transactions::{
     compute_merkle_tree, fetch_all_priority_transactions, PriorityTransaction,
 };
 use crate::sequencer::Sequencer;
+use serde::Serialize;
+
+fn format_address(value: Address) -> String {
+    format!("{:#x}", value)
+}
+
+fn format_fixed_bytes(value: FixedBytes<32>) -> String {
+    format!("{:#x}", value)
+}
+
+fn format_b256(value: B256) -> String {
+    format!("{:#x}", value)
+}
 
 #[derive(Debug)]
 pub struct StateTransition {
@@ -30,6 +43,32 @@ pub struct StateTransition {
     priority_tree_root: B256,
 
     hyperchain: Address,
+    base_token_asset_id: B256,
+}
+
+#[derive(Serialize)]
+pub struct QueueReport {
+    pub unprocessed: String,
+    pub total: String,
+}
+
+#[derive(Serialize)]
+pub struct StateTransitionReport {
+    pub chain_id: String,
+    pub hyperchain: String,
+    pub verifier: String,
+    pub total_batches_executed: String,
+    pub total_batches_verified: String,
+    pub total_batches_committed: String,
+    pub bootloader_hash: String,
+    pub default_account_hash: String,
+    pub protocol_version: (u32, u32, u32),
+    pub system_upgrade_tx_hash: String,
+    pub admin: String,
+    pub settlement_layer: String,
+    pub queue: QueueReport,
+    pub priority_tree_root: String,
+    pub base_token_asset_id: String,
 }
 
 sol! {
@@ -51,6 +90,8 @@ sol! {
         function getPriorityQueueSize() external view returns (uint256);
         function getTotalPriorityTxs() external view returns (uint256);
         function getPriorityTreeRoot() external view returns (bytes32);
+        function getBaseTokenAssetId() external view returns (bytes32);
+
 
     }
 }
@@ -106,6 +147,8 @@ impl StateTransition {
 
         let priority_tree_root = contract.getPriorityTreeRoot().call().await?._0;
 
+        let base_token_asset_id = contract.getBaseTokenAssetId().call().await?._0;
+
         Ok(StateTransition {
             verifier,
             total_batches_executed,
@@ -126,7 +169,31 @@ impl StateTransition {
             total_queue_size,
             priority_tree_root,
             hyperchain,
+            base_token_asset_id,
         })
+    }
+
+    pub fn to_report(&self) -> StateTransitionReport {
+        StateTransitionReport {
+            chain_id: self.chain_id.to_string(),
+            hyperchain: format_address(self.hyperchain),
+            verifier: format_address(self.verifier),
+            total_batches_executed: self.total_batches_executed.to_string(),
+            total_batches_verified: self.total_batches_verified.to_string(),
+            total_batches_committed: self.total_batches_committed.to_string(),
+            bootloader_hash: format_fixed_bytes(self.bootloader_hash),
+            default_account_hash: format_fixed_bytes(self.default_account_hash),
+            protocol_version: self.protocol_version,
+            system_upgrade_tx_hash: format_fixed_bytes(self.system_upgrade_tx_hash),
+            admin: format_address(self.admin),
+            settlement_layer: format_address(self.settlement_layer),
+            queue: QueueReport {
+                unprocessed: self.unprocessed_queue_size.to_string(),
+                total: self.total_queue_size.to_string(),
+            },
+            priority_tree_root: format_b256(self.priority_tree_root),
+            base_token_asset_id: format_b256(self.base_token_asset_id),
+        }
     }
 
     pub fn detailed_fmt(&self, f: &mut std::fmt::Formatter<'_>, pad: usize) -> std::fmt::Result {
