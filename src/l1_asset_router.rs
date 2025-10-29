@@ -117,11 +117,7 @@ impl RegisteredAsset {
     pub fn name(&self) -> String {
         match &self.handler {
             AssetHandler::Bridgehub => get_human_name_for(self.asset_id),
-            AssetHandler::NativeTokenVault(vault_asset) => format!(
-                "{}-{}",
-                vault_asset.token_name,
-                get_human_name_for(self.asset_id)
-            ),
+            AssetHandler::NativeTokenVault(vault_asset) => format!("{}", vault_asset.token_name),
             AssetHandler::Other(_) => get_human_name_for(self.asset_id),
         }
     }

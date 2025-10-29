@@ -1,5 +1,5 @@
 {
-  "generated_at_unix": 1761778806,
+  "generated_at_unix": 1761781191,
   "network": "testnet_atlas",
   "sequencers": {
     "l1": {
@@ -7,7 +7,7 @@
       "sequencer": {
         "rpc_url": "https://1rpc.io/sepolia",
         "chain_id": 11155111,
-        "latest_block": 9518802,
+        "latest_block": 9519001,
         "sequencer_type": "L1"
       },
       "error": null
@@ -17,7 +17,7 @@
       "sequencer": {
         "rpc_url": "https://zksync-os-testnet-alpha.zksync.dev/",
         "chain_id": 8022833,
-        "latest_block": 11746,
+        "latest_block": 11754,
         "sequencer_type": {
           "L2": {
             "l1_chain_id": 13,
@@ -32,7 +32,7 @@
       "sequencer": {
         "rpc_url": "https://zksync-os-testnet-alpha.zksync.dev/",
         "chain_id": 8022833,
-        "latest_block": 11746,
+        "latest_block": 11754,
         "sequencer_type": {
           "L2": {
             "l1_chain_id": 13,
@@ -75,7 +75,7 @@
       "registered_assets": [
         {
           "asset_id": "0x3e23799f9e16190910a0457884fb96b40d0fa520c42f68b498313f955efb0a5d",
-          "name": "ADI Token-second_cheese",
+          "name": "ADI Token",
           "handler": "native_token_vault",
           "token_address": "0x2a98b46fe31ba8be05ef1ce3d36e1f80db04190d",
           "token_name": "ADI Token",
@@ -83,7 +83,7 @@
         },
         {
           "asset_id": "0x4c393da37d52ea1c06d3282d1bcbdb5b1e145535fd67e2485d882a5aaaec2987",
-          "name": "ChainLink Token-elated_finger",
+          "name": "ChainLink Token",
           "handler": "native_token_vault",
           "token_address": "0x779877a7b0d9e8603169ddbd7836e478b4624789",
           "token_name": "ChainLink Token",
@@ -91,7 +91,7 @@
         },
         {
           "asset_id": "0x6337a96bd2cd359fa0bae3bbedfca736753213c95037ae158c5fa7c048ae2112",
-          "name": "ETH-rich_lip",
+          "name": "ETH",
           "handler": "native_token_vault",
           "token_address": "0x0000000000000000000000000000000000000001",
           "token_name": "ETH",
@@ -99,7 +99,7 @@
         },
         {
           "asset_id": "0xe16bfe48d8a902d17de6ed0a6971426edc19b3fa34f15ee66f4982d6d4b95799",
-          "name": "Sophon-majestic_visitor",
+          "name": "Sophon",
           "handler": "native_token_vault",
           "token_address": "0x06c03f9319ebbd84065336240dcc243bda9d8896",
           "token_name": "Sophon",
@@ -124,22 +124,22 @@
       "chain_id": 1401,
       "tokens": [
         {
-          "token": "ADI Token-second_cheese",
+          "token": "ADI Token",
           "raw_wei": "0",
           "formatted": "0.000000000000000000"
         },
         {
-          "token": "ChainLink Token-elated_finger",
+          "token": "ChainLink Token",
           "raw_wei": "0",
           "formatted": "0.000000000000000000"
         },
         {
-          "token": "ETH-rich_lip",
+          "token": "ETH",
           "raw_wei": "65253241949000261",
           "formatted": "0.065253241949000261"
         },
         {
-          "token": "Sophon-majestic_visitor",
+          "token": "Sophon",
           "raw_wei": "0",
           "formatted": "0.000000000000000000"
         }
@@ -149,22 +149,22 @@
       "chain_id": 2905,
       "tokens": [
         {
-          "token": "ADI Token-second_cheese",
+          "token": "ADI Token",
           "raw_wei": "0",
           "formatted": "0.000000000000000000"
         },
         {
-          "token": "ChainLink Token-elated_finger",
+          "token": "ChainLink Token",
           "raw_wei": "0",
           "formatted": "0.000000000000000000"
         },
         {
-          "token": "ETH-rich_lip",
-          "raw_wei": "6041252051949000165",
-          "formatted": "6.041252051949000165"
+          "token": "ETH",
+          "raw_wei": "6041502064449000166",
+          "formatted": "6.041502064449000166"
         },
         {
-          "token": "Sophon-majestic_visitor",
+          "token": "Sophon",
           "raw_wei": "0",
           "formatted": "0.000000000000000000"
         }
@@ -174,22 +174,22 @@
       "chain_id": 36900,
       "tokens": [
         {
-          "token": "ADI Token-second_cheese",
+          "token": "ADI Token",
           "raw_wei": "10803016167200842000000",
           "formatted": "10803.016167200842000000"
         },
         {
-          "token": "ChainLink Token-elated_finger",
+          "token": "ChainLink Token",
           "raw_wei": "0",
           "formatted": "0.000000000000000000"
         },
         {
-          "token": "ETH-rich_lip",
+          "token": "ETH",
           "raw_wei": "0",
           "formatted": "0.000000000000000000"
         },
         {
-          "token": "Sophon-majestic_visitor",
+          "token": "Sophon",
           "raw_wei": "0",
           "formatted": "0.000000000000000000"
         }
@@ -199,22 +199,22 @@
       "chain_id": 42111,
       "tokens": [
         {
-          "token": "ADI Token-second_cheese",
+          "token": "ADI Token",
           "raw_wei": "0",
           "formatted": "0.000000000000000000"
         },
         {
-          "token": "ChainLink Token-elated_finger",
+          "token": "ChainLink Token",
           "raw_wei": "0",
           "formatted": "0.000000000000000000"
         },
         {
-          "token": "ETH-rich_lip",
+          "token": "ETH",
           "raw_wei": "1000000000000000000",
           "formatted": "1.000000000000000000"
         },
         {
-          "token": "Sophon-majestic_visitor",
+          "token": "Sophon",
           "raw_wei": "0",
           "formatted": "0.000000000000000000"
         }
@@ -224,22 +224,22 @@
       "chain_id": 788621,
       "tokens": [
         {
-          "token": "ADI Token-second_cheese",
+          "token": "ADI Token",
           "raw_wei": "0",
           "formatted": "0.000000000000000000"
         },
         {
-          "token": "ChainLink Token-elated_finger",
+          "token": "ChainLink Token",
           "raw_wei": "0",
           "formatted": "0.000000000000000000"
         },
         {
-          "token": "ETH-rich_lip",
+          "token": "ETH",
           "raw_wei": "0",
           "formatted": "0.000000000000000000"
         },
         {
-          "token": "Sophon-majestic_visitor",
+          "token": "Sophon",
           "raw_wei": "0",
           "formatted": "0.000000000000000000"
         }
@@ -249,22 +249,22 @@
       "chain_id": 7567979,
       "tokens": [
         {
-          "token": "ADI Token-second_cheese",
+          "token": "ADI Token",
           "raw_wei": "0",
           "formatted": "0.000000000000000000"
         },
         {
-          "token": "ChainLink Token-elated_finger",
+          "token": "ChainLink Token",
           "raw_wei": "0",
           "formatted": "0.000000000000000000"
         },
         {
-          "token": "ETH-rich_lip",
+          "token": "ETH",
           "raw_wei": "0",
           "formatted": "0.000000000000000000"
         },
         {
-          "token": "Sophon-majestic_visitor",
+          "token": "Sophon",
           "raw_wei": "10000000000000000000",
           "formatted": "10.000000000000000000"
         }
@@ -274,22 +274,22 @@
       "chain_id": 8022832,
       "tokens": [
         {
-          "token": "ADI Token-second_cheese",
+          "token": "ADI Token",
           "raw_wei": "0",
           "formatted": "0.000000000000000000"
         },
         {
-          "token": "ChainLink Token-elated_finger",
+          "token": "ChainLink Token",
           "raw_wei": "0",
           "formatted": "0.000000000000000000"
         },
         {
-          "token": "ETH-rich_lip",
+          "token": "ETH",
           "raw_wei": "222124107744000000",
           "formatted": "0.222124107744000000"
         },
         {
-          "token": "Sophon-majestic_visitor",
+          "token": "Sophon",
           "raw_wei": "0",
           "formatted": "0.000000000000000000"
         }
@@ -299,22 +299,22 @@
       "chain_id": 8022833,
       "tokens": [
         {
-          "token": "ADI Token-second_cheese",
+          "token": "ADI Token",
           "raw_wei": "0",
           "formatted": "0.000000000000000000"
         },
         {
-          "token": "ChainLink Token-elated_finger",
+          "token": "ChainLink Token",
           "raw_wei": "5700000000000000000",
           "formatted": "5.700000000000000000"
         },
         {
-          "token": "ETH-rich_lip",
+          "token": "ETH",
           "raw_wei": "192453603052102067237",
           "formatted": "192.453603052102067237"
         },
         {
-          "token": "Sophon-majestic_visitor",
+          "token": "Sophon",
           "raw_wei": "500000000000000000",
           "formatted": "0.500000000000000000"
         }
@@ -324,22 +324,22 @@
       "chain_id": 531050204,
       "tokens": [
         {
-          "token": "ADI Token-second_cheese",
+          "token": "ADI Token",
           "raw_wei": "0",
           "formatted": "0.000000000000000000"
         },
         {
-          "token": "ChainLink Token-elated_finger",
+          "token": "ChainLink Token",
           "raw_wei": "0",
           "formatted": "0.000000000000000000"
         },
         {
-          "token": "ETH-rich_lip",
+          "token": "ETH",
           "raw_wei": "2072000000000000000",
           "formatted": "2.072000000000000000"
         },
         {
-          "token": "Sophon-majestic_visitor",
+          "token": "Sophon",
           "raw_wei": "0",
           "formatted": "0.000000000000000000"
         }
@@ -353,9 +353,9 @@
         "chain_id": "1401",
         "hyperchain": "0x51e0286fcb78706d7a28967f61c9f4aa46b78d97",
         "verifier": "0x8b0474730cbdff41ecd9f8bad51811bf8a5e547e",
-        "total_batches_executed": "3413",
-        "total_batches_verified": "3413",
-        "total_batches_committed": "3413",
+        "total_batches_executed": "3421",
+        "total_batches_verified": "3421",
+        "total_batches_committed": "3421",
         "bootloader_hash": "0x0100085f9382a7928dd83bfc529121827b5f29f18b9aa10d18aa68e1be7ddc35",
         "default_account_hash": "0x010005f72e443c94460f4583fb38ef5d0c5cd9897021c41df840f91465c0392e",
         "protocol_version": [
@@ -641,9 +641,9 @@
         "chain_id": "2905",
         "hyperchain": "0xd2fde2b271845d08cd490d20d9636edf6e980e85",
         "verifier": "0x8b0474730cbdff41ecd9f8bad51811bf8a5e547e",
-        "total_batches_executed": "811",
-        "total_batches_verified": "811",
-        "total_batches_committed": "812",
+        "total_batches_executed": "815",
+        "total_batches_verified": "815",
+        "total_batches_committed": "816",
         "bootloader_hash": "0x0100085f9382a7928dd83bfc529121827b5f29f18b9aa10d18aa68e1be7ddc35",
         "default_account_hash": "0x010005f72e443c94460f4583fb38ef5d0c5cd9897021c41df840f91465c0392e",
         "protocol_version": [
@@ -655,31 +655,16 @@
         "admin": "0xe537a2c7f266f40023387c8ba54a0dae38746841",
         "settlement_layer": "0x0000000000000000000000000000000000000000",
         "queue": {
-          "unprocessed": "0",
-          "total": "167"
+          "unprocessed": "1",
+          "total": "168"
         },
-        "priority_tree_root": "0xc20e3157960e08c0400adc645212bbfafd492a8efa87b3221a5b0c26d8a0298b",
+        "priority_tree_root": "0xe6b851e33c5264fb8a25cef206547cfbe135252d6aa853c166840d94d248875a",
         "base_token_asset_id": "0x6337a96bd2cd359fa0bae3bbedfca736753213c95037ae158c5fa7c048ae2112"
       },
       "state_transition_error": null,
       "priority_tree_verified": null,
       "priority_tree_note": "Skipped priority hash verification on non-local networks.",
       "priority_transactions": [
-        {
-          "index": 148,
-          "tx_id": "0x81dc619873e29947b6480a23ea01494feab6f2b1f4d69f5ceacf47a210ca2ceb",
-          "expiration_timestamp": 1761712668,
-          "from": "0x247964E9730f283Ea23f29633a5A52532c2D954b",
-          "to": "0x247964E9730f283Ea23f29633a5A52532c2D954b",
-          "value_wei": "1",
-          "value_formatted": "1",
-          "gas_limit": "1000000",
-          "gas_per_pubdata_byte_limit": "800",
-          "max_fee_per_gas": "250012500",
-          "max_priority_fee_per_gas": "0",
-          "method": null,
-          "data": "0x"
-        },
         {
           "index": 149,
           "tx_id": "0xa05f8d11d21d0763465a703fb17e5beb48ee40a01a0a6fb00d4496c774733514",
@@ -949,6 +934,21 @@
           "max_priority_fee_per_gas": "0",
           "method": null,
           "data": "0x"
+        },
+        {
+          "index": 167,
+          "tx_id": "0x1255d1b6169fb047f2c39f1514bcef15a26503aab1d7cc3f9bee1619caa47e5a",
+          "expiration_timestamp": 1761781080,
+          "from": "0x247964E9730f283Ea23f29633a5A52532c2D954b",
+          "to": "0x247964E9730f283Ea23f29633a5A52532c2D954b",
+          "value_wei": "1",
+          "value_formatted": "1",
+          "gas_limit": "1000000",
+          "gas_per_pubdata_byte_limit": "800",
+          "max_fee_per_gas": "250012500",
+          "max_priority_fee_per_gas": "0",
+          "method": null,
+          "data": "0x"
         }
       ],
       "priority_tx_error": null
@@ -991,9 +991,9 @@
         "chain_id": "42111",
         "hyperchain": "0xc5288a64ab868adda3bb38f59e84d6141290b9a0",
         "verifier": "0x8b0474730cbdff41ecd9f8bad51811bf8a5e547e",
-        "total_batches_executed": "6420",
-        "total_batches_verified": "6420",
-        "total_batches_committed": "6420",
+        "total_batches_executed": "6429",
+        "total_batches_verified": "6429",
+        "total_batches_committed": "6429",
         "bootloader_hash": "0x0100085f9382a7928dd83bfc529121827b5f29f18b9aa10d18aa68e1be7ddc35",
         "default_account_hash": "0x010005f72e443c94460f4583fb38ef5d0c5cd9897021c41df840f91465c0392e",
         "protocol_version": [
@@ -1006,30 +1006,15 @@
         "settlement_layer": "0x0000000000000000000000000000000000000000",
         "queue": {
           "unprocessed": "0",
-          "total": "329"
+          "total": "330"
         },
-        "priority_tree_root": "0x13a7994050ed38a2595ebbdd98afd68faba8b2962aa1bac7ddf4a3b8cd65e72a",
+        "priority_tree_root": "0x77da92cb08941a4b99088ec8948453ae0ba4b815a26614dda5d8edf7eabf549d",
         "base_token_asset_id": "0x70e6734a328787f9c829be8426733c5e9357562eb4e26437c160fefa4eb0bdec"
       },
       "state_transition_error": null,
       "priority_tree_verified": null,
       "priority_tree_note": "Skipped priority hash verification on non-local networks.",
       "priority_transactions": [
-        {
-          "index": 311,
-          "tx_id": "0x4b593ccf28ef12229073c64084598ea9caf1398f7aef19390c93b2ec39ef9369",
-          "expiration_timestamp": 1761714876,
-          "from": "0x7D8D04f5ff6C15062882FC58508FAef84988dab3",
-          "to": "0x7D8D04f5ff6C15062882FC58508FAef84988dab3",
-          "value_wei": "1",
-          "value_formatted": "1",
-          "gas_limit": "1000000",
-          "gas_per_pubdata_byte_limit": "800",
-          "max_fee_per_gas": "262500000",
-          "max_priority_fee_per_gas": "0",
-          "method": null,
-          "data": "0x"
-        },
         {
           "index": 312,
           "tx_id": "0x775d15cd0687b8f1d7d2d5e13fd5e2ab5990fd517b4aaf1479d8614de20b10bc",
@@ -1284,6 +1269,21 @@
           "max_priority_fee_per_gas": "0",
           "method": null,
           "data": "0x"
+        },
+        {
+          "index": 329,
+          "tx_id": "0x5150babf4f91e638fd6a639b6c9f2308ef80e5be5dfcb38b21159b5495de2c40",
+          "expiration_timestamp": 1761779664,
+          "from": "0x7D8D04f5ff6C15062882FC58508FAef84988dab3",
+          "to": "0x7D8D04f5ff6C15062882FC58508FAef84988dab3",
+          "value_wei": "1",
+          "value_formatted": "1",
+          "gas_limit": "1000000",
+          "gas_per_pubdata_byte_limit": "800",
+          "max_fee_per_gas": "262500000",
+          "max_priority_fee_per_gas": "0",
+          "method": null,
+          "data": "0x"
         }
       ],
       "priority_tx_error": null
@@ -1390,9 +1390,9 @@
         "chain_id": "8022833",
         "hyperchain": "0x02b1ac1cf0a592aefd3c2246b2431388365db272",
         "verifier": "0x8b0474730cbdff41ecd9f8bad51811bf8a5e547e",
-        "total_batches_executed": "11745",
-        "total_batches_verified": "11745",
-        "total_batches_committed": "11746",
+        "total_batches_executed": "11753",
+        "total_batches_verified": "11753",
+        "total_batches_committed": "11754",
         "bootloader_hash": "0x0100085f9382a7928dd83bfc529121827b5f29f18b9aa10d18aa68e1be7ddc35",
         "default_account_hash": "0x010005f72e443c94460f4583fb38ef5d0c5cd9897021c41df840f91465c0392e",
         "protocol_version": [
@@ -1623,6 +1623,21 @@
           "max_priority_fee_per_gas": "0",
           "method": null,
           "data": "0x"
+        },
+        {
+          "index": 434,
+          "tx_id": "0x49534843f6f1ce2fab63e1550a05cdffa39e9b3b348243d056945005de4c7f82",
+          "expiration_timestamp": 1761781176,
+          "from": "0x785C0219D5e23950F88452D23113B3b680006e6a",
+          "to": "0x785C0219D5e23950F88452D23113B3b680006e6a",
+          "value_wei": "1",
+          "value_formatted": "1",
+          "gas_limit": "1000000",
+          "gas_per_pubdata_byte_limit": "800",
+          "max_fee_per_gas": "250012500",
+          "max_priority_fee_per_gas": "0",
+          "method": null,
+          "data": "0x"
         }
       ],
       "priority_tx_error": null
@@ -1633,9 +1648,9 @@
         "chain_id": "531050204",
         "hyperchain": "0x96082fc0d815955795531a435c16ffbea5690720",
         "verifier": "0x8b0474730cbdff41ecd9f8bad51811bf8a5e547e",
-        "total_batches_executed": "6755",
-        "total_batches_verified": "6756",
-        "total_batches_committed": "6756",
+        "total_batches_executed": "6759",
+        "total_batches_verified": "6759",
+        "total_batches_committed": "6759",
         "bootloader_hash": "0x0100085f9382a7928dd83bfc529121827b5f29f18b9aa10d18aa68e1be7ddc35",
         "default_account_hash": "0x010005f72e443c94460f4583fb38ef5d0c5cd9897021c41df840f91465c0392e",
         "protocol_version": [
@@ -1648,9 +1663,9 @@
         "settlement_layer": "0x0000000000000000000000000000000000000000",
         "queue": {
           "unprocessed": "0",
-          "total": "384"
+          "total": "385"
         },
-        "priority_tree_root": "0x81f84ac0c64d6b37b1dd5f006ad427b8d388ccca05cce7d8fc4427a425a172d7",
+        "priority_tree_root": "0x7c103d3143de571428930a43e4d98658cfbf97e625d7a572384b412279e562be",
         "base_token_asset_id": "0x93c12866ad3d6463b48117548684daafedf2f41186eb2f10fa7ee3836062aa01"
       },
       "state_transition_error": null,
@@ -1983,6 +1998,21 @@
           "gas_limit": "1000000",
           "gas_per_pubdata_byte_limit": "800",
           "max_fee_per_gas": "4262034994",
+          "max_priority_fee_per_gas": "0",
+          "method": null,
+          "data": "0x"
+        },
+        {
+          "index": 384,
+          "tx_id": "0x2e6c43f87895d363cc8e40f9516704fb571c1f7a3d88dc6df56c0c6a527b5f4d",
+          "expiration_timestamp": 1761780540,
+          "from": "0x2650c0E97899701f09B858ce5AeCfcC229d04820",
+          "to": "0x2650c0E97899701f09B858ce5AeCfcC229d04820",
+          "value_wei": "1",
+          "value_formatted": "1",
+          "gas_limit": "1000000",
+          "gas_per_pubdata_byte_limit": "800",
+          "max_fee_per_gas": "4262039256",
           "max_priority_fee_per_gas": "0",
           "method": null,
           "data": "0x"

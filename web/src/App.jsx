@@ -15,6 +15,13 @@ const formatVersion = (ver) => {
   return `${a}.${b}.${c}`;
 };
 
+// Etherscan base URLs per ecosystem
+const ETHERSCAN_BASES = {
+  mainnet: 'https://etherscan.io/address/',
+  testnet: 'https://sepolia.etherscan.io/address/',
+  testnet_atlas: 'https://sepolia.etherscan.io/address/'
+};
+
 function Badge({ tone = 'neutral', children }) {
   return <span className={`badge badge--${tone}`}>{children}</span>;
 }
@@ -53,14 +60,7 @@ function NodeBox({ title, subtitle, status, details, arrowTo }) {
   );
 }
 
-// Etherscan base URLs per ecosystem
-const ETHERSCAN_BASES = {
-  mainnet: 'https://etherscan.io/address/',
-  testnet: 'https://sepolia.etherscan.io/address/',
-  testnet_atlas: 'https://sepolia.etherscan.io/address/'
-};
-
-
+// Clickable Etherscan link for addresses (top-level)
 function AddressLink({ address, eco }) {
   if (!address || typeof address !== 'string' || !address.startsWith('0x')) return <span>{address}</span>;
   const base = ETHERSCAN_BASES[eco] || ETHERSCAN_BASES.mainnet;
@@ -77,6 +77,7 @@ function AddressLink({ address, eco }) {
   );
 }
 
+// Key/value row with address auto-linking (top-level)
 function KeyValue({ label, value, eco }) {
   const isAddr = typeof value === 'string' && value.startsWith('0x') && value.length === 42;
   return (
@@ -125,48 +126,29 @@ function PriorityTable({ txs, eco }) {
   );
 }
 
-function ChainCard({ chain, settlesTo }) {
-  const st = chain.state_transition;
-  const ok = Boolean(st);
+// Simple tokens table (filters out zero balances)
+function TokenTable({ tokens }) {
+  const rows = (tokens || []).filter((t) => t && t.raw_wei && t.raw_wei !== '0');
+  if (rows.length === 0) return <div className="muted">No non-zero balances</div>;
   return (
-    <section className="chain card">
-      <header className="chain__header">
-        <div className="row-left">
-          <h3 className="chain__title">Chain {chain.chain_id}</h3>
-          <span className="settlement">→ {settlesTo}</span>
-        </div>
-        <div className="row-right">
-          <Badge tone={ok ? 'success' : 'danger'}>{ok ? 'HEALTHY' : 'ERROR'}</Badge>
-        </div>
-      </header>
-      {ok ? (
-        <div className="stats">
-          <div className="pill">Protocol {formatVersion(st.protocol_version)}</div>
-          <div className="pill">Batches C/V/E {st.total_batches_committed}/{st.total_batches_verified}/{st.total_batches_executed}</div>
-          <div className="pill">Queue {st.queue.unprocessed}/{st.queue.total}</div>
-          {typeof chain.priority_tree_verified === 'boolean' && (
-            <div className={`pill ${chain.priority_tree_verified ? 'pill--ok' : 'pill--warn'}`}>
-              Priority root {chain.priority_tree_verified ? 'VALID' : 'INVALID'}
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className="muted">{chain.state_transition_error ?? 'State transition unavailable'}</div>
-      )}
-
-      {ok && (
-        <div className="grid-2">
-          <KeyValue label="Hyperchain" value={st.hyperchain} eco={eco} />
-          <KeyValue label="Verifier" value={st.verifier} eco={eco} />
-          <KeyValue label="Admin" value={st.admin} eco={eco} />
-          <KeyValue label="Settlement layer" value={st.settlement_layer} eco={eco} />
-        </div>
-      )}
-
-      <Collapsible title="Priority transactions" count={chain.priority_transactions?.length || 0}>
-        <PriorityTable txs={chain.priority_transactions} />
-      </Collapsible>
-    </section>
+    <div className="table-wrapper">
+      <table className="table">
+        <thead>
+          <tr>
+            <th>Token</th>
+            <th>Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((t) => (
+            <tr key={t.token}>
+              <td>{t.token}</td>
+              <td>{t.formatted}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
 
@@ -241,6 +223,16 @@ export default function App() {
       for (const id of data.gateway_bridgehub.known_chains) s.add(Number(id));
     }
     return s;
+  }, [data]);
+
+  // Map asset_id -> asset name from registered assets
+  const assetIdName = useMemo(() => {
+    const map = new Map();
+    const l1 = data?.bridgehub?.asset_router?.registered_assets || [];
+    const l2 = data?.gateway_bridgehub?.asset_router?.registered_assets || [];
+    for (const a of l1) map.set(a.asset_id, a.name);
+    for (const a of l2) map.set(a.asset_id, a.name);
+    return map;
   }, [data]);
 
   // Determine newest and previous protocol versions across all chains
@@ -406,7 +398,19 @@ export default function App() {
                             <KeyValue label="Verifier" value={st.verifier} eco={eco} />
                             <KeyValue label="Admin" value={st.admin} eco={eco} />
                             <KeyValue label="Settlement layer" value={st.settlement_layer} eco={eco} />
+                            {st.base_token_asset_id && assetIdName.get(st.base_token_asset_id) && (
+                              <KeyValue label="Base token" value={assetIdName.get(st.base_token_asset_id)} />
+                            )}
                           </div>
+                          {(() => {
+                            const bal = (data?.l1_balances || []).find((b) => Number(b.chain_id) === Number(c.chain_id));
+                            const tokens = (bal?.tokens || []).filter((t) => t && t.raw_wei && t.raw_wei !== '0');
+                            return (
+                              <Collapsible title="Tokens" count={tokens.length}>
+                                <TokenTable tokens={tokens} />
+                              </Collapsible>
+                            );
+                          })()}
                           <Collapsible title="Priority transactions" count={c.priority_transactions?.length || 0}>
                             <PriorityTable txs={c.priority_transactions} eco={eco} />
                           </Collapsible>
@@ -467,7 +471,19 @@ export default function App() {
                             <KeyValue label="Verifier" value={st.verifier} eco={eco} />
                             <KeyValue label="Admin" value={st.admin} eco={eco} />
                             <KeyValue label="Settlement layer" value={st.settlement_layer} eco={eco} />
+                            {st.base_token_asset_id && assetIdName.get(st.base_token_asset_id) && (
+                              <KeyValue label="Base token" value={assetIdName.get(st.base_token_asset_id)} />
+                            )}
                           </div>
+                          {(() => {
+                            const bal = (data?.l1_balances || []).find((b) => Number(b.chain_id) === Number(c.chain_id));
+                            const tokens = (bal?.tokens || []).filter((t) => t && t.raw_wei && t.raw_wei !== '0');
+                            return (
+                              <Collapsible title="Tokens" count={tokens.length}>
+                                <TokenTable tokens={tokens} />
+                              </Collapsible>
+                            );
+                          })()}
                           <Collapsible title="Priority transactions" count={c.priority_transactions?.length || 0}>
                             <PriorityTable txs={c.priority_transactions} eco={eco} />
                           </Collapsible>

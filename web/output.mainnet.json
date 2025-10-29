@@ -1,13 +1,13 @@
 {
-  "generated_at_unix": 1761775515,
+  "generated_at_unix": 1761780871,
   "network": "mainnet",
   "sequencers": {
     "l1": {
       "status": "ok",
       "sequencer": {
-        "rpc_url": "https://eth.llamarpc.com",
+        "rpc_url": "https://l1.com",
         "chain_id": 1,
-        "latest_block": 23685898,
+        "latest_block": 23686348,
         "sequencer_type": "L1"
       },
       "error": null
@@ -17,7 +17,7 @@
       "sequencer": {
         "rpc_url": "https://rpc.era-gateway-mainnet.zksync.dev/",
         "chain_id": 9075,
-        "latest_block": 80746,
+        "latest_block": 80792,
         "sequencer_type": {
           "L2": {
             "l1_chain_id": 1,
@@ -32,7 +32,7 @@
       "sequencer": {
         "rpc_url": "https://mainnet.era.zksync.io",
         "chain_id": 324,
-        "latest_block": 65575791,
+        "latest_block": 65579362,
         "sequencer_type": {
           "L2": {
             "l1_chain_id": 1,
@@ -79,7 +79,64 @@
       "kind": "l1",
       "address": "0x8829ad80e425c646dab305381ff105169feece56",
       "native_token_vault": "0xbed1eb542f9a5aa6419ff3deb921a372681111f6",
-      "registered_assets": []
+      "registered_assets": [
+        {
+          "asset_id": "0x5f6b4d1bc23150a6e6deff2b861ebbbfe17bc20f0d72e342e041509156d4d616",
+          "name": "Beam",
+          "handler": "native_token_vault",
+          "token_address": "0x62d0a8458ed7719fdaf978fe5929c6d342b0bfce",
+          "token_name": "Beam",
+          "handler_address": null
+        },
+        {
+          "asset_id": "0x487d70c3c1f222134d1e8743a90e5cbb6c006ad0960a00b97e10ac40e3124adc",
+          "name": "CRO",
+          "handler": "native_token_vault",
+          "token_address": "0xa0b73e1ff0b80914ab6fe0444e65848c4c34450b",
+          "token_name": "CRO",
+          "handler_address": null
+        },
+        {
+          "asset_id": "0x05e1c3ae4b9732444ae25217ac7666e46fa365fee1768de00c9fcb65532b7609",
+          "name": "ETH",
+          "handler": "native_token_vault",
+          "token_address": "0x0000000000000000000000000000000000000001",
+          "token_name": "ETH",
+          "handler_address": null
+        },
+        {
+          "asset_id": "0xdde1b8f84d54bbaba65c196655baa8458cbb20c0d62f6b8ae4ff5e801456e6bd",
+          "name": "Tether USD",
+          "handler": "native_token_vault",
+          "token_address": "0xdac17f958d2ee523a2206206994597c13d831ec7",
+          "token_name": "Tether USD",
+          "handler_address": null
+        },
+        {
+          "asset_id": "0x79272c08dbfbb367e07f7607be00657ae4a9c15ba0b08b12aa00fb77a0a4aa83",
+          "name": "USD Coin",
+          "handler": "native_token_vault",
+          "token_address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+          "token_name": "USD Coin",
+          "handler_address": null
+        },
+        {
+          "asset_id": "0x42da3783e03694dbfb1491ffc872529ecc3964e8231f87e0a04be359d1451e60",
+          "name": "Wrapped BTC",
+          "handler": "native_token_vault",
+          "token_address": "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599",
+          "token_name": "Wrapped BTC",
+          "handler_address": null
+        },
+        {
+          "asset_id": "0xed62d1706f94877003bf1006b76b5739cad33164faff051a9cf7d90b0fba0603",
+          "name": "Yield Guild Games Token",
+          "handler": "native_token_vault",
+          "token_address": "0x25f8087ead173b73d6e8b84329989a8eea16cf73",
+          "token_name": "Yield Guild Games Token",
+          "handler_address": null
+        }
+      ]
     }
   },
   "gateway_bridgehub": {
@@ -107,67 +164,643 @@
   "l1_balances": [
     {
       "chain_id": 232,
-      "tokens": []
+      "tokens": [
+        {
+          "token": "Beam",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "CRO",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "ETH",
+          "raw_wei": "383950955037695520563",
+          "formatted": "383.950955037695520563"
+        },
+        {
+          "token": "Tether USD",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "USD Coin",
+          "raw_wei": "44330",
+          "formatted": "0.000000000000044330"
+        },
+        {
+          "token": "Wrapped BTC",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "Yield Guild Games Token",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        }
+      ]
     },
     {
       "chain_id": 320,
-      "tokens": []
+      "tokens": [
+        {
+          "token": "Beam",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "CRO",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "ETH",
+          "raw_wei": "21646123812140413056",
+          "formatted": "21.646123812140413056"
+        },
+        {
+          "token": "Tether USD",
+          "raw_wei": "33000005",
+          "formatted": "0.000000000033000005"
+        },
+        {
+          "token": "USD Coin",
+          "raw_wei": "57627080",
+          "formatted": "0.000000000057627080"
+        },
+        {
+          "token": "Wrapped BTC",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "Yield Guild Games Token",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        }
+      ]
     },
     {
       "chain_id": 324,
-      "tokens": []
+      "tokens": [
+        {
+          "token": "Beam",
+          "raw_wei": "51689739780035047575291",
+          "formatted": "51689.739780035047575291"
+        },
+        {
+          "token": "CRO",
+          "raw_wei": "127377519211",
+          "formatted": "0.000000127377519211"
+        },
+        {
+          "token": "ETH",
+          "raw_wei": "50001660285960076211714",
+          "formatted": "50001.660285960076211714"
+        },
+        {
+          "token": "Tether USD",
+          "raw_wei": "3775140245031",
+          "formatted": "0.000003775140245031"
+        },
+        {
+          "token": "USD Coin",
+          "raw_wei": "30352109427922",
+          "formatted": "0.000030352109427922"
+        },
+        {
+          "token": "Wrapped BTC",
+          "raw_wei": "3057239007",
+          "formatted": "0.000000003057239007"
+        },
+        {
+          "token": "Yield Guild Games Token",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        }
+      ]
     },
     {
       "chain_id": 325,
-      "tokens": []
+      "tokens": [
+        {
+          "token": "Beam",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "CRO",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "ETH",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "Tether USD",
+          "raw_wei": "23431959894465",
+          "formatted": "0.000023431959894465"
+        },
+        {
+          "token": "USD Coin",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "Wrapped BTC",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "Yield Guild Games Token",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        }
+      ]
     },
     {
       "chain_id": 375,
-      "tokens": []
+      "tokens": [
+        {
+          "token": "Beam",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "CRO",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "ETH",
+          "raw_wei": "14092219785598248",
+          "formatted": "0.014092219785598248"
+        },
+        {
+          "token": "Tether USD",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "USD Coin",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "Wrapped BTC",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "Yield Guild Games Token",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        }
+      ]
     },
     {
       "chain_id": 388,
-      "tokens": []
+      "tokens": [
+        {
+          "token": "Beam",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "CRO",
+          "raw_wei": "6660613667894034",
+          "formatted": "0.006660613667894034"
+        },
+        {
+          "token": "ETH",
+          "raw_wei": "2790955316539399313110",
+          "formatted": "2790.955316539399313110"
+        },
+        {
+          "token": "Tether USD",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "USD Coin",
+          "raw_wei": "2336697248915",
+          "formatted": "0.000002336697248915"
+        },
+        {
+          "token": "Wrapped BTC",
+          "raw_wei": "1273381751",
+          "formatted": "0.000000001273381751"
+        },
+        {
+          "token": "Yield Guild Games Token",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        }
+      ]
     },
     {
       "chain_id": 1217,
-      "tokens": []
+      "tokens": [
+        {
+          "token": "Beam",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "CRO",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "ETH",
+          "raw_wei": "974220727908492062",
+          "formatted": "0.974220727908492062"
+        },
+        {
+          "token": "Tether USD",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "USD Coin",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "Wrapped BTC",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "Yield Guild Games Token",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        }
+      ]
     },
     {
       "chain_id": 1345,
-      "tokens": []
+      "tokens": [
+        {
+          "token": "Beam",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "CRO",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "ETH",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "Tether USD",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "USD Coin",
+          "raw_wei": "1000",
+          "formatted": "0.000000000000001000"
+        },
+        {
+          "token": "Wrapped BTC",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "Yield Guild Games Token",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        }
+      ]
     },
     {
       "chain_id": 2741,
-      "tokens": []
+      "tokens": [
+        {
+          "token": "Beam",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "CRO",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "ETH",
+          "raw_wei": "19580406921060387668329",
+          "formatted": "19580.406921060387668329"
+        },
+        {
+          "token": "Tether USD",
+          "raw_wei": "40833477",
+          "formatted": "0.000000000040833477"
+        },
+        {
+          "token": "USD Coin",
+          "raw_wei": "2247000000",
+          "formatted": "0.000000002247000000"
+        },
+        {
+          "token": "Wrapped BTC",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "Yield Guild Games Token",
+          "raw_wei": "53696848986127934245040147",
+          "formatted": "53696848.986127934245040147"
+        }
+      ]
     },
     {
       "chain_id": 2904,
-      "tokens": []
+      "tokens": [
+        {
+          "token": "Beam",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "CRO",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "ETH",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "Tether USD",
+          "raw_wei": "1000000",
+          "formatted": "0.000000000001000000"
+        },
+        {
+          "token": "USD Coin",
+          "raw_wei": "1000000",
+          "formatted": "0.000000000001000000"
+        },
+        {
+          "token": "Wrapped BTC",
+          "raw_wei": "900",
+          "formatted": "0.000000000000000900"
+        },
+        {
+          "token": "Yield Guild Games Token",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        }
+      ]
     },
     {
       "chain_id": 9075,
-      "tokens": []
+      "tokens": [
+        {
+          "token": "Beam",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "CRO",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "ETH",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "Tether USD",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "USD Coin",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "Wrapped BTC",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "Yield Guild Games Token",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        }
+      ]
     },
     {
       "chain_id": 9637,
-      "tokens": []
+      "tokens": [
+        {
+          "token": "Beam",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "CRO",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "ETH",
+          "raw_wei": "197039300907405123",
+          "formatted": "0.197039300907405123"
+        },
+        {
+          "token": "Tether USD",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "USD Coin",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "Wrapped BTC",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "Yield Guild Games Token",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        }
+      ]
     },
     {
       "chain_id": 50104,
-      "tokens": []
+      "tokens": [
+        {
+          "token": "Beam",
+          "raw_wei": "1884080913214893550456476895",
+          "formatted": "1884080913.214893550456476895"
+        },
+        {
+          "token": "CRO",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "ETH",
+          "raw_wei": "796803554285451552118",
+          "formatted": "796.803554285451552118"
+        },
+        {
+          "token": "Tether USD",
+          "raw_wei": "2332401145152",
+          "formatted": "0.000002332401145152"
+        },
+        {
+          "token": "USD Coin",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "Wrapped BTC",
+          "raw_wei": "78383404",
+          "formatted": "0.000000000078383404"
+        },
+        {
+          "token": "Yield Guild Games Token",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        }
+      ]
     },
     {
       "chain_id": 51888,
-      "tokens": []
+      "tokens": [
+        {
+          "token": "Beam",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "CRO",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "ETH",
+          "raw_wei": "9525996073733419659",
+          "formatted": "9.525996073733419659"
+        },
+        {
+          "token": "Tether USD",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "USD Coin",
+          "raw_wei": "10000000",
+          "formatted": "0.000000000010000000"
+        },
+        {
+          "token": "Wrapped BTC",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "Yield Guild Games Token",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        }
+      ]
     },
     {
       "chain_id": 61166,
-      "tokens": []
+      "tokens": [
+        {
+          "token": "Beam",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "CRO",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "ETH",
+          "raw_wei": "5542859503289314744",
+          "formatted": "5.542859503289314744"
+        },
+        {
+          "token": "Tether USD",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "USD Coin",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "Wrapped BTC",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "Yield Guild Games Token",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        }
+      ]
     },
     {
       "chain_id": 543210,
-      "tokens": []
+      "tokens": [
+        {
+          "token": "Beam",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "CRO",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "ETH",
+          "raw_wei": "955658596340094061161",
+          "formatted": "955.658596340094061161"
+        },
+        {
+          "token": "Tether USD",
+          "raw_wei": "324757635471",
+          "formatted": "0.000000324757635471"
+        },
+        {
+          "token": "USD Coin",
+          "raw_wei": "742825863997",
+          "formatted": "0.000000742825863997"
+        },
+        {
+          "token": "Wrapped BTC",
+          "raw_wei": "54334916",
+          "formatted": "0.000000000054334916"
+        },
+        {
+          "token": "Yield Guild Games Token",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        }
+      ]
     }
   ],
   "chains": [
@@ -178,7 +811,7 @@
         "hyperchain": "0xc29d04a93f893700015138e3e334eb828dac3cef",
         "verifier": "0xd71ddc9956781bf07dbfb9fca891f971dbe9868a",
         "total_batches_executed": "8017",
-        "total_batches_verified": "8017",
+        "total_batches_verified": "8018",
         "total_batches_committed": "8018",
         "bootloader_hash": "0x0100085f9382a7928dd83bfc529121827b5f29f18b9aa10d18aa68e1be7ddc35",
         "default_account_hash": "0x010005f72e443c94460f4583fb38ef5d0c5cd9897021c41df840f91465c0392e",
@@ -201,21 +834,6 @@
       "priority_tree_verified": null,
       "priority_tree_note": "Skipped priority hash verification on non-local networks.",
       "priority_transactions": [
-        {
-          "index": 3602,
-          "tx_id": "0x2149b534d3f36b706fa8b510654fc635669d11be07300cce08b40bad5771922d",
-          "expiration_timestamp": 1761714119,
-          "from": "0xd297fA914353c44B2e33EBE05F21846f1048CFeB",
-          "to": "0xb234cA484866c811d0e6D3318866F583781ED045",
-          "value_wei": "0",
-          "value_formatted": "0",
-          "gas_limit": "2000000",
-          "gas_per_pubdata_byte_limit": "800",
-          "max_fee_per_gas": "250000000",
-          "max_priority_fee_per_gas": "0",
-          "method": "493a4f84",
-          "data": "0x493a4f84d8495530f42e65a7bc29f0fd5a28753d3cc04fd8c83a18f844df536ca57bbae9fde128f1aab18183db58a360fe492b4f0cb59da9cd8fec4db42d703d4c74490a"
-        },
         {
           "index": 3603,
           "tx_id": "0xd0ff21b305713c9f7bfc76abaefd1c6134d58df971ea90c37ee87c72f11799ef",
@@ -391,46 +1009,16 @@
         "admin": "0x2cf3bd6a9056b39999f3883955e183f655345063",
         "settlement_layer": "0x6e96d1172a6593d5027af3c2664c5112ca75f2b9",
         "queue": {
-          "unprocessed": "13595",
-          "total": "3292168"
+          "unprocessed": "13596",
+          "total": "3292169"
         },
-        "priority_tree_root": "0xe4837f167e6c4a5e1b4921e47560722c1d499741b82be6e8e09e7ae9d4db6d40",
+        "priority_tree_root": "0x304599a93cc5a2bd285cf299e3e61a7cece55dac1f04b9d6463ca0f0a042bb33",
         "base_token_asset_id": "0x05e1c3ae4b9732444ae25217ac7666e46fa365fee1768de00c9fcb65532b7609"
       },
       "state_transition_error": null,
       "priority_tree_verified": null,
       "priority_tree_note": "Skipped priority hash verification on non-local networks.",
       "priority_transactions": [
-        {
-          "index": 3292049,
-          "tx_id": "0x54299e782805594c14006e84e2fd6c2e48d6600c3ab43962e049369fb57abcb9",
-          "expiration_timestamp": 1761710423,
-          "from": "0xd297fA914353c44B2e33EBE05F21846f1048CFeB",
-          "to": "0xE0B015E54d54fc84a6cB9B666099c46adE9335FF",
-          "value_wei": "0",
-          "value_formatted": "0",
-          "gas_limit": "2000000",
-          "gas_per_pubdata_byte_limit": "800",
-          "max_fee_per_gas": "251342241",
-          "max_priority_fee_per_gas": "0",
-          "method": "493a4f84",
-          "data": "0x493a4f84faf38030326defdf4d3709540abcbb8a9e7b3ac5ad8e42fc32d601a99b2449e20000000000000000000000000000000000000000000000000000000000000000"
-        },
-        {
-          "index": 3292050,
-          "tx_id": "0x3d80adb9a74f4e1efd9e3861921859418cfc797221fb1bf00d40a3c0584f6e1e",
-          "expiration_timestamp": 1761714119,
-          "from": "0xd297fA914353c44B2e33EBE05F21846f1048CFeB",
-          "to": "0xE0B015E54d54fc84a6cB9B666099c46adE9335FF",
-          "value_wei": "0",
-          "value_formatted": "0",
-          "gas_limit": "2000000",
-          "gas_per_pubdata_byte_limit": "800",
-          "max_fee_per_gas": "251200093",
-          "max_priority_fee_per_gas": "0",
-          "method": "493a4f84",
-          "data": "0x493a4f84d8495530f42e65a7bc29f0fd5a28753d3cc04fd8c83a18f844df536ca57bbae9fde128f1aab18183db58a360fe492b4f0cb59da9cd8fec4db42d703d4c74490a"
-        },
         {
           "index": 3292051,
           "tx_id": "0xbbe9b14481297d2e299691581fae4300e78ae2fc8ffa0ec9292c1fa978857312",
@@ -2185,6 +2773,21 @@
           "max_priority_fee_per_gas": "0",
           "method": "493a4f84",
           "data": "0x493a4f84fa17512fc96e144bb19aa33f9ce3238a3efa480a821d52c85f6232ba1a5fd7e383d5d9c81497080beb2dced63aa5f1fde152a8462d3efadd2ceea8be97c21ce9"
+        },
+        {
+          "index": 3292168,
+          "tx_id": "0x1fad4fc4b7ff73faeb21ed53ca88feb43e3fbe2abc05ad190f6ec75424227234",
+          "expiration_timestamp": 1761777731,
+          "from": "0xd297fA914353c44B2e33EBE05F21846f1048CFeB",
+          "to": "0xE0B015E54d54fc84a6cB9B666099c46adE9335FF",
+          "value_wei": "0",
+          "value_formatted": "0",
+          "gas_limit": "2000000",
+          "gas_per_pubdata_byte_limit": "800",
+          "max_fee_per_gas": "251689569",
+          "max_priority_fee_per_gas": "0",
+          "method": "493a4f84",
+          "data": "0x493a4f84c999fcd9fdd2791f89e033894fcd5cd666dfc4d94a08a62fa61209ec99e96a1c0000000000000000000000000000000000000000000000000000000000000000"
         }
       ],
       "priority_tx_error": null
@@ -2195,9 +2798,9 @@
         "chain_id": "325",
         "hyperchain": "0xe3e310cd8ee0c808794810ab50fe4bccc5c7d89e",
         "verifier": "0x53f5de9de3b2da90633a2c74beb3b9912cdd1579",
-        "total_batches_executed": "21588",
-        "total_batches_verified": "21652",
-        "total_batches_committed": "21661",
+        "total_batches_executed": "21648",
+        "total_batches_verified": "21665",
+        "total_batches_committed": "21681",
         "bootloader_hash": "0x0100085f9382a7928dd83bfc529121827b5f29f18b9aa10d18aa68e1be7ddc35",
         "default_account_hash": "0x010005f72e443c94460f4583fb38ef5d0c5cd9897021c41df840f91465c0392e",
         "protocol_version": [
@@ -2209,7 +2812,7 @@
         "admin": "0x6308ee1ebdb8d5e60bb88d3ea3b56ce326193e7d",
         "settlement_layer": "0x0000000000000000000000000000000000000000",
         "queue": {
-          "unprocessed": "2",
+          "unprocessed": "0",
           "total": "1142"
         },
         "priority_tree_root": "0x7c93f7bbc8c3a1c79e2af2b9efcd254fc523365699889ad8089e7bfa453d6d4a",
@@ -2219,21 +2822,6 @@
       "priority_tree_verified": null,
       "priority_tree_note": "Skipped priority hash verification on non-local networks.",
       "priority_transactions": [
-        {
-          "index": 1120,
-          "tx_id": "0x6419f74d084d6b9c14f5c557efc8d179927c80f5d2e2aa46559d638eb6d7c88c",
-          "expiration_timestamp": 1761710075,
-          "from": "0x993aaD80e425c646DaB305381ff105169FEeDF67",
-          "to": "0x000...10003 (\u001b[1m      Shared Bridge       \u001b[0m)",
-          "value_wei": "0",
-          "value_formatted": "0",
-          "gas_limit": "1200000",
-          "gas_per_pubdata_byte_limit": "800",
-          "max_fee_per_gas": "251483892",
-          "max_priority_fee_per_gas": "0",
-          "method": "finalizeDeposit",
-          "data": "0xcfe7af7c000000000000000000000000e17aed2fc55f4a876315376ffa49fe6358113a65000000000000000000000000973332819f70c6f45323c419d7d25b5ea62fa6b3000000000000000000000000dac17f958d2ee523a2206206994597c13d831ec7000000000000000000000000000000000000000000000000000000177280ee2000000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000001c101000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000018000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000a546574686572205553440000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000455534454000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000"
-        },
         {
           "index": 1121,
           "tx_id": "0x7e303a8355074aad75effb0a79af0445b894e80e417cf3f9b1e3db91e03e2da7",
@@ -2718,9 +3306,9 @@
         "chain_id": "2741",
         "hyperchain": "0x2edc71e9991a962c7fe172212d1aa9e50480fbb9",
         "verifier": "0x4d335c5c08fec91a39965351abb6e315ad2e9ff3",
-        "total_batches_executed": "40687",
-        "total_batches_verified": "40694",
-        "total_batches_committed": "40701",
+        "total_batches_executed": "40695",
+        "total_batches_verified": "40703",
+        "total_batches_committed": "40705",
         "bootloader_hash": "0x01000911c4db4fe62c98e180cfa7e9b3a22fb15f505905d4bf36192f481551e6",
         "default_account_hash": "0x010005f73e7c299ed73db937843643bdc276cbc2cc8596287e1e0cf3afc60252",
         "protocol_version": [
@@ -2732,31 +3320,16 @@
         "admin": "0xa1f75f491f630037c4ccaa2bfa22363cec05a661",
         "settlement_layer": "0x0000000000000000000000000000000000000000",
         "queue": {
-          "unprocessed": "5",
-          "total": "24357"
+          "unprocessed": "6",
+          "total": "24359"
         },
-        "priority_tree_root": "0x94743e77905b3c7e13e04bf689041933f14dfcb0839372eb4784d404deca57a8",
+        "priority_tree_root": "0x81a112a877acc9c9a5d3f3821b549e1543788b8849960e5e9c51b795ab450516",
         "base_token_asset_id": "0x05e1c3ae4b9732444ae25217ac7666e46fa365fee1768de00c9fcb65532b7609"
       },
       "state_transition_error": null,
       "priority_tree_verified": null,
       "priority_tree_note": "Skipped priority hash verification on non-local networks.",
       "priority_transactions": [
-        {
-          "index": 24344,
-          "tx_id": "0xbc61da148e652009b469bc815331a40bb59b12341b418571f0161ca7d1b0f40a",
-          "expiration_timestamp": 1761714071,
-          "from": "0x4Fc2E9EEd402AfF530F1132061d5c138229FF439",
-          "to": "0x4Fc2E9EEd402AfF530F1132061d5c138229FF439",
-          "value_wei": "1789000000000000",
-          "value_formatted": "1_789_000_000_000_000",
-          "gas_limit": "390859",
-          "gas_per_pubdata_byte_limit": "800",
-          "max_fee_per_gas": "251182853",
-          "max_priority_fee_per_gas": "0",
-          "method": null,
-          "data": "0x"
-        },
         {
           "index": 24345,
           "tx_id": "0x60afa7ab9674fcf75682dad7e8dca94091a6b47acf93f5c525162c76ccd2819f",
@@ -2936,6 +3509,36 @@
           "max_priority_fee_per_gas": "0",
           "method": null,
           "data": "0x"
+        },
+        {
+          "index": 24357,
+          "tx_id": "0xb9cb245e976e6459c36a8fd26a89ecc836c87ba657fcc7560051d552cae5304d",
+          "expiration_timestamp": 1761778775,
+          "from": "0x7d2A23b6e73F5141d4c07E87Ea7d7dd0215A3576",
+          "to": "0x71C348D54C8F0f42f8438D29cbF7d6f8e5D11160",
+          "value_wei": "1000000000000000",
+          "value_formatted": "1_000_000_000_000_000",
+          "gas_limit": "441641",
+          "gas_per_pubdata_byte_limit": "800",
+          "max_fee_per_gas": "251487523",
+          "max_priority_fee_per_gas": "0",
+          "method": null,
+          "data": "0x"
+        },
+        {
+          "index": 24358,
+          "tx_id": "0xbf62a51e96a7c19924604c644435ff5a3a53ea0beb946ac753c4e750dc021616",
+          "expiration_timestamp": 1761779303,
+          "from": "0x7d2A23b6e73F5141d4c07E87Ea7d7dd0215A3576",
+          "to": "0x7d2A23b6e73F5141d4c07E87Ea7d7dd0215A3576",
+          "value_wei": "9271433553088320",
+          "value_formatted": "9_271_433_553_088_320",
+          "gas_limit": "390859",
+          "gas_per_pubdata_byte_limit": "800",
+          "max_fee_per_gas": "251418072",
+          "max_priority_fee_per_gas": "0",
+          "method": null,
+          "data": "0x"
         }
       ],
       "priority_tx_error": null
@@ -2978,9 +3581,9 @@
         "chain_id": "9075",
         "hyperchain": "0x6e96d1172a6593d5027af3c2664c5112ca75f2b9",
         "verifier": "0x4d335c5c08fec91a39965351abb6e315ad2e9ff3",
-        "total_batches_executed": "1558",
-        "total_batches_verified": "1559",
-        "total_batches_committed": "1560",
+        "total_batches_executed": "1559",
+        "total_batches_verified": "1560",
+        "total_batches_committed": "1561",
         "bootloader_hash": "0x01000911c4db4fe62c98e180cfa7e9b3a22fb15f505905d4bf36192f481551e6",
         "default_account_hash": "0x010005f73e7c299ed73db937843643bdc276cbc2cc8596287e1e0cf3afc60252",
         "protocol_version": [
@@ -2992,46 +3595,16 @@
         "admin": "0xfe94b8aeb7950a26c276ea615a6d3c7289fd2ac3",
         "settlement_layer": "0x0000000000000000000000000000000000000000",
         "queue": {
-          "unprocessed": "10",
-          "total": "13714"
+          "unprocessed": "5",
+          "total": "13715"
         },
-        "priority_tree_root": "0xccc4872cf4101ab117c54e40a5725aa3ea48581463fc4cbcc3365f246dfe6327",
+        "priority_tree_root": "0xf82175c9fd2c3c70479c3ebc17f578084923ae763b7d064a563ad6169f4340d3",
         "base_token_asset_id": "0x83e2fbc0a739b3c765de4c2b4bf8072a71ea8fbb09c8cf579c71425d8bc8804a"
       },
       "state_transition_error": null,
       "priority_tree_verified": null,
       "priority_tree_note": "Skipped priority hash verification on non-local networks.",
       "priority_transactions": [
-        {
-          "index": 13595,
-          "tx_id": "0x6ba1129df33848dfb1858cde26a437105f47d74c12de53234f864899a1861a2e",
-          "expiration_timestamp": 1761710423,
-          "from": "0x111...11111 (\u001b[1mSettlementLayerRelaySender\u001b[0m)",
-          "to": "0x000...10002 (\u001b[1m        Bridgehub         \u001b[0m)",
-          "value_wei": "0",
-          "value_formatted": "0",
-          "gas_limit": "72000000",
-          "gas_per_pubdata_byte_limit": "800",
-          "max_fee_per_gas": "0",
-          "max_priority_fee_per_gas": "0",
-          "method": "524c0cfa",
-          "data": "0x524c0cfa000000000000000000000000000000000000000000000000000000000000014454299e782805594c14006e84e2fd6c2e48d6600c3ab43962e049369fb57abcb90000000000000000000000000000000000000000000000000000000069019157"
-        },
-        {
-          "index": 13596,
-          "tx_id": "0x00b148da48210ca6ccc4348b62e9cea4fb7e36877f7e511414b24ee3d1595085",
-          "expiration_timestamp": 1761714119,
-          "from": "0x111...11111 (\u001b[1mSettlementLayerRelaySender\u001b[0m)",
-          "to": "0x000...10002 (\u001b[1m        Bridgehub         \u001b[0m)",
-          "value_wei": "0",
-          "value_formatted": "0",
-          "gas_limit": "72000000",
-          "gas_per_pubdata_byte_limit": "800",
-          "max_fee_per_gas": "0",
-          "max_priority_fee_per_gas": "0",
-          "method": "524c0cfa",
-          "data": "0x524c0cfa00000000000000000000000000000000000000000000000000000000000001443d80adb9a74f4e1efd9e3861921859418cfc797221fb1bf00d40a3c0584f6e1e0000000000000000000000000000000000000000000000000000000069019fc7"
-        },
         {
           "index": 13597,
           "tx_id": "0x1390f29eb1dde81c5b5c88bac7db94c12ed966fde5b9e38ce947904ecba71765",
@@ -4786,6 +5359,21 @@
           "max_priority_fee_per_gas": "0",
           "method": "524c0cfa",
           "data": "0x524c0cfa00000000000000000000000000000000000000000000000000000000000001447c34f0c6f5376616eebf4c29be3010ee2678d7c2423fce4cadf8d38edd4d392900000000000000000000000000000000000000000000000000000000690289df"
+        },
+        {
+          "index": 13714,
+          "tx_id": "0x3f75b29f90b2339a50bf07b5b5a0c6fd0db969b27d46e4201e1b0b8b2142d944",
+          "expiration_timestamp": 1761777731,
+          "from": "0x111...11111 (\u001b[1mSettlementLayerRelaySender\u001b[0m)",
+          "to": "0x000...10002 (\u001b[1m        Bridgehub         \u001b[0m)",
+          "value_wei": "0",
+          "value_formatted": "0",
+          "gas_limit": "72000000",
+          "gas_per_pubdata_byte_limit": "800",
+          "max_fee_per_gas": "0",
+          "max_priority_fee_per_gas": "0",
+          "method": "524c0cfa",
+          "data": "0x524c0cfa00000000000000000000000000000000000000000000000000000000000001441fad4fc4b7ff73faeb21ed53ca88feb43e3fbe2abc05ad190f6ec754242272340000000000000000000000000000000000000000000000000000000069029843"
         }
       ],
       "priority_tx_error": null
@@ -4828,9 +5416,9 @@
         "chain_id": "50104",
         "hyperchain": "0x05ede6ad1f39b7a16c949d5c33a0658c9c7241e3",
         "verifier": "0x4d335c5c08fec91a39965351abb6e315ad2e9ff3",
-        "total_batches_executed": "34214",
-        "total_batches_verified": "34218",
-        "total_batches_committed": "34220",
+        "total_batches_executed": "34216",
+        "total_batches_verified": "34220",
+        "total_batches_committed": "34224",
         "bootloader_hash": "0x01000911c4db4fe62c98e180cfa7e9b3a22fb15f505905d4bf36192f481551e6",
         "default_account_hash": "0x010005f73e7c299ed73db937843643bdc276cbc2cc8596287e1e0cf3afc60252",
         "protocol_version": [
@@ -4842,7 +5430,7 @@
         "admin": "0xe1eea4d6443b19d373fe99de838b930ef0ac2ad3",
         "settlement_layer": "0x0000000000000000000000000000000000000000",
         "queue": {
-          "unprocessed": "1",
+          "unprocessed": "0",
           "total": "9606"
         },
         "priority_tree_root": "0x06f5c17150efd2982b24ecb2efd7cce782111ce73c852474269d42bf6782d0a6",

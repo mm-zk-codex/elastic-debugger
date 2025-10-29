@@ -1,5 +1,5 @@
 {
-  "generated_at_unix": 1761775720,
+  "generated_at_unix": 1761781116,
   "network": "testnet",
   "sequencers": {
     "l1": {
@@ -7,7 +7,7 @@
       "sequencer": {
         "rpc_url": "https://1rpc.io/sepolia",
         "chain_id": 11155111,
-        "latest_block": 9518536,
+        "latest_block": 9518981,
         "sequencer_type": "L1"
       },
       "error": null
@@ -17,7 +17,7 @@
       "sequencer": {
         "rpc_url": "https://rpc.era-gateway-testnet.zksync.dev/",
         "chain_id": 32657,
-        "latest_block": 202480,
+        "latest_block": 202556,
         "sequencer_type": {
           "L2": {
             "l1_chain_id": 11155111,
@@ -32,7 +32,7 @@
       "sequencer": {
         "rpc_url": "https://sepolia.era.zksync.dev",
         "chain_id": 300,
-        "latest_block": 5941710,
+        "latest_block": 5941923,
         "sequencer_type": {
           "L2": {
             "l1_chain_id": 11155111,
@@ -95,7 +95,40 @@
       "kind": "l1",
       "address": "0xf2a49545c5b1a85d2fb018cc39103661639a9b06",
       "native_token_vault": "0x746dbba1edfbe1b547c87189efe91b77d53d9e39",
-      "registered_assets": []
+      "registered_assets": [
+        {
+          "asset_id": "0x4c393da37d52ea1c06d3282d1bcbdb5b1e145535fd67e2485d882a5aaaec2987",
+          "name": "ChainLink Token",
+          "handler": "native_token_vault",
+          "token_address": "0x779877a7b0d9e8603169ddbd7836e478b4624789",
+          "token_name": "ChainLink Token",
+          "handler_address": null
+        },
+        {
+          "asset_id": "0x6337a96bd2cd359fa0bae3bbedfca736753213c95037ae158c5fa7c048ae2112",
+          "name": "ETH",
+          "handler": "native_token_vault",
+          "token_address": "0x0000000000000000000000000000000000000001",
+          "token_name": "ETH",
+          "handler_address": null
+        },
+        {
+          "asset_id": "0xe16bfe48d8a902d17de6ed0a6971426edc19b3fa34f15ee66f4982d6d4b95799",
+          "name": "Sophon",
+          "handler": "native_token_vault",
+          "token_address": "0x06c03f9319ebbd84065336240dcc243bda9d8896",
+          "token_name": "Sophon",
+          "handler_address": null
+        },
+        {
+          "asset_id": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "name": "flimsy_woman",
+          "handler": "other",
+          "token_address": null,
+          "token_name": null,
+          "handler_address": "0x0000000000000000000000000000000000000000"
+        }
+      ]
     }
   },
   "gateway_bridgehub": {
@@ -129,131 +162,643 @@
   "l1_balances": [
     {
       "chain_id": 240,
-      "tokens": []
+      "tokens": [
+        {
+          "token": "ChainLink Token",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "ETH",
+          "raw_wei": "8681892990000000000",
+          "formatted": "8.681892990000000000"
+        },
+        {
+          "token": "Sophon",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        }
+      ]
     },
     {
       "chain_id": 300,
-      "tokens": []
+      "tokens": [
+        {
+          "token": "ChainLink Token",
+          "raw_wei": "727201310939920000000",
+          "formatted": "727.201310939920000000"
+        },
+        {
+          "token": "ETH",
+          "raw_wei": "112186296578176453119615",
+          "formatted": "112186.296578176453119615"
+        },
+        {
+          "token": "Sophon",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        }
+      ]
     },
     {
       "chain_id": 302,
-      "tokens": []
+      "tokens": [
+        {
+          "token": "ChainLink Token",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "ETH",
+          "raw_wei": "1117420152520914266269",
+          "formatted": "1117.420152520914266269"
+        },
+        {
+          "token": "Sophon",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        }
+      ]
     },
     {
       "chain_id": 326,
-      "tokens": []
+      "tokens": [
+        {
+          "token": "ChainLink Token",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "ETH",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "Sophon",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        }
+      ]
     },
     {
       "chain_id": 327,
-      "tokens": []
+      "tokens": [
+        {
+          "token": "ChainLink Token",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "ETH",
+          "raw_wei": "98",
+          "formatted": "0.000000000000000098"
+        },
+        {
+          "token": "Sophon",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        }
+      ]
     },
     {
       "chain_id": 444,
-      "tokens": []
+      "tokens": [
+        {
+          "token": "ChainLink Token",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "ETH",
+          "raw_wei": "181426951853156916",
+          "formatted": "0.181426951853156916"
+        },
+        {
+          "token": "Sophon",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        }
+      ]
     },
     {
       "chain_id": 475,
-      "tokens": []
+      "tokens": [
+        {
+          "token": "ChainLink Token",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "ETH",
+          "raw_wei": "51851856816671457713",
+          "formatted": "51.851856816671457713"
+        },
+        {
+          "token": "Sophon",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        }
+      ]
     },
     {
       "chain_id": 1025,
-      "tokens": []
+      "tokens": [
+        {
+          "token": "ChainLink Token",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "ETH",
+          "raw_wei": "5429341664784000000",
+          "formatted": "5.429341664784000000"
+        },
+        {
+          "token": "Sophon",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        }
+      ]
     },
     {
       "chain_id": 1282,
-      "tokens": []
+      "tokens": [
+        {
+          "token": "ChainLink Token",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "ETH",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "Sophon",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        }
+      ]
     },
     {
       "chain_id": 2027,
-      "tokens": []
+      "tokens": [
+        {
+          "token": "ChainLink Token",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "ETH",
+          "raw_wei": "340285708021034170",
+          "formatted": "0.340285708021034170"
+        },
+        {
+          "token": "Sophon",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        }
+      ]
     },
     {
       "chain_id": 2127,
-      "tokens": []
+      "tokens": [
+        {
+          "token": "ChainLink Token",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "ETH",
+          "raw_wei": "528737056904722058",
+          "formatted": "0.528737056904722058"
+        },
+        {
+          "token": "Sophon",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        }
+      ]
     },
     {
       "chain_id": 2129,
-      "tokens": []
+      "tokens": [
+        {
+          "token": "ChainLink Token",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "ETH",
+          "raw_wei": "133806638110210550450",
+          "formatted": "133.806638110210550450"
+        },
+        {
+          "token": "Sophon",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        }
+      ]
     },
     {
       "chain_id": 4221,
-      "tokens": []
+      "tokens": [
+        {
+          "token": "ChainLink Token",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "ETH",
+          "raw_wei": "11992247913925104",
+          "formatted": "0.011992247913925104"
+        },
+        {
+          "token": "Sophon",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        }
+      ]
     },
     {
       "chain_id": 4654,
-      "tokens": []
+      "tokens": [
+        {
+          "token": "ChainLink Token",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "ETH",
+          "raw_wei": "28535214877556097182",
+          "formatted": "28.535214877556097182"
+        },
+        {
+          "token": "Sophon",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        }
+      ]
     },
     {
       "chain_id": 4681,
-      "tokens": []
+      "tokens": [
+        {
+          "token": "ChainLink Token",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "ETH",
+          "raw_wei": "563000000000000000",
+          "formatted": "0.563000000000000000"
+        },
+        {
+          "token": "Sophon",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        }
+      ]
     },
     {
       "chain_id": 6252,
-      "tokens": []
+      "tokens": [
+        {
+          "token": "ChainLink Token",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "ETH",
+          "raw_wei": "8152574605661226170",
+          "formatted": "8.152574605661226170"
+        },
+        {
+          "token": "Sophon",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        }
+      ]
     },
     {
       "chain_id": 8153,
-      "tokens": []
+      "tokens": [
+        {
+          "token": "ChainLink Token",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "ETH",
+          "raw_wei": "26359669178150112022",
+          "formatted": "26.359669178150112022"
+        },
+        {
+          "token": "Sophon",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        }
+      ]
     },
     {
       "chain_id": 9296,
-      "tokens": []
+      "tokens": [
+        {
+          "token": "ChainLink Token",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "ETH",
+          "raw_wei": "18068376102028449475",
+          "formatted": "18.068376102028449475"
+        },
+        {
+          "token": "Sophon",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        }
+      ]
     },
     {
       "chain_id": 11124,
-      "tokens": []
+      "tokens": [
+        {
+          "token": "ChainLink Token",
+          "raw_wei": "2686200000000000000000",
+          "formatted": "2686.200000000000000000"
+        },
+        {
+          "token": "ETH",
+          "raw_wei": "145155889211911249146276",
+          "formatted": "145155.889211911249146276"
+        },
+        {
+          "token": "Sophon",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        }
+      ]
     },
     {
       "chain_id": 14183,
-      "tokens": []
+      "tokens": [
+        {
+          "token": "ChainLink Token",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "ETH",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "Sophon",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        }
+      ]
     },
     {
       "chain_id": 19110,
-      "tokens": []
+      "tokens": [
+        {
+          "token": "ChainLink Token",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "ETH",
+          "raw_wei": "30838242017675842958",
+          "formatted": "30.838242017675842958"
+        },
+        {
+          "token": "Sophon",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        }
+      ]
     },
     {
       "chain_id": 32657,
-      "tokens": []
+      "tokens": [
+        {
+          "token": "ChainLink Token",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "ETH",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "Sophon",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        }
+      ]
     },
     {
       "chain_id": 43210,
-      "tokens": []
+      "tokens": [
+        {
+          "token": "ChainLink Token",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "ETH",
+          "raw_wei": "84450826965514129740",
+          "formatted": "84.450826965514129740"
+        },
+        {
+          "token": "Sophon",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        }
+      ]
     },
     {
       "chain_id": 96371,
-      "tokens": []
+      "tokens": [
+        {
+          "token": "ChainLink Token",
+          "raw_wei": "12000000000000000000",
+          "formatted": "12.000000000000000000"
+        },
+        {
+          "token": "ETH",
+          "raw_wei": "166469624744957175318",
+          "formatted": "166.469624744957175318"
+        },
+        {
+          "token": "Sophon",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        }
+      ]
     },
     {
       "chain_id": 207788,
-      "tokens": []
+      "tokens": [
+        {
+          "token": "ChainLink Token",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "ETH",
+          "raw_wei": "1210000000000000000",
+          "formatted": "1.210000000000000000"
+        },
+        {
+          "token": "Sophon",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        }
+      ]
     },
     {
       "chain_id": 212000,
-      "tokens": []
+      "tokens": [
+        {
+          "token": "ChainLink Token",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "ETH",
+          "raw_wei": "39315100731919328971",
+          "formatted": "39.315100731919328971"
+        },
+        {
+          "token": "Sophon",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        }
+      ]
     },
     {
       "chain_id": 555776,
-      "tokens": []
+      "tokens": [
+        {
+          "token": "ChainLink Token",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "ETH",
+          "raw_wei": "80746845977521964933",
+          "formatted": "80.746845977521964933"
+        },
+        {
+          "token": "Sophon",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        }
+      ]
     },
     {
       "chain_id": 555777,
-      "tokens": []
+      "tokens": [
+        {
+          "token": "ChainLink Token",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "ETH",
+          "raw_wei": "328212959617862500",
+          "formatted": "0.328212959617862500"
+        },
+        {
+          "token": "Sophon",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        }
+      ]
     },
     {
       "chain_id": 642091,
-      "tokens": []
+      "tokens": [
+        {
+          "token": "ChainLink Token",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "ETH",
+          "raw_wei": "3101100000000000000",
+          "formatted": "3.101100000000000000"
+        },
+        {
+          "token": "Sophon",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        }
+      ]
     },
     {
       "chain_id": 677354,
-      "tokens": []
+      "tokens": [
+        {
+          "token": "ChainLink Token",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        },
+        {
+          "token": "ETH",
+          "raw_wei": "3988290225208183878",
+          "formatted": "3.988290225208183878"
+        },
+        {
+          "token": "Sophon",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        }
+      ]
     },
     {
       "chain_id": 978658,
-      "tokens": []
+      "tokens": [
+        {
+          "token": "ChainLink Token",
+          "raw_wei": "3000000000000000000",
+          "formatted": "3.000000000000000000"
+        },
+        {
+          "token": "ETH",
+          "raw_wei": "15003470091487605667",
+          "formatted": "15.003470091487605667"
+        },
+        {
+          "token": "Sophon",
+          "raw_wei": "0",
+          "formatted": "0.000000000000000000"
+        }
+      ]
     },
     {
       "chain_id": 531050104,
-      "tokens": []
+      "tokens": [
+        {
+          "token": "ChainLink Token",
+          "raw_wei": "379401020000000000000",
+          "formatted": "379.401020000000000000"
+        },
+        {
+          "token": "ETH",
+          "raw_wei": "332697683153859810001",
+          "formatted": "332.697683153859810001"
+        },
+        {
+          "token": "Sophon",
+          "raw_wei": "9993992137779737966819321564",
+          "formatted": "9993992137.779737966819321564"
+        }
+      ]
     }
   ],
   "chains": [
@@ -309,76 +854,16 @@
         "admin": "0x1112c822c6e05399cb526509564449fdb6d4de14",
         "settlement_layer": "0xffdbb7b7f35a8b81618f64d95bcc878297759744",
         "queue": {
-          "unprocessed": "7545",
-          "total": "101642"
+          "unprocessed": "7546",
+          "total": "101643"
         },
-        "priority_tree_root": "0x3cea4ed2b5a1a25c2f2b44ee68010e61fcac01ac43067df369ed395fc3ce658a",
+        "priority_tree_root": "0x5744893697e4d77fab17e16b6e9a6164ddb333c4408a9ca4069db5e6925581f2",
         "base_token_asset_id": "0x6337a96bd2cd359fa0bae3bbedfca736753213c95037ae158c5fa7c048ae2112"
       },
       "state_transition_error": null,
       "priority_tree_verified": null,
       "priority_tree_note": "Skipped priority hash verification on non-local networks.",
       "priority_transactions": [
-        {
-          "index": 101612,
-          "tx_id": "0xa19ee81186046719989d691cbcd60c71b8694484c14abad9093dec3d24a38d4d",
-          "expiration_timestamp": 1761709608,
-          "from": "0xDFC0938C8067e50d5D1dD7eB7Cf3DCbeA0332f6d",
-          "to": "0xDFC0938C8067e50d5D1dD7eB7Cf3DCbeA0332f6d",
-          "value_wei": "1",
-          "value_formatted": "1",
-          "gas_limit": "595938",
-          "gas_per_pubdata_byte_limit": "800",
-          "max_fee_per_gas": "250012500",
-          "max_priority_fee_per_gas": "0",
-          "method": null,
-          "data": "0x"
-        },
-        {
-          "index": 101613,
-          "tx_id": "0x51645807258d8715d7450d4c3028f851e788e7b35cc8d5d3b70feb3cc0efd715",
-          "expiration_timestamp": 1761710292,
-          "from": "0xC65247a787D3E692e4A23e258A7077668f3CE9Cb",
-          "to": "0xC65247a787D3E692e4A23e258A7077668f3CE9Cb",
-          "value_wei": "10000000000000000",
-          "value_formatted": "10_000_000_000_000_000",
-          "gas_limit": "595938",
-          "gas_per_pubdata_byte_limit": "800",
-          "max_fee_per_gas": "250016249",
-          "max_priority_fee_per_gas": "0",
-          "method": null,
-          "data": "0x"
-        },
-        {
-          "index": 101614,
-          "tx_id": "0x18c82f5de83ba78e2a597c1ab385bd8a6d50a4c62b6641a0adfd177b596155ae",
-          "expiration_timestamp": 1761712488,
-          "from": "0x8aef090A648eF27F840C762e71e4Ba7741873dEd",
-          "to": "0x8aef090A648eF27F840C762e71e4Ba7741873dEd",
-          "value_wei": "1000000000000000",
-          "value_formatted": "1_000_000_000_000_000",
-          "gas_limit": "625236",
-          "gas_per_pubdata_byte_limit": "800",
-          "max_fee_per_gas": "250016250",
-          "max_priority_fee_per_gas": "0",
-          "method": null,
-          "data": "0x"
-        },
-        {
-          "index": 101615,
-          "tx_id": "0x77256d9361e447536ccf078c9a85ae5cf17e1373797582b352bb8c7d892b963c",
-          "expiration_timestamp": 1761713220,
-          "from": "0xf6F4EE7554De9EF34B10aDc083abaBc23d5812a2",
-          "to": "0xf6F4EE7554De9EF34B10aDc083abaBc23d5812a2",
-          "value_wei": "5000000000000000",
-          "value_formatted": "5_000_000_000_000_000",
-          "gas_limit": "595938",
-          "gas_per_pubdata_byte_limit": "800",
-          "max_fee_per_gas": "250016250",
-          "max_priority_fee_per_gas": "0",
-          "method": null,
-          "data": "0x"
-        },
         {
           "index": 101616,
           "tx_id": "0x9f1574a49b93219c9bab741387a4056847761320d20dfdb24fcfbd3b0fc6fe70",
@@ -768,6 +1253,21 @@
           "max_priority_fee_per_gas": "0",
           "method": null,
           "data": "0x"
+        },
+        {
+          "index": 101642,
+          "tx_id": "0xf6ededd508214788cc44fa1c9ec3125e37e4e06ba6a4a60759609ef6fcebeb6b",
+          "expiration_timestamp": 1761777336,
+          "from": "0x69ac522dfDB1b12a897352A09bBa8BedBe27817b",
+          "to": "0x69ac522dfDB1b12a897352A09bBa8BedBe27817b",
+          "value_wei": "1000000000000000",
+          "value_formatted": "1_000_000_000_000_000",
+          "gas_limit": "625236",
+          "gas_per_pubdata_byte_limit": "800",
+          "max_fee_per_gas": "250016250",
+          "max_priority_fee_per_gas": "0",
+          "method": null,
+          "data": "0x"
         }
       ],
       "priority_tx_error": null
@@ -1035,9 +1535,9 @@
         "chain_id": "2129",
         "hyperchain": "0x82d2774550b9e37d64d1cf56b17eb8ab1cfe7111",
         "verifier": "0x953d58723b3d643880d4951ec540fc011d4d459b",
-        "total_batches_executed": "8516",
-        "total_batches_verified": "8516",
-        "total_batches_committed": "8516",
+        "total_batches_executed": "8521",
+        "total_batches_verified": "8521",
+        "total_batches_committed": "8521",
         "bootloader_hash": "0x0100085f9382a7928dd83bfc529121827b5f29f18b9aa10d18aa68e1be7ddc35",
         "default_account_hash": "0x010005f72e443c94460f4583fb38ef5d0c5cd9897021c41df840f91465c0392e",
         "protocol_version": [
@@ -1067,9 +1567,9 @@
         "chain_id": "4221",
         "hyperchain": "0x1e31cf28b3a56e4384639e1d0e494b4a55db3a90",
         "verifier": "0x953d58723b3d643880d4951ec540fc011d4d459b",
-        "total_batches_executed": "87557",
-        "total_batches_verified": "87557",
-        "total_batches_committed": "87557",
+        "total_batches_executed": "87558",
+        "total_batches_verified": "87558",
+        "total_batches_committed": "87558",
         "bootloader_hash": "0x0100085f9382a7928dd83bfc529121827b5f29f18b9aa10d18aa68e1be7ddc35",
         "default_account_hash": "0x010005f72e443c94460f4583fb38ef5d0c5cd9897021c41df840f91465c0392e",
         "protocol_version": [
@@ -1163,9 +1663,9 @@
         "chain_id": "6252",
         "hyperchain": "0x9ee4fcbe81ee63596642ce41eb6a428f73fc6e6a",
         "verifier": "0x0463687bdc303e8b2312d6b735a7b64638e8dfe7",
-        "total_batches_executed": "1656",
-        "total_batches_verified": "1656",
-        "total_batches_committed": "1657",
+        "total_batches_executed": "1658",
+        "total_batches_verified": "1658",
+        "total_batches_committed": "1658",
         "bootloader_hash": "0x01000911c4db4fe62c98e180cfa7e9b3a22fb15f505905d4bf36192f481551e6",
         "default_account_hash": "0x010005f73e7c299ed73db937843643bdc276cbc2cc8596287e1e0cf3afc60252",
         "protocol_version": [
@@ -1177,256 +1677,16 @@
         "admin": "0xe6e93dd7bdc676133cc30529588abb2e3083f31b",
         "settlement_layer": "0x0000000000000000000000000000000000000000",
         "queue": {
-          "unprocessed": "6",
-          "total": "5413"
+          "unprocessed": "3",
+          "total": "5418"
         },
-        "priority_tree_root": "0x3890a95d24112aef088ad11803f1b30d416abbb027d71eb49a69e1e34486c417",
+        "priority_tree_root": "0x8b93de30b19045b49ebd4545d8f2960639b5e1832b30735fcc1737a8d3865b3a",
         "base_token_asset_id": "0x13e387dab3944f18ff5f91f52cd7d5cee068f0eb63a0f1765f6a5d82d33c6845"
       },
       "state_transition_error": null,
       "priority_tree_verified": null,
       "priority_tree_note": "Skipped priority hash verification on non-local networks.",
       "priority_transactions": [
-        {
-          "index": 5089,
-          "tx_id": "0xa2a57eda674b1d6d05ef1cd6d476ea51ce5fce190bef1a19f87591cb3f5ab214",
-          "expiration_timestamp": 1761711156,
-          "from": "0xcBc5d51040A57806222cAcfC78a9661244dFaAA1",
-          "to": "0xcBc5d51040A57806222cAcfC78a9661244dFaAA1",
-          "value_wei": "148747865680209",
-          "value_formatted": "148_747_865_680_209",
-          "gas_limit": "390859",
-          "gas_per_pubdata_byte_limit": "800",
-          "max_fee_per_gas": "268750000",
-          "max_priority_fee_per_gas": "0",
-          "method": null,
-          "data": "0x"
-        },
-        {
-          "index": 5090,
-          "tx_id": "0xda4406561c7aafddb14d10f43b8974d158a307c8d856b8d5c596de6e2f064925",
-          "expiration_timestamp": 1761711312,
-          "from": "0x903338B026eF8bb2b8c059A0FBC0e5137F7DDBD6",
-          "to": "0x903338B026eF8bb2b8c059A0FBC0e5137F7DDBD6",
-          "value_wei": "10000000000000",
-          "value_formatted": "10_000_000_000_000",
-          "gas_limit": "390859",
-          "gas_per_pubdata_byte_limit": "800",
-          "max_fee_per_gas": "250016250",
-          "max_priority_fee_per_gas": "0",
-          "method": null,
-          "data": "0x"
-        },
-        {
-          "index": 5091,
-          "tx_id": "0xa68a7fe43370d65f8ea15e3b58a5377dfb1fce127ddcba24b961e69369de67b6",
-          "expiration_timestamp": 1761711480,
-          "from": "0xa689ff743A536B36E39ddb001CE22432B8b8dF20",
-          "to": "0xa689ff743A536B36E39ddb001CE22432B8b8dF20",
-          "value_wei": "6364713309375000",
-          "value_formatted": "6_364_713_309_375_000",
-          "gas_limit": "390859",
-          "gas_per_pubdata_byte_limit": "800",
-          "max_fee_per_gas": "268750000",
-          "max_priority_fee_per_gas": "0",
-          "method": null,
-          "data": "0x"
-        },
-        {
-          "index": 5092,
-          "tx_id": "0xff4e099817a981a7003cdbb88c7cbc9e31d783d4ee0c59f6835dbbff79135301",
-          "expiration_timestamp": 1761711660,
-          "from": "0xa689ff743A536B36E39ddb001CE22432B8b8dF20",
-          "to": "0xa689ff743A536B36E39ddb001CE22432B8b8dF20",
-          "value_wei": "1000000000000000",
-          "value_formatted": "1_000_000_000_000_000",
-          "gas_limit": "390859",
-          "gas_per_pubdata_byte_limit": "800",
-          "max_fee_per_gas": "250016249",
-          "max_priority_fee_per_gas": "0",
-          "method": null,
-          "data": "0x"
-        },
-        {
-          "index": 5093,
-          "tx_id": "0x5d7b3b2d6b0b389b1e75322acdff9c13599908652fd7f52b6ff8691a3ddfbb9a",
-          "expiration_timestamp": 1761711660,
-          "from": "0x9f14E1c7F42fa4c2FcF3f34CDFaB8F6C893Eb340",
-          "to": "0x9f14E1c7F42fa4c2FcF3f34CDFaB8F6C893Eb340",
-          "value_wei": "20000000000000",
-          "value_formatted": "20_000_000_000_000",
-          "gas_limit": "390859",
-          "gas_per_pubdata_byte_limit": "800",
-          "max_fee_per_gas": "250014999",
-          "max_priority_fee_per_gas": "0",
-          "method": null,
-          "data": "0x"
-        },
-        {
-          "index": 5094,
-          "tx_id": "0x392e5fa7e1f2f890bd88efce9763505d3a22363d343ff8d6d8958b777bfa5e9c",
-          "expiration_timestamp": 1761711828,
-          "from": "0x7CADb7905aE4Ec92186890EA8270D54568DC51ee",
-          "to": "0x7CADb7905aE4Ec92186890EA8270D54568DC51ee",
-          "value_wei": "1000000000000",
-          "value_formatted": "1_000_000_000_000",
-          "gas_limit": "390859",
-          "gas_per_pubdata_byte_limit": "800",
-          "max_fee_per_gas": "250015625",
-          "max_priority_fee_per_gas": "0",
-          "method": null,
-          "data": "0x"
-        },
-        {
-          "index": 5095,
-          "tx_id": "0x4afd9d7666d372aa5fd3149a59dfb41aae7fa75b864760479456c576619f5f1a",
-          "expiration_timestamp": 1761711972,
-          "from": "0xE3EE4A0Ec6b278D1db205615d3c9d3Ad95196397",
-          "to": "0xE3EE4A0Ec6b278D1db205615d3c9d3Ad95196397",
-          "value_wei": "7000000000000000",
-          "value_formatted": "7_000_000_000_000_000",
-          "gas_limit": "390859",
-          "gas_per_pubdata_byte_limit": "800",
-          "max_fee_per_gas": "250015625",
-          "max_priority_fee_per_gas": "0",
-          "method": null,
-          "data": "0x"
-        },
-        {
-          "index": 5096,
-          "tx_id": "0x70d3a03ab1a2aff6bc9bb1b7dfc5bec4f4cdf9d46003d17f8d20a1b87f0d2c6e",
-          "expiration_timestamp": 1761712260,
-          "from": "0xB6Ad41eb0848BFf99de05AA94A46211397c39b5f",
-          "to": "0xB6Ad41eb0848BFf99de05AA94A46211397c39b5f",
-          "value_wei": "5000000000000000",
-          "value_formatted": "5_000_000_000_000_000",
-          "gas_limit": "390859",
-          "gas_per_pubdata_byte_limit": "800",
-          "max_fee_per_gas": "250016250",
-          "max_priority_fee_per_gas": "0",
-          "method": null,
-          "data": "0x"
-        },
-        {
-          "index": 5097,
-          "tx_id": "0xe347bd04b2b42ca5ef578a871c30c5f42c3375b730b4c9751a609778656a4c7b",
-          "expiration_timestamp": 1761712284,
-          "from": "0xaa2D06f65d0184dd621b7E755a64044e24408166",
-          "to": "0xaa2D06f65d0184dd621b7E755a64044e24408166",
-          "value_wei": "5200000000000000",
-          "value_formatted": "5_200_000_000_000_000",
-          "gas_limit": "390859",
-          "gas_per_pubdata_byte_limit": "800",
-          "max_fee_per_gas": "250015000",
-          "max_priority_fee_per_gas": "0",
-          "method": null,
-          "data": "0x"
-        },
-        {
-          "index": 5098,
-          "tx_id": "0xccacebc7759e4460f67aedf31f9a28c6a2bcecb646d3c5d1f1ff469e5fb9bd87",
-          "expiration_timestamp": 1761712476,
-          "from": "0xa805A869af8De6B70a589E07d9a2601C4741C45F",
-          "to": "0xa805A869af8De6B70a589E07d9a2601C4741C45F",
-          "value_wei": "100000000000000",
-          "value_formatted": "100_000_000_000_000",
-          "gas_limit": "390859",
-          "gas_per_pubdata_byte_limit": "800",
-          "max_fee_per_gas": "250015000",
-          "max_priority_fee_per_gas": "0",
-          "method": null,
-          "data": "0x"
-        },
-        {
-          "index": 5099,
-          "tx_id": "0x3edd207cd23ecd9f2147e60c0e59ffa28f3a97f662b3fbf7e4e8826e8c038c84",
-          "expiration_timestamp": 1761712572,
-          "from": "0x173b538DcEB6016169C74c31A2Cf12d7a688d25c",
-          "to": "0x173b538DcEB6016169C74c31A2Cf12d7a688d25c",
-          "value_wei": "1000000000000000",
-          "value_formatted": "1_000_000_000_000_000",
-          "gas_limit": "390859",
-          "gas_per_pubdata_byte_limit": "800",
-          "max_fee_per_gas": "250016250",
-          "max_priority_fee_per_gas": "0",
-          "method": null,
-          "data": "0x"
-        },
-        {
-          "index": 5100,
-          "tx_id": "0x45e4e2b2026f4cfc409e022c47c0efc6375e289e4039451c37e39fccdb17680f",
-          "expiration_timestamp": 1761712596,
-          "from": "0x7D6B1109eF7402906119F52Ea27A772B682c1779",
-          "to": "0x7D6B1109eF7402906119F52Ea27A772B682c1779",
-          "value_wei": "1000000000000000",
-          "value_formatted": "1_000_000_000_000_000",
-          "gas_limit": "390859",
-          "gas_per_pubdata_byte_limit": "800",
-          "max_fee_per_gas": "250016250",
-          "max_priority_fee_per_gas": "0",
-          "method": null,
-          "data": "0x"
-        },
-        {
-          "index": 5101,
-          "tx_id": "0x002bc475811863739a8b288bfe56ae50b7bf95b7c3ea089756aa17c919ae96a3",
-          "expiration_timestamp": 1761712956,
-          "from": "0xE67388578D7c313c267830d35E29Fc665d48F353",
-          "to": "0xE67388578D7c313c267830d35E29Fc665d48F353",
-          "value_wei": "2000000000000000",
-          "value_formatted": "2_000_000_000_000_000",
-          "gas_limit": "390859",
-          "gas_per_pubdata_byte_limit": "800",
-          "max_fee_per_gas": "250016250",
-          "max_priority_fee_per_gas": "0",
-          "method": null,
-          "data": "0x"
-        },
-        {
-          "index": 5102,
-          "tx_id": "0x879dc87580917b1bcaca929d134798b479286efbf2dd9e9ff1e9e019058464ae",
-          "expiration_timestamp": 1761713088,
-          "from": "0xE67388578D7c313c267830d35E29Fc665d48F353",
-          "to": "0xE67388578D7c313c267830d35E29Fc665d48F353",
-          "value_wei": "1000000000000000",
-          "value_formatted": "1_000_000_000_000_000",
-          "gas_limit": "390859",
-          "gas_per_pubdata_byte_limit": "800",
-          "max_fee_per_gas": "268750000",
-          "max_priority_fee_per_gas": "0",
-          "method": null,
-          "data": "0x"
-        },
-        {
-          "index": 5103,
-          "tx_id": "0x6aa2aff53a1880a7ad067f558877884e22e0e11398f53a7a348d1a0ea745b1a6",
-          "expiration_timestamp": 1761713484,
-          "from": "0x124d018E19e0E744F8A44c492F72f27018FE215A",
-          "to": "0x124d018E19e0E744F8A44c492F72f27018FE215A",
-          "value_wei": "1000000000000000",
-          "value_formatted": "1_000_000_000_000_000",
-          "gas_limit": "390859",
-          "gas_per_pubdata_byte_limit": "800",
-          "max_fee_per_gas": "250016250",
-          "max_priority_fee_per_gas": "0",
-          "method": null,
-          "data": "0x"
-        },
-        {
-          "index": 5104,
-          "tx_id": "0x517fd5f6e1976e8af849f91cf40b2e155c54b6469be65c73d0d3c44745433f1d",
-          "expiration_timestamp": 1761714768,
-          "from": "0x332dA300e5f639538C8Be9391fCaB00650bb6ba1",
-          "to": "0x332dA300e5f639538C8Be9391fCaB00650bb6ba1",
-          "value_wei": "70488820950537",
-          "value_formatted": "70_488_820_950_537",
-          "gas_limit": "390859",
-          "gas_per_pubdata_byte_limit": "800",
-          "max_fee_per_gas": "250013750",
-          "max_priority_fee_per_gas": "0",
-          "method": null,
-          "data": "0x"
-        },
         {
           "index": 5105,
           "tx_id": "0x37e06f24e26e6239520ef5b6f2bddc8ba92f535f0326977e02a23ed15aaf7a88",
@@ -6046,6 +6306,81 @@
           "max_priority_fee_per_gas": "0",
           "method": null,
           "data": "0x"
+        },
+        {
+          "index": 5413,
+          "tx_id": "0xc45969c25ba95a0acba6bde63a9f27639d41591f1ca566f10a1adec99c3263df",
+          "expiration_timestamp": 1761777444,
+          "from": "0x8A50dEB4AA603BdbDeA9c99e204518cA23b71D2a",
+          "to": "0x8A50dEB4AA603BdbDeA9c99e204518cA23b71D2a",
+          "value_wei": "1999394778125000",
+          "value_formatted": "1_999_394_778_125_000",
+          "gas_limit": "390859",
+          "gas_per_pubdata_byte_limit": "800",
+          "max_fee_per_gas": "250015625",
+          "max_priority_fee_per_gas": "0",
+          "method": null,
+          "data": "0x"
+        },
+        {
+          "index": 5414,
+          "tx_id": "0x8a6f15d9ab3d37709be427ec030038fc506a2a142d341642f41a928fa9485fba",
+          "expiration_timestamp": 1761777468,
+          "from": "0x8A50dEB4AA603BdbDeA9c99e204518cA23b71D2a",
+          "to": "0x8A50dEB4AA603BdbDeA9c99e204518cA23b71D2a",
+          "value_wei": "1000000000000000",
+          "value_formatted": "1_000_000_000_000_000",
+          "gas_limit": "390859",
+          "gas_per_pubdata_byte_limit": "800",
+          "max_fee_per_gas": "250015625",
+          "max_priority_fee_per_gas": "0",
+          "method": null,
+          "data": "0x"
+        },
+        {
+          "index": 5415,
+          "tx_id": "0xde13686f84fb2075fd5695526442e03b2f8c6aa8f9a976bb1034bec02e283fd2",
+          "expiration_timestamp": 1761779700,
+          "from": "0x77E0dcB9eD79bC24e63e345a98c3Aad81dC7DF25",
+          "to": "0x77E0dcB9eD79bC24e63e345a98c3Aad81dC7DF25",
+          "value_wei": "1956661928125000",
+          "value_formatted": "1_956_661_928_125_000",
+          "gas_limit": "390859",
+          "gas_per_pubdata_byte_limit": "800",
+          "max_fee_per_gas": "250013750",
+          "max_priority_fee_per_gas": "0",
+          "method": null,
+          "data": "0x"
+        },
+        {
+          "index": 5416,
+          "tx_id": "0x6970b5dc78e2d38fc6944064ace87b2aab1ff8bce92193274365ceaf9b835871",
+          "expiration_timestamp": 1761779976,
+          "from": "0xeefa7eA36C681cA8098F34b281576c9002B5eA34",
+          "to": "0xeefa7eA36C681cA8098F34b281576c9002B5eA34",
+          "value_wei": "600000000000000",
+          "value_formatted": "600_000_000_000_000",
+          "gas_limit": "390859",
+          "gas_per_pubdata_byte_limit": "800",
+          "max_fee_per_gas": "250013750",
+          "max_priority_fee_per_gas": "0",
+          "method": null,
+          "data": "0x"
+        },
+        {
+          "index": 5417,
+          "tx_id": "0x795eb5c455e119f36d8be995e5729b7214d28fcb4beb819712737381405ac199",
+          "expiration_timestamp": 1761780228,
+          "from": "0x03b59545c5B1a85d2fB018Cc39103661639aaC17",
+          "to": "0x000...10003 (\u001b[1m      Shared Bridge       \u001b[0m)",
+          "value_wei": "0",
+          "value_formatted": "0",
+          "gas_limit": "511465",
+          "gas_per_pubdata_byte_limit": "800",
+          "max_fee_per_gas": "250013750",
+          "max_priority_fee_per_gas": "0",
+          "method": "finalizeDeposit",
+          "data": "0xcfe7af7c0000000000000000000000004dce666523c5d26b0df3fdf05e8a4dc45d166bb20000000000000000000000004dce666523c5d26b0df3fdf05e8a4dc45d166bb20000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000053e9cb6a369128200000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000001c1010000000000000000000000000000000000000000000000000000000000aa36a7000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000180000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000005457468657200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000345544800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000001200000000000000000000000000000000000000000000000000000000000000"
         }
       ],
       "priority_tx_error": null
@@ -6134,91 +6469,16 @@
         "admin": "0xeec1e1cfaaf993b3abe9d5e78954f5691e719838",
         "settlement_layer": "0xffdbb7b7f35a8b81618f64d95bcc878297759744",
         "queue": {
-          "unprocessed": "16764",
-          "total": "1758715"
+          "unprocessed": "16768",
+          "total": "1758719"
         },
-        "priority_tree_root": "0x58f939512db71e7ad9cfa6d51472a5ee59802c8135042cb7dd0d31468c79364f",
+        "priority_tree_root": "0x33d1c46e64c127eb06bcabfb0ebc45d5085d80d2a7c054899611d5153ab91233",
         "base_token_asset_id": "0x6337a96bd2cd359fa0bae3bbedfca736753213c95037ae158c5fa7c048ae2112"
       },
       "state_transition_error": null,
       "priority_tree_verified": null,
       "priority_tree_note": "Skipped priority hash verification on non-local networks.",
       "priority_transactions": [
-        {
-          "index": 1758666,
-          "tx_id": "0x1cf5bd9650b955ab2e0aaf21c6b08204cc5139fdbdca21d5df081e972780df73",
-          "expiration_timestamp": 1761710892,
-          "from": "0xdB9536856b25E7137B979eC3333D0Bb15E7eE61c",
-          "to": "0xdB9536856b25E7137B979eC3333D0Bb15E7eE61c",
-          "value_wei": "1",
-          "value_formatted": "1",
-          "gas_limit": "390859",
-          "gas_per_pubdata_byte_limit": "800",
-          "max_fee_per_gas": "250012500",
-          "max_priority_fee_per_gas": "0",
-          "method": null,
-          "data": "0x"
-        },
-        {
-          "index": 1758667,
-          "tx_id": "0xd8314adc829b88edc7914775f54b955bdd2363c06adeeac98f70f641daa8c38f",
-          "expiration_timestamp": 1761711876,
-          "from": "0x7EC23dAEE1D38180882907F29C1e226188247BFf",
-          "to": "0x7EC23dAEE1D38180882907F29C1e226188247BFf",
-          "value_wei": "1000000000000000",
-          "value_formatted": "1_000_000_000_000_000",
-          "gas_limit": "390859",
-          "gas_per_pubdata_byte_limit": "800",
-          "max_fee_per_gas": "250016250",
-          "max_priority_fee_per_gas": "0",
-          "method": null,
-          "data": "0x"
-        },
-        {
-          "index": 1758668,
-          "tx_id": "0x5d13d4a9fa918472aadee97eb816ebcd3c0c0f009e2d756ba5499efd1b471194",
-          "expiration_timestamp": 1761712980,
-          "from": "0xD73b05d77fe0C0BB91272Ee68e95558B6564F567",
-          "to": "0xD73b05d77fe0C0BB91272Ee68e95558B6564F567",
-          "value_wei": "10000000000000",
-          "value_formatted": "10_000_000_000_000",
-          "gas_limit": "390859",
-          "gas_per_pubdata_byte_limit": "800",
-          "max_fee_per_gas": "250016250",
-          "max_priority_fee_per_gas": "0",
-          "method": null,
-          "data": "0x"
-        },
-        {
-          "index": 1758669,
-          "tx_id": "0xbc8b08c431eed128607994250f7c069b0ab8865ae57c0cb1a2d8b2a3c217c18f",
-          "expiration_timestamp": 1761713004,
-          "from": "0xD73b05d77fe0C0BB91272Ee68e95558B6564F567",
-          "to": "0xD73b05d77fe0C0BB91272Ee68e95558B6564F567",
-          "value_wei": "10000000000000",
-          "value_formatted": "10_000_000_000_000",
-          "gas_limit": "390859",
-          "gas_per_pubdata_byte_limit": "800",
-          "max_fee_per_gas": "250016250",
-          "max_priority_fee_per_gas": "0",
-          "method": null,
-          "data": "0x"
-        },
-        {
-          "index": 1758670,
-          "tx_id": "0x303a02946088fbfdb8bdcdb79ab216f64d89cd3a7abea5c385041d4c5f4ee823",
-          "expiration_timestamp": 1761713040,
-          "from": "0xD73b05d77fe0C0BB91272Ee68e95558B6564F567",
-          "to": "0xD73b05d77fe0C0BB91272Ee68e95558B6564F567",
-          "value_wei": "10000000000000",
-          "value_formatted": "10_000_000_000_000",
-          "gas_limit": "390859",
-          "gas_per_pubdata_byte_limit": "800",
-          "max_fee_per_gas": "250016250",
-          "max_priority_fee_per_gas": "0",
-          "method": null,
-          "data": "0x"
-        },
         {
           "index": 1758671,
           "tx_id": "0x4287b9d5df1deb6756c4c3edd2f686c221c89a4dac8f52b24fd28afffefc3189",
@@ -6878,6 +7138,66 @@
           "max_priority_fee_per_gas": "0",
           "method": null,
           "data": "0x"
+        },
+        {
+          "index": 1758715,
+          "tx_id": "0xa5962b38ee9f7aac583cac2dad79752021efed883654eba153c66f2ea722db72",
+          "expiration_timestamp": 1761776664,
+          "from": "0xdB9536856b25E7137B979eC3333D0Bb15E7eE61c",
+          "to": "0xdB9536856b25E7137B979eC3333D0Bb15E7eE61c",
+          "value_wei": "1",
+          "value_formatted": "1",
+          "gas_limit": "390859",
+          "gas_per_pubdata_byte_limit": "800",
+          "max_fee_per_gas": "250012500",
+          "max_priority_fee_per_gas": "0",
+          "method": null,
+          "data": "0x"
+        },
+        {
+          "index": 1758716,
+          "tx_id": "0xcf539bef7ccdfe33d3b6513f10ea5903933b43814b6b6f674d8c52c1dbb3aa4d",
+          "expiration_timestamp": 1761778488,
+          "from": "0xdB9536856b25E7137B979eC3333D0Bb15E7eE61c",
+          "to": "0xdB9536856b25E7137B979eC3333D0Bb15E7eE61c",
+          "value_wei": "1",
+          "value_formatted": "1",
+          "gas_limit": "390859",
+          "gas_per_pubdata_byte_limit": "800",
+          "max_fee_per_gas": "250012500",
+          "max_priority_fee_per_gas": "0",
+          "method": null,
+          "data": "0x"
+        },
+        {
+          "index": 1758717,
+          "tx_id": "0xa88006c5174cdc8b5c008065bcd70f0c73c010f1f09155393b3b0f400f82a388",
+          "expiration_timestamp": 1761780312,
+          "from": "0xdB9536856b25E7137B979eC3333D0Bb15E7eE61c",
+          "to": "0xdB9536856b25E7137B979eC3333D0Bb15E7eE61c",
+          "value_wei": "1",
+          "value_formatted": "1",
+          "gas_limit": "390859",
+          "gas_per_pubdata_byte_limit": "800",
+          "max_fee_per_gas": "250012500",
+          "max_priority_fee_per_gas": "0",
+          "method": null,
+          "data": "0x"
+        },
+        {
+          "index": 1758718,
+          "tx_id": "0x5216dedef3d72dc7c27286ce140f88817cf30d9bd53261d03555bf00be15a4d4",
+          "expiration_timestamp": 1761780516,
+          "from": "0x95328D98630779834f3e46f78F900042bC2bDD15",
+          "to": "0x95328D98630779834f3e46f78F900042bC2bDD15",
+          "value_wei": "10000000000000000",
+          "value_formatted": "10_000_000_000_000_000",
+          "gas_limit": "390859",
+          "gas_per_pubdata_byte_limit": "800",
+          "max_fee_per_gas": "250016250",
+          "max_priority_fee_per_gas": "0",
+          "method": null,
+          "data": "0x"
         }
       ],
       "priority_tx_error": null
@@ -6929,9 +7249,9 @@
         "chain_id": "32657",
         "hyperchain": "0xffdbb7b7f35a8b81618f64d95bcc878297759744",
         "verifier": "0x0463687bdc303e8b2312d6b735a7b64638e8dfe7",
-        "total_batches_executed": "34454",
-        "total_batches_verified": "34454",
-        "total_batches_committed": "34463",
+        "total_batches_executed": "34468",
+        "total_batches_verified": "34468",
+        "total_batches_committed": "34478",
         "bootloader_hash": "0x01000911c4db4fe62c98e180cfa7e9b3a22fb15f505905d4bf36192f481551e6",
         "default_account_hash": "0x010005f73e7c299ed73db937843643bdc276cbc2cc8596287e1e0cf3afc60252",
         "protocol_version": [
@@ -6944,195 +7264,15 @@
         "settlement_layer": "0x0000000000000000000000000000000000000000",
         "queue": {
           "unprocessed": "6",
-          "total": "33841"
+          "total": "33849"
         },
-        "priority_tree_root": "0x4311aa3d6809dfbb2ad345f3c5adb4e4aaa6419afc7916047eeda3a543c3ce62",
+        "priority_tree_root": "0x16edb40653e5c294d640762f5e045e0ccb8e75c776a6cf213803bd7d0b078a10",
         "base_token_asset_id": "0x0d643837c76916220dfe0d5e971cfc3dc2c7569b3ce12851c8e8f17646d86bca"
       },
       "state_transition_error": null,
       "priority_tree_verified": null,
       "priority_tree_note": "Skipped priority hash verification on non-local networks.",
       "priority_transactions": [
-        {
-          "index": 33720,
-          "tx_id": "0x657bedf05da589f1202e0d33da5d1f9fd70f76c6e6580d351ecb8b23eb23a267",
-          "expiration_timestamp": 1761709608,
-          "from": "0x111...11111 (\u001b[1mSettlementLayerRelaySender\u001b[0m)",
-          "to": "0x000...10002 (\u001b[1m        Bridgehub         \u001b[0m)",
-          "value_wei": "0",
-          "value_formatted": "0",
-          "gas_limit": "72000000",
-          "gas_per_pubdata_byte_limit": "800",
-          "max_fee_per_gas": "0",
-          "max_priority_fee_per_gas": "0",
-          "method": "524c0cfa",
-          "data": "0x524c0cfa000000000000000000000000000000000000000000000000000000000000012ca19ee81186046719989d691cbcd60c71b8694484c14abad9093dec3d24a38d4d0000000000000000000000000000000000000000000000000000000069018e28"
-        },
-        {
-          "index": 33721,
-          "tx_id": "0x33a4f503a932689741da73dc3f793691abce7863058e96a17781472b63e37190",
-          "expiration_timestamp": 1761710028,
-          "from": "0x3B203Cb1025b3Ed25128bCf0f863f2b8d9b767e3",
-          "to": "0x3B203Cb1025b3Ed25128bCf0f863f2b8d9b767e3",
-          "value_wei": "1",
-          "value_formatted": "1",
-          "gas_limit": "595938",
-          "gas_per_pubdata_byte_limit": "800",
-          "max_fee_per_gas": "250012500",
-          "max_priority_fee_per_gas": "0",
-          "method": null,
-          "data": "0x"
-        },
-        {
-          "index": 33722,
-          "tx_id": "0x5c1c117c2ba8aafd05cc1af5957e6e6bec5de167cac2f046b4fb4e57fc887eb4",
-          "expiration_timestamp": 1761710292,
-          "from": "0x111...11111 (\u001b[1mSettlementLayerRelaySender\u001b[0m)",
-          "to": "0x000...10002 (\u001b[1m        Bridgehub         \u001b[0m)",
-          "value_wei": "0",
-          "value_formatted": "0",
-          "gas_limit": "72000000",
-          "gas_per_pubdata_byte_limit": "800",
-          "max_fee_per_gas": "0",
-          "max_priority_fee_per_gas": "0",
-          "method": "524c0cfa",
-          "data": "0x524c0cfa000000000000000000000000000000000000000000000000000000000000012c51645807258d8715d7450d4c3028f851e788e7b35cc8d5d3b70feb3cc0efd71500000000000000000000000000000000000000000000000000000000690190d4"
-        },
-        {
-          "index": 33723,
-          "tx_id": "0xdaf99a3ecd00c42c43e64ef23f5b71279685d2ede9b986d1d27d972b02730e3e",
-          "expiration_timestamp": 1761710892,
-          "from": "0x111...11111 (\u001b[1mSettlementLayerRelaySender\u001b[0m)",
-          "to": "0x000...10002 (\u001b[1m        Bridgehub         \u001b[0m)",
-          "value_wei": "0",
-          "value_formatted": "0",
-          "gas_limit": "72000000",
-          "gas_per_pubdata_byte_limit": "800",
-          "max_fee_per_gas": "0",
-          "max_priority_fee_per_gas": "0",
-          "method": "524c0cfa",
-          "data": "0x524c0cfa0000000000000000000000000000000000000000000000000000000000002b741cf5bd9650b955ab2e0aaf21c6b08204cc5139fdbdca21d5df081e972780df73000000000000000000000000000000000000000000000000000000006901932c"
-        },
-        {
-          "index": 33724,
-          "tx_id": "0x94b913025954a26f977192309ef5d715e640a4bdeaffca5d44a752f5417fbe8d",
-          "expiration_timestamp": 1761711852,
-          "from": "0x3B203Cb1025b3Ed25128bCf0f863f2b8d9b767e3",
-          "to": "0x3B203Cb1025b3Ed25128bCf0f863f2b8d9b767e3",
-          "value_wei": "1",
-          "value_formatted": "1",
-          "gas_limit": "595938",
-          "gas_per_pubdata_byte_limit": "800",
-          "max_fee_per_gas": "250012500",
-          "max_priority_fee_per_gas": "0",
-          "method": null,
-          "data": "0x"
-        },
-        {
-          "index": 33725,
-          "tx_id": "0x6cddca5eeee28b7f8ae188aaf085150365ce56d4bdd8223935bab3ea4adeb4e0",
-          "expiration_timestamp": 1761711876,
-          "from": "0x111...11111 (\u001b[1mSettlementLayerRelaySender\u001b[0m)",
-          "to": "0x000...10002 (\u001b[1m        Bridgehub         \u001b[0m)",
-          "value_wei": "0",
-          "value_formatted": "0",
-          "gas_limit": "72000000",
-          "gas_per_pubdata_byte_limit": "800",
-          "max_fee_per_gas": "0",
-          "max_priority_fee_per_gas": "0",
-          "method": "524c0cfa",
-          "data": "0x524c0cfa0000000000000000000000000000000000000000000000000000000000002b74d8314adc829b88edc7914775f54b955bdd2363c06adeeac98f70f641daa8c38f0000000000000000000000000000000000000000000000000000000069019704"
-        },
-        {
-          "index": 33726,
-          "tx_id": "0x29abe983cad8a413740e096dd293bdb6556baba9b4981bb06082ab24bb510cf3",
-          "expiration_timestamp": 1761712488,
-          "from": "0x111...11111 (\u001b[1mSettlementLayerRelaySender\u001b[0m)",
-          "to": "0x000...10002 (\u001b[1m        Bridgehub         \u001b[0m)",
-          "value_wei": "0",
-          "value_formatted": "0",
-          "gas_limit": "72000000",
-          "gas_per_pubdata_byte_limit": "800",
-          "max_fee_per_gas": "0",
-          "max_priority_fee_per_gas": "0",
-          "method": "524c0cfa",
-          "data": "0x524c0cfa000000000000000000000000000000000000000000000000000000000000012c18c82f5de83ba78e2a597c1ab385bd8a6d50a4c62b6641a0adfd177b596155ae0000000000000000000000000000000000000000000000000000000069019968"
-        },
-        {
-          "index": 33727,
-          "tx_id": "0x536ba1eb1cd6f6b294ea0066ee411286deff425908bfcd7e67e2983c58562419",
-          "expiration_timestamp": 1761712980,
-          "from": "0x111...11111 (\u001b[1mSettlementLayerRelaySender\u001b[0m)",
-          "to": "0x000...10002 (\u001b[1m        Bridgehub         \u001b[0m)",
-          "value_wei": "0",
-          "value_formatted": "0",
-          "gas_limit": "72000000",
-          "gas_per_pubdata_byte_limit": "800",
-          "max_fee_per_gas": "0",
-          "max_priority_fee_per_gas": "0",
-          "method": "524c0cfa",
-          "data": "0x524c0cfa0000000000000000000000000000000000000000000000000000000000002b745d13d4a9fa918472aadee97eb816ebcd3c0c0f009e2d756ba5499efd1b4711940000000000000000000000000000000000000000000000000000000069019b54"
-        },
-        {
-          "index": 33728,
-          "tx_id": "0x074aba0e78af2a00888b5a0abd21ce0d5638b8271a403ea4fc84b968570a08e2",
-          "expiration_timestamp": 1761713004,
-          "from": "0x111...11111 (\u001b[1mSettlementLayerRelaySender\u001b[0m)",
-          "to": "0x000...10002 (\u001b[1m        Bridgehub         \u001b[0m)",
-          "value_wei": "0",
-          "value_formatted": "0",
-          "gas_limit": "72000000",
-          "gas_per_pubdata_byte_limit": "800",
-          "max_fee_per_gas": "0",
-          "max_priority_fee_per_gas": "0",
-          "method": "524c0cfa",
-          "data": "0x524c0cfa0000000000000000000000000000000000000000000000000000000000002b74bc8b08c431eed128607994250f7c069b0ab8865ae57c0cb1a2d8b2a3c217c18f0000000000000000000000000000000000000000000000000000000069019b6c"
-        },
-        {
-          "index": 33729,
-          "tx_id": "0x9ef5006ba4bd32955154cf95636932bf3634141bcef84447cf3c5d8e01187699",
-          "expiration_timestamp": 1761713040,
-          "from": "0x111...11111 (\u001b[1mSettlementLayerRelaySender\u001b[0m)",
-          "to": "0x000...10002 (\u001b[1m        Bridgehub         \u001b[0m)",
-          "value_wei": "0",
-          "value_formatted": "0",
-          "gas_limit": "72000000",
-          "gas_per_pubdata_byte_limit": "800",
-          "max_fee_per_gas": "0",
-          "max_priority_fee_per_gas": "0",
-          "method": "524c0cfa",
-          "data": "0x524c0cfa0000000000000000000000000000000000000000000000000000000000002b74303a02946088fbfdb8bdcdb79ab216f64d89cd3a7abea5c385041d4c5f4ee8230000000000000000000000000000000000000000000000000000000069019b90"
-        },
-        {
-          "index": 33730,
-          "tx_id": "0x81bacfe8004c74c012c645371af1649f637bee8ebe5d3a95bee1eef8b27afc45",
-          "expiration_timestamp": 1761713220,
-          "from": "0x111...11111 (\u001b[1mSettlementLayerRelaySender\u001b[0m)",
-          "to": "0x000...10002 (\u001b[1m        Bridgehub         \u001b[0m)",
-          "value_wei": "0",
-          "value_formatted": "0",
-          "gas_limit": "72000000",
-          "gas_per_pubdata_byte_limit": "800",
-          "max_fee_per_gas": "0",
-          "max_priority_fee_per_gas": "0",
-          "method": "524c0cfa",
-          "data": "0x524c0cfa000000000000000000000000000000000000000000000000000000000000012c77256d9361e447536ccf078c9a85ae5cf17e1373797582b352bb8c7d892b963c0000000000000000000000000000000000000000000000000000000069019c44"
-        },
-        {
-          "index": 33731,
-          "tx_id": "0x6bcaf84bbee4aabf9677f6e49a16de4484f79bbe207556da9916008d98481a56",
-          "expiration_timestamp": 1761713340,
-          "from": "0x3B203Cb1025b3Ed25128bCf0f863f2b8d9b767e3",
-          "to": "0x3B203Cb1025b3Ed25128bCf0f863f2b8d9b767e3",
-          "value_wei": "1",
-          "value_formatted": "1",
-          "gas_limit": "595938",
-          "gas_per_pubdata_byte_limit": "800",
-          "max_fee_per_gas": "250012500",
-          "max_priority_fee_per_gas": "0",
-          "method": null,
-          "data": "0x"
-        },
         {
           "index": 33732,
           "tx_id": "0x2a30b51926a6650edca2d597106d4b4b5d5ed80a1b07add0c54cb2b4991374e8",
@@ -8767,6 +8907,126 @@
           "max_priority_fee_per_gas": "0",
           "method": "524c0cfa",
           "data": "0x524c0cfa0000000000000000000000000000000000000000000000000000000000002b74c246385c4c313445f58245dec47be6803e7c0028514ce5d255f313b312f9a4210000000000000000000000000000000000000000000000000000000069028ed8"
+        },
+        {
+          "index": 33841,
+          "tx_id": "0xcf813034d5c4ed66c2bfd25a5d72c7e074d497938534124865201c09bbd365f4",
+          "expiration_timestamp": 1761776640,
+          "from": "0x3B203Cb1025b3Ed25128bCf0f863f2b8d9b767e3",
+          "to": "0x3B203Cb1025b3Ed25128bCf0f863f2b8d9b767e3",
+          "value_wei": "1",
+          "value_formatted": "1",
+          "gas_limit": "595938",
+          "gas_per_pubdata_byte_limit": "800",
+          "max_fee_per_gas": "250012500",
+          "max_priority_fee_per_gas": "0",
+          "method": null,
+          "data": "0x"
+        },
+        {
+          "index": 33842,
+          "tx_id": "0x01a139af9efb0246214607bff370843fe3e20975f6de436effac7fbbeaf2edd7",
+          "expiration_timestamp": 1761776664,
+          "from": "0x111...11111 (\u001b[1mSettlementLayerRelaySender\u001b[0m)",
+          "to": "0x000...10002 (\u001b[1m        Bridgehub         \u001b[0m)",
+          "value_wei": "0",
+          "value_formatted": "0",
+          "gas_limit": "72000000",
+          "gas_per_pubdata_byte_limit": "800",
+          "max_fee_per_gas": "0",
+          "max_priority_fee_per_gas": "0",
+          "method": "524c0cfa",
+          "data": "0x524c0cfa0000000000000000000000000000000000000000000000000000000000002b74a5962b38ee9f7aac583cac2dad79752021efed883654eba153c66f2ea722db720000000000000000000000000000000000000000000000000000000069029418"
+        },
+        {
+          "index": 33843,
+          "tx_id": "0xf171e9bb95aef18dc7c87cb29afe9b93eaff1a86158c537e0ee70c4c38f1a265",
+          "expiration_timestamp": 1761777336,
+          "from": "0x111...11111 (\u001b[1mSettlementLayerRelaySender\u001b[0m)",
+          "to": "0x000...10002 (\u001b[1m        Bridgehub         \u001b[0m)",
+          "value_wei": "0",
+          "value_formatted": "0",
+          "gas_limit": "72000000",
+          "gas_per_pubdata_byte_limit": "800",
+          "max_fee_per_gas": "0",
+          "max_priority_fee_per_gas": "0",
+          "method": "524c0cfa",
+          "data": "0x524c0cfa000000000000000000000000000000000000000000000000000000000000012cf6ededd508214788cc44fa1c9ec3125e37e4e06ba6a4a60759609ef6fcebeb6b00000000000000000000000000000000000000000000000000000000690296b8"
+        },
+        {
+          "index": 33844,
+          "tx_id": "0x0a0cc7310980e3f2d51b88596da30a746ec6d4d22578e2a18544af47a35d374b",
+          "expiration_timestamp": 1761778152,
+          "from": "0x3B203Cb1025b3Ed25128bCf0f863f2b8d9b767e3",
+          "to": "0x3B203Cb1025b3Ed25128bCf0f863f2b8d9b767e3",
+          "value_wei": "1",
+          "value_formatted": "1",
+          "gas_limit": "595938",
+          "gas_per_pubdata_byte_limit": "800",
+          "max_fee_per_gas": "250012500",
+          "max_priority_fee_per_gas": "0",
+          "method": null,
+          "data": "0x"
+        },
+        {
+          "index": 33845,
+          "tx_id": "0x5298351a54450e8d366230495883c8e91a4f29b856613b8a5bd99f2685a5ce8a",
+          "expiration_timestamp": 1761778488,
+          "from": "0x111...11111 (\u001b[1mSettlementLayerRelaySender\u001b[0m)",
+          "to": "0x000...10002 (\u001b[1m        Bridgehub         \u001b[0m)",
+          "value_wei": "0",
+          "value_formatted": "0",
+          "gas_limit": "72000000",
+          "gas_per_pubdata_byte_limit": "800",
+          "max_fee_per_gas": "0",
+          "max_priority_fee_per_gas": "0",
+          "method": "524c0cfa",
+          "data": "0x524c0cfa0000000000000000000000000000000000000000000000000000000000002b74cf539bef7ccdfe33d3b6513f10ea5903933b43814b6b6f674d8c52c1dbb3aa4d0000000000000000000000000000000000000000000000000000000069029b38"
+        },
+        {
+          "index": 33846,
+          "tx_id": "0x0c2593f278da738f6d9f751042c13baf0ac9669b3d87da094d7f4573896ad363",
+          "expiration_timestamp": 1761779976,
+          "from": "0x3B203Cb1025b3Ed25128bCf0f863f2b8d9b767e3",
+          "to": "0x3B203Cb1025b3Ed25128bCf0f863f2b8d9b767e3",
+          "value_wei": "1",
+          "value_formatted": "1",
+          "gas_limit": "595938",
+          "gas_per_pubdata_byte_limit": "800",
+          "max_fee_per_gas": "250012500",
+          "max_priority_fee_per_gas": "0",
+          "method": null,
+          "data": "0x"
+        },
+        {
+          "index": 33847,
+          "tx_id": "0x6c557fecb100de4271658a6ecbaf222ecc059fc39620da44e8904b709e8c923b",
+          "expiration_timestamp": 1761780312,
+          "from": "0x111...11111 (\u001b[1mSettlementLayerRelaySender\u001b[0m)",
+          "to": "0x000...10002 (\u001b[1m        Bridgehub         \u001b[0m)",
+          "value_wei": "0",
+          "value_formatted": "0",
+          "gas_limit": "72000000",
+          "gas_per_pubdata_byte_limit": "800",
+          "max_fee_per_gas": "0",
+          "max_priority_fee_per_gas": "0",
+          "method": "524c0cfa",
+          "data": "0x524c0cfa0000000000000000000000000000000000000000000000000000000000002b74a88006c5174cdc8b5c008065bcd70f0c73c010f1f09155393b3b0f400f82a388000000000000000000000000000000000000000000000000000000006902a258"
+        },
+        {
+          "index": 33848,
+          "tx_id": "0x36491838fd9b1699343c97917d226b229351b7245c08b042b10cbda8e69278a2",
+          "expiration_timestamp": 1761780516,
+          "from": "0x111...11111 (\u001b[1mSettlementLayerRelaySender\u001b[0m)",
+          "to": "0x000...10002 (\u001b[1m        Bridgehub         \u001b[0m)",
+          "value_wei": "0",
+          "value_formatted": "0",
+          "gas_limit": "72000000",
+          "gas_per_pubdata_byte_limit": "800",
+          "max_fee_per_gas": "0",
+          "max_priority_fee_per_gas": "0",
+          "method": "524c0cfa",
+          "data": "0x524c0cfa0000000000000000000000000000000000000000000000000000000000002b745216dedef3d72dc7c27286ce140f88817cf30d9bd53261d03555bf00be15a4d4000000000000000000000000000000000000000000000000000000006902a324"
         }
       ],
       "priority_tx_error": null
@@ -8905,9 +9165,9 @@
         "chain_id": "555776",
         "hyperchain": "0x6df18faf550247dbdbbd722458c4bcf9e2caa25d",
         "verifier": "0x953d58723b3d643880d4951ec540fc011d4d459b",
-        "total_batches_executed": "192",
-        "total_batches_verified": "192",
-        "total_batches_committed": "192",
+        "total_batches_executed": "193",
+        "total_batches_verified": "193",
+        "total_batches_committed": "194",
         "bootloader_hash": "0x0100085f9382a7928dd83bfc529121827b5f29f18b9aa10d18aa68e1be7ddc35",
         "default_account_hash": "0x010005f72e443c94460f4583fb38ef5d0c5cd9897021c41df840f91465c0392e",
         "protocol_version": [
