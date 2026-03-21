@@ -229,8 +229,7 @@ pub async fn fetch_all_priority_transactions(
                 IMailbox::NewPriorityRequest::SIGNATURE_HASH,
                 5000, // 5k block limit
             )
-            .await
-            .unwrap();
+            .await?;
             let txs: Vec<PriorityTransaction> = events
                 .into_iter()
                 .map(|x| PriorityTransaction::from(x))

@@ -32,14 +32,14 @@ pub struct ChainTypeManager {
 }
 
 impl ChainTypeManager {
-    pub async fn new(sequencer: &Sequencer, address: Address) -> Self {
+    pub async fn new(sequencer: &Sequencer, address: Address) -> eyre::Result<Self> {
         let provider = sequencer.get_provider();
         let contract = IChainTypeManager::new(address, provider);
 
-        let bridgehub = contract.BRIDGE_HUB().call().await.unwrap()._0;
+        let bridgehub = contract.BRIDGE_HUB().call().await?._0;
 
-        let admin = contract.admin().call().await.unwrap()._0;
-        let owner = contract.owner().call().await.unwrap()._0;
+        let admin = contract.admin().call().await?._0;
+        let owner = contract.owner().call().await?._0;
         let provider = sequencer.get_provider();
 
         let bridgehub_contract = IBridgehub::new(bridgehub, provider);
@@ -47,19 +47,18 @@ impl ChainTypeManager {
         let asset_id = bridgehub_contract
             .ctmAssetIdFromAddress(address)
             .call()
-            .await
-            .unwrap()
+            .await?
             ._0;
         let asset_name = get_human_name_for(asset_id);
 
-        Self {
+        Ok(Self {
             address,
             bridgehub,
             admin,
             owner,
             asset_id,
             asset_name,
-        }
+        })
     }
 
     pub fn detailed_fmt(&self, f: &mut std::fmt::Formatter<'_>, pad: usize) -> std::fmt::Result {
