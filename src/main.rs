@@ -74,6 +74,10 @@ struct Cli {
 
     #[arg(long)]
     versioned_output: bool,
+
+    /// Skip querying the L2 gateway (useful when gateway is deprecated/unavailable)
+    #[arg(long)]
+    no_gateway: bool,
 }
 
 #[derive(ValueEnum, Clone, Debug, PartialEq)]
@@ -240,34 +244,35 @@ async fn main() -> eyre::Result<()> {
     let (l1_rpc, l2_rpc, l3_rpc) = match args.network.clone().unwrap_or(Network::Local) {
         Network::Local => (
             "http://127.0.0.1:8545",
-            "http://127.0.0.1:3150",
+            Some("http://127.0.0.1:3150"),
             "http://127.0.0.1:3050",
         ),
         Network::Mainnet => (
             //"https://rpc.flashbots.net",
             "https://eth.llamarpc.com",
-            "https://rpc.era-gateway-mainnet.zksync.dev/",
+            Some("https://rpc.era-gateway-mainnet.zksync.dev/"),
             "https://mainnet.era.zksync.io",
         ),
         Network::Stage => (
             "https://1rpc.io/sepolia",
-            "https://rpc.era-gateway-stage.zksync.dev/",
+            Some("https://rpc.era-gateway-stage.zksync.dev/"),
             "https://dev-api.era-stage-proofs.zksync.dev/",
         ),
         Network::Testnet => (
             "https://1rpc.io/sepolia",
             // TODO: for testnet, we'll have to point at the new testnet gateway once it's live
-            "https://rpc.era-gateway-testnet.zksync.dev/",
+            Some("https://rpc.era-gateway-testnet.zksync.dev/"),
             "https://sepolia.era.zksync.dev",
         ),
         Network::TestnetAtlas => (
             "https://1rpc.io/sepolia",
             // Update once gateway launches there.
-            "https://zksync-os-testnet-alpha.zksync.dev/",
+            Some("https://zksync-os-testnet-alpha.zksync.dev/"),
             "https://zksync-os-testnet-alpha.zksync.dev/",
         ),
     };
 
+    let l2_rpc = if args.no_gateway { None } else { l2_rpc };
     let l1_rpc = args.l1_url.as_deref().unwrap_or(l1_rpc);
 
     println!("====================================");
@@ -278,10 +283,19 @@ async fn main() -> eyre::Result<()> {
 
     println!("{} L1 (ethereum) - {}", "[OK]".green(), l1_sequencer);
 
-    let l2_sequencer = detect_sequencer(l2_rpc).await;
-    match &l2_sequencer {
-        Ok(l2_sequencer) => println!("{} L2 (sequencer) - {}", "[OK]".green(), l2_sequencer),
-        Err(err) => println!("{} L2 (sequencer) - {}", "[ERROR]".red(), err),
+    let l2_sequencer = match l2_rpc {
+        Some(url) => {
+            let result = detect_sequencer(url).await;
+            match &result {
+                Ok(l2_sequencer) => println!("{} L2 (sequencer) - {}", "[OK]".green(), l2_sequencer),
+                Err(err) => println!("{} L2 (sequencer) - {}", "[ERROR]".red(), err),
+            };
+            Some(result)
+        }
+        None => {
+            println!("{} L2 (gateway) - skipped (--no-gateway)", "[SKIP]".yellow());
+            None
+        }
     };
 
     // The client sequencer might not be running - but that's ok.
@@ -292,14 +306,14 @@ async fn main() -> eyre::Result<()> {
     };
 
     let bridgehub_address = match &l2_sequencer {
-        Ok(l2_sequencer) => {
+        Some(Ok(l2_sequencer)) => {
             if let SequencerType::L2(info) = &l2_sequencer.sequencer_type {
                 info.bridgehub_address
             } else {
                 eyre::bail!("port 3050 doesn't have zksync sequencer");
             }
         }
-        Err(_) => {
+        Some(Err(_)) | None => {
             println!(
                 "{} L2 (sequencer) missing - using L3 sequencer instead",
                 "[ERROR]".red(),
@@ -365,7 +379,7 @@ async fn main() -> eyre::Result<()> {
     }
 
     let gateway_bridgehub = match &l2_sequencer {
-        Ok(l2_sequencer) => {
+        Some(Ok(l2_sequencer)) => {
             let gateway_bridgehub_address = address!("0000000000000000000000000000000000010002");
             let gateway_bridgehub =
                 bridgehub::Bridgehub::new(l2_sequencer, gateway_bridgehub_address).await?;
@@ -384,7 +398,7 @@ async fn main() -> eyre::Result<()> {
             println!("===");
             Some(gateway_bridgehub)
         }
-        Err(_) => None,
+        _ => None,
     };
 
     let bridgehub_summary = bridgehub.to_summary();
@@ -468,8 +482,13 @@ async fn main() -> eyre::Result<()> {
     let sequencers_report = SequencersReport {
         l1: SequencerStatus::ok(l1_sequencer.clone()),
         l2: match &l2_sequencer {
-            Ok(seq) => SequencerStatus::ok(seq.clone()),
-            Err(err) => SequencerStatus::err(err),
+            Some(Ok(seq)) => SequencerStatus::ok(seq.clone()),
+            Some(Err(err)) => SequencerStatus::err(err),
+            None => SequencerStatus {
+                status: "skipped".to_string(),
+                sequencer: None,
+                error: None,
+            },
         },
         l3: match &l3_sequencer {
             Ok(seq) => SequencerStatus::ok(seq.clone()),
