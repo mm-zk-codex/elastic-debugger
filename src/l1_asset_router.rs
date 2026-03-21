@@ -77,7 +77,7 @@ impl RegisteredAsset {
         deployment_tracker: Address,
         native_token_vault: &Address,
         bridgehub: &Address,
-    ) -> Self {
+    ) -> eyre::Result<Self> {
         let provider = sequencer.get_provider();
         let native_token_vault_contract =
             NativeTokenVault::new(native_token_vault.clone(), provider);
@@ -87,8 +87,7 @@ impl RegisteredAsset {
                 let token_address = native_token_vault_contract
                     .tokenAddress(asset_id)
                     .call()
-                    .await
-                    .unwrap()
+                    .await?
                     ._0;
 
                 let token_name =
@@ -96,7 +95,7 @@ impl RegisteredAsset {
                         "ETH".to_owned()
                     } else {
                         let erc20_contract = ERC20::new(token_address, sequencer.get_provider());
-                        erc20_contract.name().call().await.unwrap()._0
+                        erc20_contract.name().call().await?._0
                     };
 
                 AssetHandler::NativeTokenVault(NativeTokenVaultAsset {
@@ -108,10 +107,10 @@ impl RegisteredAsset {
             ref dt if dt == bridgehub => AssetHandler::Bridgehub,
             _ => AssetHandler::Other(deployment_tracker),
         };
-        Self {
+        Ok(Self {
             asset_id,
             handler: handler,
-        }
+        })
     }
 
     pub fn name(&self) -> String {
@@ -151,16 +150,43 @@ impl Display for L1AssetRouter {
 }
 
 impl L1AssetRouter {
+    async fn call_with_retry<F, Fut, T>(f: F) -> eyre::Result<T>
+    where
+        F: Fn() -> Fut,
+        Fut: std::future::Future<Output = Result<T, alloy::contract::Error>>,
+    {
+        for attempt in 0..5 {
+            match f().await {
+                Ok(val) => return Ok(val),
+                Err(e) if e.to_string().contains("429") && attempt < 4 => {
+                    tokio::time::sleep(std::time::Duration::from_secs(1 << attempt)).await;
+                }
+                Err(e) => return Err(e.into()),
+            }
+        }
+        unreachable!()
+    }
+
     pub async fn new(sequencer: &Sequencer, address: Address) -> eyre::Result<Self> {
         let provider = sequencer.get_provider();
         let contract = IL1AssetRouter::new(address, provider);
 
-        let native_token_vault = contract.nativeTokenVault().call().await?._0;
+        let native_token_vault = Self::call_with_retry(|| async {
+            let p = sequencer.get_provider();
+            let c = IL1AssetRouter::new(address, p);
+            c.nativeTokenVault().call().await.map(|r| r._0)
+        })
+        .await?;
 
         let native_token_vault_contract =
             NativeTokenVault::new(native_token_vault, sequencer.get_provider());
 
-        let bridgehub = contract.BRIDGE_HUB().call().await.unwrap()._0;
+        let bridgehub = Self::call_with_retry(|| async {
+            let p = sequencer.get_provider();
+            let c = IL1AssetRouter::new(address, p);
+            c.BRIDGE_HUB().call().await.map(|r| r._0)
+        })
+        .await?;
 
         let mainnet_tokens: Vec<Address> = include_str!("data/mainnet_tokens.txt")
             .lines()
@@ -225,18 +251,20 @@ impl L1AssetRouter {
 
         let mut registered_assets = HashMap::new();
         for token in &tokens {
-            let asset_id = native_token_vault_contract
-                .assetId(*token)
-                .call()
-                .await
-                .unwrap()
-                ._0;
-            let handler_address = contract
-                .assetHandlerAddress(asset_id)
-                .call()
-                .await
-                .unwrap()
-                ._0;
+            tokio::time::sleep(std::time::Duration::from_millis(200)).await;
+            let token_copy = *token;
+            let asset_id = Self::call_with_retry(|| async {
+                let p = sequencer.get_provider();
+                let c = NativeTokenVault::new(native_token_vault, p);
+                c.assetId(token_copy).call().await.map(|r| r._0)
+            })
+            .await?;
+            let handler_address = Self::call_with_retry(|| async {
+                let p = sequencer.get_provider();
+                let c = IL1AssetRouter::new(address, p);
+                c.assetHandlerAddress(asset_id).call().await.map(|r| r._0)
+            })
+            .await?;
 
             println!(
                 "Token: {} Asset ID: {} Handler: {}",
@@ -251,7 +279,7 @@ impl L1AssetRouter {
                     &native_token_vault,
                     &bridgehub,
                 )
-                .await,
+                .await?,
             );
         }
 
@@ -268,16 +296,21 @@ impl L1AssetRouter {
         chain_id: U256,
         asset_id: &FixedBytes<32>,
     ) -> U256 {
-        let provider = sequencer.get_provider();
-        let contract = NativeTokenVault::new(self.native_token_vault, provider);
-        let balance = contract
-            .chainBalance(chain_id, *asset_id)
-            .call()
-            .await
-            .unwrap()
-            ._0;
-
-        balance
+        for attempt in 0..5 {
+            let provider = sequencer.get_provider();
+            let contract = NativeTokenVault::new(self.native_token_vault, provider);
+            match contract.chainBalance(chain_id, *asset_id).call().await {
+                Ok(result) => return result._0,
+                Err(e) if e.to_string().contains("429") && attempt < 4 => {
+                    tokio::time::sleep(std::time::Duration::from_secs(1 << attempt)).await;
+                }
+                Err(e) => {
+                    eprintln!("Warning: chain_balance failed for chain {}: {}", chain_id, e);
+                    return U256::ZERO;
+                }
+            }
+        }
+        U256::ZERO
     }
 
     pub fn detailed_fmt(

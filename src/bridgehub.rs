@@ -304,8 +304,7 @@ impl Bridgehub {
                 .chainTypeManager(U256::from(*chain_id))
                 .call()
                 .await
-                .map(|x| x._0)
-                .unwrap();
+                .map(|x| x._0)?;
             ctm_addresses.insert(aa);
         }
 
@@ -313,7 +312,11 @@ impl Bridgehub {
             let stms = ctm_addresses
                 .into_iter()
                 .map(|address| ChainTypeManager::new(sequencer, address));
-            let stms = join_all(stms).await;
+            let stms: Vec<_> = join_all(stms)
+                .await
+                .into_iter()
+                .filter_map(|r| r.ok())
+                .collect();
             Some(stms)
         };
 

@@ -409,7 +409,10 @@ async fn main() -> eyre::Result<()> {
     let mut sorted_chains: Vec<u64> = bridgehub.known_chains.iter().copied().collect();
     sorted_chains.sort_unstable();
 
-    for chain in &sorted_chains {
+    for (i, chain) in sorted_chains.iter().enumerate() {
+        if i > 0 {
+            tokio::time::sleep(std::time::Duration::from_millis(200)).await;
+        }
         let mut diagnostics = ChainDiagnostics::new(*chain);
         let st = bridgehub.get_state_transition(*chain).await;
 
@@ -453,19 +456,31 @@ async fn main() -> eyre::Result<()> {
     println!("=== {} ", format!("Priority TXs").bold().green());
     println!("===");
 
-    for chain in &sorted_chains {
+    for (i, chain) in sorted_chains.iter().enumerate() {
+        if i > 0 {
+            tokio::time::sleep(std::time::Duration::from_millis(500)).await;
+        }
         println!("Chain {}", chain);
 
         if let Some(st) = state_transitions.get(chain) {
-            let mut txs = st.get_priority_transactions(&l1_sequencer).await?;
-            txs.sort_by_key(|x| x.index);
-            for tx in &txs {
-                println!("{}", tx);
-            }
-            println!("");
-
-            if let Some(report) = chain_reports.get_mut(chain) {
-                report.priority_transactions = txs.into_iter().map(|tx| tx.to_report()).collect();
+            match st.get_priority_transactions(&l1_sequencer).await {
+                Ok(mut txs) => {
+                    txs.sort_by_key(|x| x.index);
+                    for tx in &txs {
+                        println!("{}", tx);
+                    }
+                    println!("");
+                    if let Some(report) = chain_reports.get_mut(chain) {
+                        report.priority_transactions =
+                            txs.into_iter().map(|tx| tx.to_report()).collect();
+                    }
+                }
+                Err(err) => {
+                    println!("  Error fetching priority txs: {}", err);
+                    if let Some(report) = chain_reports.get_mut(chain) {
+                        report.priority_tx_error = Some(err.to_string());
+                    }
+                }
             }
         } else if let Some(report) = chain_reports.get_mut(chain) {
             let message = "State transition details not available".to_string();

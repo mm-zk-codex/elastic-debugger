@@ -16,12 +16,13 @@ pub async fn get_all_events(
     let provider = sequencer.get_provider();
     let mut current_block = provider.get_block_number().await?;
     let mut result = vec![];
-    const BLOCKS_PER_CALL: u64 = 500;
+    let mut blocks_per_call: u64 = 500;
 
-    let mut steps = block_limit / BLOCKS_PER_CALL + 1;
+    let mut remaining_blocks = block_limit;
 
-    while current_block > 0 {
-        let prev_limit = current_block.saturating_sub(BLOCKS_PER_CALL);
+    while current_block > 0 && remaining_blocks > 0 {
+        let chunk = blocks_per_call.min(remaining_blocks);
+        let prev_limit = current_block.saturating_sub(chunk);
 
         let filter = Filter::new()
             .from_block(prev_limit + 1)
@@ -29,13 +30,26 @@ pub async fn get_all_events(
             .event_signature(signature)
             .address(address);
 
-        let mut logs = sequencer.get_provider().get_logs(&filter).await?;
-        result.append(&mut logs);
-        current_block = prev_limit;
-
-        steps -= 1;
-        if steps == 0 {
-            break;
+        match sequencer.get_provider().get_logs(&filter).await {
+            Ok(mut logs) => {
+                result.append(&mut logs);
+                remaining_blocks = remaining_blocks.saturating_sub(chunk);
+                current_block = prev_limit;
+            }
+            Err(e) => {
+                let err_str = e.to_string();
+                // If the provider limits block range, reduce our chunk size and retry
+                if err_str.contains("block range") || err_str.contains("-32600") {
+                    blocks_per_call = (blocks_per_call / 10).max(10);
+                    continue;
+                }
+                // Rate limit - wait and retry
+                if err_str.contains("429") {
+                    tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+                    continue;
+                }
+                return Err(e.into());
+            }
         }
     }
 
