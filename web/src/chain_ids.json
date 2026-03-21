@@ -29,6 +29,10 @@
         "grvt testnet": 326,
         "abstract testnet": 11124,
         "wonderchain testnet": 96371,
-        "sophon testnet": 531050104
+        "sophon testnet": 531050104,
+	"dawn": 30715,
+	"ml prividium": 30716,
+	"creator": 2787,
+	"sophon zkos": 5010405
     }
 }
