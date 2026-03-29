@@ -15,11 +15,6 @@ const formatVersion = (ver) => {
   return `${a}.${b}.${c}`;
 };
 
-const maskL1RpcUrl = (sequencer) => {
-  if (!sequencer) return '';
-  return sequencer.sequencer_type === 'L1' ? '[redacted]' : sequencer.rpc_url;
-};
-
 // Etherscan base URLs per ecosystem
 const ETHERSCAN_BASES = {
   mainnet: 'https://etherscan.io/address/',
@@ -326,7 +321,7 @@ export default function App() {
             {/* L1 */}
             <NodeBox
               title="L1"
-              subtitle={maskL1RpcUrl(data?.sequencers?.l1?.sequencer)}
+              subtitle={data?.sequencers?.l1?.sequencer?.rpc_url}
               status={data?.sequencers?.l1?.status}
               details={
                 <div className="grid-2">
