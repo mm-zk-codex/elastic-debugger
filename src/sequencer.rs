@@ -6,10 +6,12 @@ use alloy::{
     providers::{Provider, ProviderBuilder, RootProvider},
     transports::http::{reqwest::Response, Client, Http},
 };
-use serde::{Deserialize, Serialize};
+use serde::{ser::SerializeStruct, Deserialize, Serialize, Serializer};
 use serde_json::json;
 
-#[derive(Clone, Serialize)]
+pub const REDACTED_RPC_URL: &str = "[redacted]";
+
+#[derive(Clone)]
 pub struct Sequencer {
     pub rpc_url: String,
     pub chain_id: u64,
@@ -44,6 +46,13 @@ impl Display for Sequencer {
 }
 
 impl Sequencer {
+    pub fn output_rpc_url(&self) -> &str {
+        match self.sequencer_type {
+            SequencerType::L1 => REDACTED_RPC_URL,
+            SequencerType::L2(_) => &self.rpc_url,
+        }
+    }
+
     pub fn get_provider(&self) -> RootProvider<Http<Client>> {
         let provider: alloy::providers::RootProvider<
             alloy::transports::http::Http<alloy::transports::http::Client>,
@@ -154,4 +163,55 @@ pub async fn detect_sequencer(rpc_url: &str) -> eyre::Result<Sequencer> {
         latest_block,
         sequencer_type,
     })
+}
+
+impl Serialize for Sequencer {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let mut state = serializer.serialize_struct("Sequencer", 4)?;
+        state.serialize_field("rpc_url", self.output_rpc_url())?;
+        state.serialize_field("chain_id", &self.chain_id)?;
+        state.serialize_field("latest_block", &self.latest_block)?;
+        state.serialize_field("sequencer_type", &self.sequencer_type)?;
+        state.end()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use alloy::primitives::address;
+
+    #[test]
+    fn serializes_l1_rpc_url_as_redacted() {
+        let sequencer = Sequencer {
+            rpc_url: "https://sensitive.example".to_string(),
+            chain_id: 1,
+            latest_block: 42,
+            sequencer_type: SequencerType::L1,
+        };
+
+        let value = serde_json::to_value(&sequencer).unwrap();
+
+        assert_eq!(value["rpc_url"], REDACTED_RPC_URL);
+    }
+
+    #[test]
+    fn keeps_l2_rpc_url_in_serialized_output() {
+        let sequencer = Sequencer {
+            rpc_url: "https://l2.example".to_string(),
+            chain_id: 270,
+            latest_block: 42,
+            sequencer_type: SequencerType::L2(L2SequencerInfo {
+                l1_chain_id: 1,
+                bridgehub_address: address!("0000000000000000000000000000000000000001"),
+            }),
+        };
+
+        let value = serde_json::to_value(&sequencer).unwrap();
+
+        assert_eq!(value["rpc_url"], "https://l2.example");
+    }
 }
