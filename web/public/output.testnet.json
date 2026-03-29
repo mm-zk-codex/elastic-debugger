@@ -5,7 +5,7 @@
     "l1": {
       "status": "ok",
       "sequencer": {
-        "rpc_url": "https://1rpc.io/sepolia",
+        "rpc_url": "[redacted]",
         "chain_id": 11155111,
         "latest_block": 9518981,
         "sequencer_type": "L1"

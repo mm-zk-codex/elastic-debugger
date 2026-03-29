@@ -5,7 +5,7 @@
     "l1": {
       "status": "ok",
       "sequencer": {
-        "rpc_url": "https://mainnet.infura.io/v3/1ed3d2e8cfa54cfb8ea0c4782108538b",
+        "rpc_url": "[redacted]",
         "chain_id": 1,
         "latest_block": 24707527,
         "sequencer_type": "L1"
