@@ -1,0 +1,51 @@
+name: Refresh Mainnet State
+
+on:
+  schedule:
+    - cron: "0 3 */2 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-mainnet-state
+  cancel-in-progress: false
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  refresh-mainnet-state:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Refresh snapshot
+        env:
+          MAINNET_L1_URL: ${{ secrets.MAINNET_L1_URL }}
+        run: |
+          if [ -n "$MAINNET_L1_URL" ]; then
+            cargo run -- --no-gateway --network mainnet --l1-url "$MAINNET_L1_URL" --output web/public/output.mainnet.json
+          else
+            cargo run -- --no-gateway --network mainnet --output web/public/output.mainnet.json
+          fi
+
+      - name: Commit refreshed snapshot
+        run: |
+          if git diff --quiet -- web/public/output.mainnet.json; then
+            echo "No mainnet snapshot changes detected."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add web/public/output.mainnet.json
+          git commit -m "chore: refresh mainnet state"
+          git push

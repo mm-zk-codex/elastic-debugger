@@ -1,5 +1,6 @@
 use std::collections::{HashMap, HashSet};
 use std::fmt::Display;
+use std::path::Path;
 
 use crate::l1_asset_router::{AssetHandler, L1AssetRouter};
 use crate::l2_asset_router::L2AssetRouter;
@@ -283,7 +284,11 @@ impl Bridgehub {
         }
     }
 
-    pub async fn new(sequencer: &Sequencer, address: Address) -> eyre::Result<Bridgehub> {
+    pub async fn new(
+        sequencer: &Sequencer,
+        address: Address,
+        cache_dir: &Path,
+    ) -> eyre::Result<Bridgehub> {
         let provider = sequencer.get_provider();
 
         let data = provider.get_code_at(address).await?;
@@ -331,7 +336,7 @@ impl Bridgehub {
 
         let asset_router = match sequencer.sequencer_type {
             crate::sequencer::SequencerType::L1 => {
-                AssetRouter::L1(L1AssetRouter::new(sequencer, shared_bridge).await?)
+                AssetRouter::L1(L1AssetRouter::new(sequencer, shared_bridge, cache_dir).await?)
             }
             crate::sequencer::SequencerType::L2(_) => {
                 AssetRouter::L2(L2AssetRouter::new(sequencer, shared_bridge).await)
