@@ -143,3 +143,14 @@ npm run dev
 The development server will start on [http://localhost:5173](http://localhost:5173) and will
 automatically reload as you make changes. The page periodically refreshes its data so it can handle
 regenerating `output.json` without a manual reload.
+
+## Automated mainnet refresh
+
+The repository includes a scheduled GitHub Actions workflow at
+`.github/workflows/refresh-mainnet-state.yml` that regenerates
+`web/public/output.mainnet.json` every 2 days and pushes a commit only when
+the snapshot changed.
+
+For more reliable RPC access, add a repository secret named
+`MAINNET_L1_URL`. When that secret is present, the workflow uses it for the
+mainnet L1 RPC instead of the built-in public default.
