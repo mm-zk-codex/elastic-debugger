@@ -72,6 +72,9 @@ struct Cli {
     #[arg(long, value_name = "PATH", default_value = "data/output.json")]
     output: PathBuf,
 
+    #[arg(long, value_name = "PATH", default_value = "data/cache")]
+    cache_dir: PathBuf,
+
     #[arg(long)]
     versioned_output: bool,
 
@@ -287,13 +290,18 @@ async fn main() -> eyre::Result<()> {
         Some(url) => {
             let result = detect_sequencer(url).await;
             match &result {
-                Ok(l2_sequencer) => println!("{} L2 (sequencer) - {}", "[OK]".green(), l2_sequencer),
+                Ok(l2_sequencer) => {
+                    println!("{} L2 (sequencer) - {}", "[OK]".green(), l2_sequencer)
+                }
                 Err(err) => println!("{} L2 (sequencer) - {}", "[ERROR]".red(), err),
             };
             Some(result)
         }
         None => {
-            println!("{} L2 (gateway) - skipped (--no-gateway)", "[SKIP]".yellow());
+            println!(
+                "{} L2 (gateway) - skipped (--no-gateway)",
+                "[SKIP]".yellow()
+            );
             None
         }
     };
@@ -332,9 +340,12 @@ async fn main() -> eyre::Result<()> {
         }
     };
 
-    let bridgehub =
-        bridgehub::Bridgehub::new(&l1_sequencer, args.bridgehub.unwrap_or(bridgehub_address))
-            .await?;
+    let bridgehub = bridgehub::Bridgehub::new(
+        &l1_sequencer,
+        args.bridgehub.unwrap_or(bridgehub_address),
+        &args.cache_dir,
+    )
+    .await?;
 
     println!("===");
     println!("=== {} ", format!("Bridgehub - L1").bold().green());
@@ -382,7 +393,8 @@ async fn main() -> eyre::Result<()> {
         Some(Ok(l2_sequencer)) => {
             let gateway_bridgehub_address = address!("0000000000000000000000000000000000010002");
             let gateway_bridgehub =
-                bridgehub::Bridgehub::new(l2_sequencer, gateway_bridgehub_address).await?;
+                bridgehub::Bridgehub::new(l2_sequencer, gateway_bridgehub_address, &args.cache_dir)
+                    .await?;
 
             println!("===");
             println!("=== {} ", format!("Bridgehub - Gateway").bold().green());

@@ -19,6 +19,11 @@ be provided:
 cargo run -- --output data/output.json
 ```
 
+The refresh flow also keeps a local metadata cache under `data/cache` by
+default. This is primarily useful on mainnet, where resolving the tracked
+asset list can take a while on a cold run. Override the cache location with
+`--cache-dir /path/to/cache` when needed.
+
 Passing `--versioned-output` appends a UTC timestamp to the filename
 (`data/output-YYYYMMDDTHHMMSSZ.json`) so repeated runs from cron or other
 schedulers never clobber earlier snapshots.
