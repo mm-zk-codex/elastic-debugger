@@ -51,7 +51,13 @@ pub struct RegisteredAssetSummary {
     pub handler: String,
     pub token_address: Option<String>,
     pub token_name: Option<String>,
+    pub token_decimals: Option<u8>,
     pub handler_address: Option<String>,
+}
+
+pub struct ChainTokenBalance {
+    pub amount: U256,
+    pub decimals: u8,
 }
 
 #[derive(Serialize)]
@@ -90,6 +96,7 @@ impl From<&crate::l1_asset_router::RegisteredAsset> for RegisteredAssetSummary {
                 handler: "bridgehub".to_string(),
                 token_address: None,
                 token_name: None,
+                token_decimals: None,
                 handler_address: None,
             },
             AssetHandler::NativeTokenVault(asset) => RegisteredAssetSummary {
@@ -98,6 +105,7 @@ impl From<&crate::l1_asset_router::RegisteredAsset> for RegisteredAssetSummary {
                 handler: "native_token_vault".to_string(),
                 token_address: Some(format_address(asset.address)),
                 token_name: Some(asset.token_name.clone()),
+                token_decimals: Some(asset.decimals),
                 handler_address: None,
             },
             AssetHandler::Other(address) => RegisteredAssetSummary {
@@ -106,6 +114,7 @@ impl From<&crate::l1_asset_router::RegisteredAsset> for RegisteredAssetSummary {
                 handler: "other".to_string(),
                 token_address: None,
                 token_name: None,
+                token_decimals: None,
                 handler_address: Some(format_address(*address)),
             },
         }
@@ -416,7 +425,7 @@ impl Bridgehub {
     pub async fn get_all_chains_balances(
         &self,
         sequencer: &Sequencer,
-    ) -> eyre::Result<HashMap<u64, HashMap<String, U256>>> {
+    ) -> eyre::Result<HashMap<u64, HashMap<String, ChainTokenBalance>>> {
         let mut result = HashMap::new();
 
         for chain_id in &self.known_chains {
@@ -431,7 +440,7 @@ impl Bridgehub {
         &self,
         sequencer: &Sequencer,
         chain_id: u64,
-    ) -> eyre::Result<HashMap<String, U256>> {
+    ) -> eyre::Result<HashMap<String, ChainTokenBalance>> {
         let mut result = HashMap::new();
         match &self.asset_router {
             AssetRouter::L1(router) => {
@@ -447,7 +456,12 @@ impl Bridgehub {
                         .chain_balance(sequencer, chain_id.try_into().unwrap(), asset_id)
                         .await;
 
-                    result.insert(asset.name(), amount);
+                    let decimals = match &asset.handler {
+                        AssetHandler::NativeTokenVault(token) => token.decimals,
+                        _ => 18,
+                    };
+
+                    result.insert(asset.name(), ChainTokenBalance { amount, decimals });
                 }
             }
 

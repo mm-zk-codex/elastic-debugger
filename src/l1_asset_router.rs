@@ -36,6 +36,7 @@ sol! {
     #[sol(rpc)]
     contract ERC20 {
         function name() external view returns(string);
+        function decimals() external view returns(uint8);
 
     }
 }
@@ -49,6 +50,7 @@ pub struct RegisteredAsset {
 pub struct NativeTokenVaultAsset {
     pub address: Address,
     pub token_name: String,
+    pub decimals: u8,
 }
 
 #[derive(Debug)]
@@ -97,10 +99,18 @@ impl RegisteredAsset {
                         let erc20_contract = ERC20::new(token_address, sequencer.get_provider());
                         erc20_contract.name().call().await?._0
                     };
+                let decimals =
+                    if token_address == address!("0000000000000000000000000000000000000001") {
+                        18
+                    } else {
+                        let erc20_contract = ERC20::new(token_address, sequencer.get_provider());
+                        erc20_contract.decimals().call().await?._0
+                    };
 
                 AssetHandler::NativeTokenVault(NativeTokenVaultAsset {
                     address: token_address,
                     token_name,
+                    decimals,
                 })
             }
 
@@ -305,7 +315,10 @@ impl L1AssetRouter {
                     tokio::time::sleep(std::time::Duration::from_secs(1 << attempt)).await;
                 }
                 Err(e) => {
-                    eprintln!("Warning: chain_balance failed for chain {}: {}", chain_id, e);
+                    eprintln!(
+                        "Warning: chain_balance failed for chain {}: {}",
+                        chain_id, e
+                    );
                     return U256::ZERO;
                 }
             }
