@@ -87,6 +87,34 @@ function KeyValue({ label, value, eco }) {
     </div>
   );
 }
+
+function AddressList({ label, addresses, eco }) {
+  const rows = (addresses || []).filter(Boolean);
+  return (
+    <div className="kv">
+      <div className="kv__k">{label}</div>
+      {rows.length > 0 ? (
+        <div className="address-list">
+          {rows.map((address) => (
+            <a
+              key={`${label}-${address}`}
+              href={`${ETHERSCAN_BASES[eco] || ETHERSCAN_BASES.mainnet}${address}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="address-chip"
+              title={address}
+            >
+              {shorten(address)}
+            </a>
+          ))}
+        </div>
+      ) : (
+        <div className="muted">None</div>
+      )}
+    </div>
+  );
+}
+
 function PriorityTable({ txs, eco }) {
   if (!txs || txs.length === 0) {
     return <div className="muted">No priority transactions</div>;
@@ -398,10 +426,21 @@ export default function App() {
                             <KeyValue label="Verifier" value={st.verifier} eco={eco} />
                             <KeyValue label="Admin" value={st.admin} eco={eco} />
                             <KeyValue label="Settlement layer" value={st.settlement_layer} eco={eco} />
+                            <KeyValue label="Validator timelock post-v29" value={c.validator_timelock_post_v29} eco={eco} />
                             {st.base_token_asset_id && assetIdName.get(st.base_token_asset_id) && (
                               <KeyValue label="Base token" value={assetIdName.get(st.base_token_asset_id)} />
                             )}
                           </div>
+                          <Collapsible title="Posting accounts" count={(c.commit_posters?.length || 0) + (c.proof_posters?.length || 0)}>
+                            {c.posting_accounts_error ? (
+                              <div className="muted">{c.posting_accounts_error}</div>
+                            ) : (
+                              <div className="grid-2">
+                                <AddressList label="Commit posters" addresses={c.commit_posters} eco={eco} />
+                                <AddressList label="Proof posters" addresses={c.proof_posters} eco={eco} />
+                              </div>
+                            )}
+                          </Collapsible>
                           {(() => {
                             const bal = (data?.l1_balances || []).find((b) => Number(b.chain_id) === Number(c.chain_id));
                             const tokens = (bal?.tokens || []).filter((t) => t && t.raw_wei && t.raw_wei !== '0');
@@ -471,10 +510,21 @@ export default function App() {
                             <KeyValue label="Verifier" value={st.verifier} eco={eco} />
                             <KeyValue label="Admin" value={st.admin} eco={eco} />
                             <KeyValue label="Settlement layer" value={st.settlement_layer} eco={eco} />
+                            <KeyValue label="Validator timelock post-v29" value={c.validator_timelock_post_v29} eco={eco} />
                             {st.base_token_asset_id && assetIdName.get(st.base_token_asset_id) && (
                               <KeyValue label="Base token" value={assetIdName.get(st.base_token_asset_id)} />
                             )}
                           </div>
+                          <Collapsible title="Posting accounts" count={(c.commit_posters?.length || 0) + (c.proof_posters?.length || 0)}>
+                            {c.posting_accounts_error ? (
+                              <div className="muted">{c.posting_accounts_error}</div>
+                            ) : (
+                              <div className="grid-2">
+                                <AddressList label="Commit posters" addresses={c.commit_posters} eco={eco} />
+                                <AddressList label="Proof posters" addresses={c.proof_posters} eco={eco} />
+                              </div>
+                            )}
+                          </Collapsible>
                           {(() => {
                             const bal = (data?.l1_balances || []).find((b) => Number(b.chain_id) === Number(c.chain_id));
                             const tokens = (bal?.tokens || []).filter((t) => t && t.raw_wei && t.raw_wei !== '0');
