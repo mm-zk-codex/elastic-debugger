@@ -152,5 +152,5 @@ The repository includes a scheduled GitHub Actions workflow at
 the snapshot changed.
 
 For more reliable RPC access, add a repository secret named
-`MAINNET_L1_URL`. When that secret is present, the workflow uses it for the
+`L1_RPC_URL`. When that secret is present, the workflow uses it for the
 mainnet L1 RPC instead of the built-in public default.

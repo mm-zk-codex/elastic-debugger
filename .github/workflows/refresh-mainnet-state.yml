@@ -29,10 +29,10 @@ jobs:
 
       - name: Refresh snapshot
         env:
-          MAINNET_L1_URL: ${{ secrets.MAINNET_L1_URL }}
+          L1_RPC_URL: ${{ secrets.L1_RPC_URL }}
         run: |
-          if [ -n "$MAINNET_L1_URL" ]; then
-            cargo run -- --no-gateway --network mainnet --l1-url "$MAINNET_L1_URL" --output web/public/output.mainnet.json
+          if [ -n "$L1_RPC_URL" ]; then
+            cargo run -- --no-gateway --network mainnet --l1-url "$L1_RPC_URL" --output web/public/output.mainnet.json
           else
             cargo run -- --no-gateway --network mainnet --output web/public/output.mainnet.json
           fi
