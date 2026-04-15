@@ -150,6 +150,7 @@ pub struct BridgehubChainDetails {
     pub st_address: Address,
     pub base_token_address: Address,
     pub validator_timelock_address: Address,
+    pub validator_timelock_post_v29_address: Address,
     pub stm_asset_id: FixedBytes<32>,
 }
 
@@ -168,8 +169,18 @@ impl Display for BridgehubChainDetails {
             "    Validator timelock: {}",
             self.validator_timelock_address
         )?;
+        writeln!(
+            f,
+            "    Validator timelock post-v29: {}",
+            self.validator_timelock_post_v29_address
+        )?;
         Ok(())
     }
+}
+
+pub struct ValidatorTimelockPostingAccounts {
+    pub committers: Vec<Address>,
+    pub provers: Vec<Address>,
 }
 
 pub enum AssetRouter {
@@ -362,6 +373,7 @@ impl Bridgehub {
             #[sol(rpc)]
             contract IChainTypeManager {
                 address public validatorTimelock;
+                address public validatorTimelockPostV29;
             }
         }
 
@@ -392,6 +404,12 @@ impl Bridgehub {
             .await?
             .validatorTimelock;
 
+        let validator_timelock_post_v29_address = stm_contract
+            .validatorTimelockPostV29()
+            .call()
+            .await?
+            .validatorTimelockPostV29;
+
         let asset_id = contract
             .ctmAssetIdFromChainId(U256::from(chain_id))
             .call()
@@ -403,7 +421,75 @@ impl Bridgehub {
             st_address,
             base_token_address,
             validator_timelock_address,
+            validator_timelock_post_v29_address,
             stm_asset_id: asset_id,
+        })
+    }
+
+    pub async fn get_validator_timelock_posting_accounts(
+        &self,
+        validator_timelock_address: Address,
+        chain_address: Address,
+    ) -> eyre::Result<ValidatorTimelockPostingAccounts> {
+        sol! {
+            #[sol(rpc)]
+            contract IValidatorTimelock {
+                function COMMITTER_ROLE() external view returns (bytes32);
+                function PROVER_ROLE() external view returns (bytes32);
+                function getRoleMemberCount(address _chainAddress, bytes32 _role) external view returns (uint256);
+                function getRoleMember(address _chainAddress, bytes32 _role, uint256 _index) external view returns (address);
+            }
+        }
+
+        if validator_timelock_address == Address::ZERO {
+            return Ok(ValidatorTimelockPostingAccounts {
+                committers: Vec::new(),
+                provers: Vec::new(),
+            });
+        }
+
+        let contract = IValidatorTimelock::new(validator_timelock_address, &self.provider);
+        let committer_role = contract.COMMITTER_ROLE().call().await?._0;
+        let prover_role = contract.PROVER_ROLE().call().await?._0;
+
+        let committer_count = contract
+            .getRoleMemberCount(chain_address, committer_role)
+            .call()
+            .await?
+            ._0
+            .try_into()?;
+        let prover_count = contract
+            .getRoleMemberCount(chain_address, prover_role)
+            .call()
+            .await?
+            ._0
+            .try_into()?;
+
+        let mut committers = Vec::new();
+        for i in 0..committer_count {
+            committers.push(
+                contract
+                    .getRoleMember(chain_address, committer_role, U256::from(i))
+                    .call()
+                    .await?
+                    ._0,
+            );
+        }
+
+        let mut provers = Vec::new();
+        for i in 0..prover_count {
+            provers.push(
+                contract
+                    .getRoleMember(chain_address, prover_role, U256::from(i))
+                    .call()
+                    .await?
+                    ._0,
+            );
+        }
+
+        Ok(ValidatorTimelockPostingAccounts {
+            committers,
+            provers,
         })
     }
 

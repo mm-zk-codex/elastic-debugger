@@ -166,6 +166,10 @@ struct ChainDiagnostics {
     chain_id: u64,
     state_transition: Option<StateTransitionReport>,
     state_transition_error: Option<String>,
+    validator_timelock_post_v29: Option<String>,
+    posting_accounts_error: Option<String>,
+    commit_posters: Vec<String>,
+    proof_posters: Vec<String>,
     priority_tree_verified: Option<bool>,
     priority_tree_note: Option<String>,
     priority_transactions: Vec<PriorityTransactionReport>,
@@ -178,6 +182,10 @@ impl ChainDiagnostics {
             chain_id,
             state_transition: None,
             state_transition_error: None,
+            validator_timelock_post_v29: None,
+            posting_accounts_error: None,
+            commit_posters: Vec::new(),
+            proof_posters: Vec::new(),
             priority_tree_verified: None,
             priority_tree_note: None,
             priority_transactions: Vec::new(),
@@ -426,6 +434,45 @@ async fn main() -> eyre::Result<()> {
             tokio::time::sleep(std::time::Duration::from_millis(200)).await;
         }
         let mut diagnostics = ChainDiagnostics::new(*chain);
+
+        match bridgehub.get_chain_details(*chain).await {
+            Ok(details) => {
+                diagnostics.validator_timelock_post_v29 = Some(format!(
+                    "{:#x}",
+                    details.validator_timelock_post_v29_address
+                ));
+                match bridgehub
+                    .get_validator_timelock_posting_accounts(
+                        details.validator_timelock_post_v29_address,
+                        details.st_address,
+                    )
+                    .await
+                {
+                    Ok(accounts) => {
+                        diagnostics.commit_posters = accounts
+                            .committers
+                            .into_iter()
+                            .map(|address| format!("{:#x}", address))
+                            .collect();
+                        diagnostics.proof_posters = accounts
+                            .provers
+                            .into_iter()
+                            .map(|address| format!("{:#x}", address))
+                            .collect();
+                    }
+                    Err(err) => {
+                        diagnostics.posting_accounts_error = Some(err.to_string());
+                    }
+                }
+            }
+            Err(err) => {
+                diagnostics.posting_accounts_error = Some(format!(
+                    "Failed to load validator timelock details: {}",
+                    err
+                ));
+            }
+        }
+
         let st = bridgehub.get_state_transition(*chain).await;
 
         match st {
